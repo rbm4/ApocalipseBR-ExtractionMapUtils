@@ -4,6 +4,10 @@ Status: implemented foundation; dedicated-server relocation and visual rendering
 still require in-game validation. This document records the existing baseline,
 not a new gameplay change.
 
+The separate [perimeter and RCON release](lobby-perimeter.md) feature documents
+the 0.2.0 world assets; its coordinates do not automatically configure this
+login relocation hook.
+
 ## Purpose and ownership
 
 `ApocalipseBR-ExtractionMapUtils/` owns lobby and event-control logic.

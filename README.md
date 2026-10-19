@@ -13,7 +13,7 @@ for separate feature, hotfix, and report documentation.
 
 ## Install
 
-Copy the `ApocalipseBR-ExtractionMapUtils` directory (containing `42` and `common`) into your `Zomboid/mods` directory, or package that directory under a Workshop item's `Contents/mods`. Enable the mod on the server and clients. No map dependency is required yet.
+Copy the `ApocalipseBR-ExtractionMapUtils` directory (containing `42` and `common`) into your `Zomboid/mods` directory, or package that directory under a Workshop item's `Contents/mods`. Enable the mod on the server and clients. Version 0.2.0 requires Build 42.13.0 or newer and the separately installed RCON extension, mod ID `ApocalipseBrRCONextension`. No map dependency is required yet.
 
 The checked-in B42 directory is ready to install directly. The template's npm scripts require Project Zomboid Studio; verify that your Studio version supports B42's `42`/`common` layout before using generated output.
 
@@ -29,7 +29,7 @@ Open **ApocalipseBR - Extraction Map Utils** in sandbox settings.
 | Lobby Y | -1 | World tile Y. Set to a nonnegative coordinate to configure. |
 | Lobby Z | 0 | Floor, from -32 to 31; 0 is ground level. |
 
-Both X and Y must be configured before relocation runs. Choose a valid floor tile on the loaded map; players arrive at its center. The mod does not create the lobby room or validate distant tile geometry before loading it.
+Both X and Y must be configured before relocation runs. Choose a valid floor tile on the loaded map; players arrive at its center. Login relocation does not validate distant tile geometry before loading it. The perimeter below is configured separately and does not set the login destination.
 
 Example server `SandboxVars` block (replace X and Y with the eventual lobby):
 
@@ -55,7 +55,34 @@ Restart/reconnect after changing settings. Relocation runs once at game entry, n
 - The native server map store loads a user lazily on the first PlayerVisited request and ignores earlier writes. A server write acknowledgement indicates a successful API call, not proof that the lazy store was already loaded. The server therefore retries up to eight passes, 15 seconds apart, and clears offline sessions. Requests are throttled to one per player instance per five seconds; retry windows can restart at most once per two minutes. Respawn/reconnect instances receive a new retry budget.
 - The server stores revealed knowledge once its per-player map store is loaded. In single player, native exploration saves can retain revealed knowledge. Disabling the option stops writes and restores ordinary map/light availability checks; it does not erase learned map knowledge. No perpetual five-second client render/flag pump remains.
 - Reveal displays available worldmap XML/image data, including custom maps that provide it. It does not generate missing map data, reveal live zombies/items, or bundle Chernarus.
-- No event countdown, lobby confinement, protection, or event map integration is included in this first stage.
+- The 0.2.0 perimeter adds protected walls and command-controlled exits as described below. Event countdowns, zombie clearance, and a full event lifecycle remain future work.
+
+## Lobby perimeter (0.2.0)
+
+At dedicated-server startup, the mod queues a metal perimeter enclosing
+X=14260..14321, Y=11812..11892, Z=0, including six randomized, saved single-door
+positions. Placement waits for loaded squares and runs across ticks (at most
+four edges per tick with a two-millisecond elapsed-time budget). Walls and doors
+use maximum positive Java-int health, with thumping/dismantling/barricading off.
+Keep sledgehammers disabled in the server settings.
+
+Configure bounds, door count and work budgets in
+`ApocalipseBR-ExtractionMapUtils/common/media/lua/server/ApocExtractionMapUtils_LobbyConfig.lua`.
+Closed doors are protected barriers until released. Read the one-use token from
+the server's `Zomboid/Lua/ApocExtractionLobby-<server-name>-open-token.txt`, then
+send through RCON:
+
+```text
+servermsg ##APOCBR_RCON##ExtractionLobby##OpenDoors##lobby-open-001##<TOKEN>
+```
+
+At least one connected client running the RCON extension is required by its
+relay transport. The token is consumed on acceptance. Doors open through the
+tick queue or on later chunk loading, and remain released across normal saves
+and restarts. See [configuration, persistence, command security and validation
+limits](.docs/features/lobby-perimeter.md) before using the perimeter for an event.
+Run `npm exec --yes --package=fengari-node-cli -- fengari tests/lobby-perimeter.lua`
+for the standalone lobby regression harness.
 
 ## In-game verification
 

@@ -11,6 +11,8 @@ Durable gameplay specifications and current behavior belong in `features/`.
 
 - [Lobby placement and map visibility](features/lobby-and-map-visibility.md):
   existing foundation, configuration, and validation limits.
+- [Lobby perimeter and RCON release](features/lobby-perimeter.md): bounded server
+  construction, protected walls/single doors, and the command to open exits.
 
 Future event activation and database integration should receive their own feature
 documents when designed. Mark proposals as planned until implemented.
