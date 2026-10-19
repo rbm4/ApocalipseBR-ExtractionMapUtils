@@ -1,3 +1,5 @@
-[h1]project-name[/h1]
+[h1]ApocalipseBR - Extraction Map Utils[/h1]
 
-Mod under development...
+Build 42 event lobby utilities. Reveal the world map and minimap regardless of base map sandbox settings, and relocate new and returning characters to a configurable lobby on every login.
+
+Configure Lobby X, Lobby Y and Lobby Z under ApocalipseBR - Extraction Map Utils in sandbox settings. X and Y default to -1: relocation waits until a lobby is configured.

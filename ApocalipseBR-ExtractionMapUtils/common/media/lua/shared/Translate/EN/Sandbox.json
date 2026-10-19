@@ -1,0 +1,13 @@
+{
+    "Sandbox_ApocExtractionMapUtils": "ApocalipseBR - Extraction Map Utils",
+    "Sandbox_ApocExtractionMapUtils_ForceMapReveal": "Force map and minimap reveal",
+    "Sandbox_ApocExtractionMapUtils_ForceMapReveal_tooltip": "Reveal the world map and minimap regardless of base map settings. Multiplayer reveal is also written on the server. Minimap zoom and visibility follow normal game controls. Disabling this option does not erase already revealed areas.",
+    "Sandbox_ApocExtractionMapUtils_RelocateOnLogin": "Relocate to lobby on every login",
+    "Sandbox_ApocExtractionMapUtils_RelocateOnLogin_tooltip": "Place new and returning characters at the configured lobby when entering the game. Configure both X and Y first. Players can leave the lobby normally after arrival.",
+    "Sandbox_ApocExtractionMapUtils_LobbyX": "Lobby X",
+    "Sandbox_ApocExtractionMapUtils_LobbyX_tooltip": "World tile X coordinate. -1 leaves the lobby unconfigured and skips login relocation.",
+    "Sandbox_ApocExtractionMapUtils_LobbyY": "Lobby Y",
+    "Sandbox_ApocExtractionMapUtils_LobbyY_tooltip": "World tile Y coordinate. -1 leaves the lobby unconfigured and skips login relocation.",
+    "Sandbox_ApocExtractionMapUtils_LobbyZ": "Lobby Z",
+    "Sandbox_ApocExtractionMapUtils_LobbyZ_tooltip": "World floor coordinate. 0 is ground level. Choose a tile with a valid floor at this height."
+}

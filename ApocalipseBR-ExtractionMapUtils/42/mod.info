@@ -1,0 +1,8 @@
+name=ApocalipseBR - Extraction Map Utils
+id=ApocalipseBR-ExtractionMapUtils
+author=Hypothetic
+description=Event lobby utilities: relocate players on login and reveal the world map and minimap.
+poster=poster.png
+icon=icon.png
+versionMin=42.0
+modversion=0.1.4

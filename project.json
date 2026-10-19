@@ -1,18 +1,19 @@
 {
     "$schema": "https://raw.githubusercontent.com/Konijima/project-zomboid-studio/master/pzstudio.schema.json",
-    "title": "ApocalipseBR-ExtractionMapUtils",
-    "authors": [],
+    "title": "ApocalipseBR - Extraction Map Utils",
+    "authors": ["Hypothetic"],
     "workshop": {
         "visibility": "public",
+        "id":3822608465,
         "tags": [
-            "Build 41"
+            "Build 42", "Multiplayer"
         ],
         "excludes": []
     },
     "mods": {
         "ApocalipseBR-ExtractionMapUtils": {
-            "name": "ApocalipseBR-ExtractionMapUtils",
-            "description": ""
+            "name": "ApocalipseBR - Extraction Map Utils",
+            "description": "Event lobby login relocation and forced world map/minimap reveal for Build 42."
         }
     }
 }

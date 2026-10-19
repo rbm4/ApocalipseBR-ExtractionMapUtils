@@ -1,1 +1,47 @@
 VERSION = 1,
+
+option ApocExtractionMapUtils.ForceMapReveal
+{
+    type = boolean,
+    default = true,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_ForceMapReveal,
+}
+
+option ApocExtractionMapUtils.RelocateOnLogin
+{
+    type = boolean,
+    default = true,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_RelocateOnLogin,
+}
+
+option ApocExtractionMapUtils.LobbyX
+{
+    type = integer,
+    min = -1,
+    max = 1000000,
+    default = -1,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyX,
+}
+
+option ApocExtractionMapUtils.LobbyY
+{
+    type = integer,
+    min = -1,
+    max = 1000000,
+    default = -1,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyY,
+}
+
+option ApocExtractionMapUtils.LobbyZ
+{
+    type = integer,
+    min = -32,
+    max = 31,
+    default = 0,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyZ,
+}
