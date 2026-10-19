@@ -1,0 +1,304 @@
+module Aquatsar
+{
+
+    imports
+    {
+        Base
+    }
+    
+    item DivingMask
+    {
+        ItemType = base:clothing,
+        ClothingItem = divingMask,
+        BodyLocation = FullHat,
+        Icon = DivingMask,
+        CanHaveHoles = false,
+        ChanceToFall = 10,
+        BloodLocation = Head,
+        MechanicsItem = TRUE,
+        Tags = Aquatsar:UnderWaterSight,
+    }
+
+    item TaintedLiterature
+    {
+        Weight    =    0.5,
+        ItemType = base:normal,
+        Icon    =    TaintedLiterature,
+    }
+
+    item Compass
+    {
+        Weight    =    0.5,
+        ItemType = base:normal,
+        Icon    =    Compass,
+        WorldStaticModel = Compass_Ground,
+    }
+
+    item DeflatedTireTube
+    {
+        Weight    =    0.1,
+        ItemType = base:normal,
+        Icon    =    DeflatedTireTube,
+        WorldStaticModel = DeflatedTireTube_Ground,
+    }
+    
+    item Lifebuoy
+    {
+        Weight    =    1,
+        ItemType = base:clothing,
+        ClothingItem = lifebuoy,
+        BodyLocation = Jacket,
+        Icon = Lifebuoy,
+        WorldStaticModel = Lifebuoy_Ground,
+        Tags = Aquatsar:Floater,
+    }
+
+    item TireTube
+    {
+        Weight    =    1,
+        ItemType = base:clothing,
+        ClothingItem = tireTube,
+        BodyLocation = Jacket,
+        Icon = TireTube,
+        WorldStaticModel = TireTube_Ground,
+        Tags = Aquatsar:Floater,
+    }
+    
+    /************************ Equipment ************************/
+    
+    item BoatPropeller
+    {
+        Weight    =    20.0,
+        ItemType = base:normal,
+        Icon    =    Propeller,
+        VehicleType =   1,
+        ChanceToSpawnDamaged = 0,
+        ConditionMax = 100,
+        MechanicsItem = TRUE,
+        WorldStaticModel = Propeller_Ground,
+    }
+    
+    item ManualStarter
+    {
+        Weight    =    1.0,
+        ItemType = base:normal,
+        Icon    =    ManualStarter,
+        VehicleType =   1,
+        ChanceToSpawnDamaged = 50,
+        ConditionMax = 100,
+        MechanicsItem = TRUE,
+        WorldStaticModel = ManualStarter_Ground,
+    }
+
+    item Sails
+    {
+        Weight    =    20.0,
+        ItemType = base:normal,
+        Icon    =    Sail,
+        VehicleType =   1,
+        ChanceToSpawnDamaged = 10,
+        ConditionMax = 100,
+        MechanicsItem = TRUE,
+        WorldStaticModel = Sail_Ground,
+    }
+    
+    /************************ Seats ************************/
+    
+    
+    item NotRemovableBoatSeat1
+    {
+         Weight    =    15.0,
+         ItemType = base:normal,
+         Icon    =    CarSeat,
+         VehicleType =   1,
+         MaxCapacity = 20,
+         ChanceToSpawnDamaged = 0,
+         ConditionMax = 100,
+         MechanicsItem = TRUE,
+    }
+    
+    item NotRemovableBoatSeat2
+    {
+         Weight    =    15.0,
+         ItemType = base:normal,
+         Icon    =    CarSeat,
+         VehicleType =   2,
+         MaxCapacity = 20,
+         ChanceToSpawnDamaged = 0,
+         ConditionMax = 100,
+         MechanicsItem = TRUE,
+    }
+    
+    item NotRemovableBoatSeat3
+    {
+         Weight    =    15.0,
+         ItemType = base:normal,
+         Icon    =    CarSeat,
+         VehicleType =   3,
+         MaxCapacity = 20,
+         ChanceToSpawnDamaged = 0,
+         ConditionMax = 100,
+         MechanicsItem = TRUE,
+    }
+    
+    
+    /************************ AirBags ************************/
+    
+    item AirBagNormal1
+    {
+        Weight    =    15.0,
+        ItemType = base:normal,
+        Icon    =    CarTire,
+        VehicleType =   1,
+        MaxCapacity = 35,
+        ChanceToSpawnDamaged = 0,
+        ConditionMax = 100,
+        ConditionLowerStandard = 0,
+        ConditionLowerOffroad = 0,
+        WheelFriction = 10,
+        MechanicsItem = TRUE,
+    }
+    item AirBagNormal2
+    {
+        Weight    =    15.0,
+        ItemType = base:normal,
+        Icon    =    CarTire,
+        VehicleType =   2,
+        MaxCapacity = 35,
+        ChanceToSpawnDamaged = 0,
+        ConditionMax = 100,
+        ConditionLowerStandard = 0,
+        ConditionLowerOffroad = 0,
+        WheelFriction = 10,
+        MechanicsItem = TRUE,
+    }
+    item AirBagNormal3
+    {
+        Weight    =    15.0,
+        ItemType = base:normal,
+        Icon    =    CarTire,
+        VehicleType =   3,
+        MaxCapacity = 35,
+        ChanceToSpawnDamaged = 0,
+        ConditionMax = 100,
+        ConditionLowerStandard = 0,
+        ConditionLowerOffroad = 0,
+        WheelFriction = 10,
+        MechanicsItem = TRUE,
+    }
+    
+    
+    /************************ Magazines ************************/
+    
+    item BoatMag
+    {
+        Weight    =    0.1,
+        ItemType = base:literature,
+        Icon    =    MagazineBoatMechanics,
+        LearnedRecipes  =   Powerboats Mechanics; Sailboats Mechanics; Performance Boat Mechanics,
+        ReplaceOnUse    =   BoatMag,
+        Tooltip = Tooltip_item_BoatMag,
+        StaticModel = BoatMag_Reading,
+        WorldStaticModel = BoatMag_Ground,
+    }
+    
+    item SwimMag
+    {
+        Weight    =    0.1,
+        ItemType = base:literature,
+        Icon    =    SwimMagIcon,
+        LearnedRecipes  =   Swimming,
+        ReplaceOnUse    =   SwimMag,
+        Tooltip = Tooltip_item_SwimMag,
+        StaticModel = SwimMag_Reading,
+        WorldStaticModel = SwimMag_Ground,
+    }
+    
+    /************************ Boat Parts Items ************************/
+    
+    item partBoatSailingYacht
+    {
+        Weight    =    0.1,
+        ItemType = Base:normal,
+        Icon    =    CarKey,
+        ConditionMax = 100,
+        MechanicsItem = TRUE,
+    }
+    item partBoatMotor
+    {
+        Weight    =    0.1,
+        ItemType = Base:normal,
+        Icon    =    CarKey,
+        ConditionMax = 100,
+        MechanicsItem = TRUE,
+    }
+
+    /************************ Boat Name Items ************************/
+    
+    item SailingYachtName_Sakharov_Item
+    {
+        Weight    =    0.1,
+        ItemType = Base:normal,
+        Icon    =    CarKey,
+        ConditionMax = 100,
+        MechanicsItem = TRUE,
+    }
+    
+    item SailingYachtName_La_Brigandine_Item
+    {
+        Weight    =    0.1,
+        ItemType = Base:normal,
+        Icon    =    CarKey,
+        ConditionMax = 100,
+        MechanicsItem = TRUE,
+    }
+    
+    item SailingYachtName_Default_Item
+    {
+        Weight    =    0.1,
+        ItemType = Base:normal,
+        Icon    =    CarKey,
+        ConditionMax = 100,
+        MechanicsItem = TRUE,
+    }
+
+    
+    item BoatMotorName_NP_Item
+    {
+        Weight    =    0.1,
+        ItemType = Base:normal,
+        Icon    =    CarKey,
+        ConditionMax = 100,
+        MechanicsItem = TRUE,
+    }
+    
+    item BoatMotorName_Orianna_Item
+    {
+        Weight    =    0.1,
+        ItemType = Base:normal,
+        Icon    =    CarKey,
+        ConditionMax = 100,
+        MechanicsItem = TRUE,
+    }
+    
+    item BoatMotorName_Default_Item
+    {
+        Weight    =    0.1,
+        ItemType = Base:normal,
+        Icon    =    CarKey,
+        ConditionMax = 100,
+        MechanicsItem = TRUE,
+    }
+    
+    
+    /****** BoatAnchor ******/
+    item BoatAnchor
+    {
+        Weight    =    0.1,
+        ItemType = Base:normal,
+        Icon    =    CarKey,
+        ConditionMax = 100,
+        MechanicsItem = TRUE,
+    }
+    
+}

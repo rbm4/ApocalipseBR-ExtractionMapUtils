@@ -1,0 +1,25 @@
+module Base
+{
+    fluid SeaWater
+    {
+        ColorReference = LightSkyBlue,
+        DisplayName = Fluid_Name_SeaWater,
+        Categories
+        {
+            Beverage,
+            Hazardous,
+            Water,
+        }
+        Properties
+        {
+            ThirstChange = 30.0,
+	    UnhappyChange = 20,
+        }
+        Poison
+        {
+            maxEffect = Medium,
+            minAmount = 0.1,
+            diluteRatio = 0.15,
+        }
+    }
+}

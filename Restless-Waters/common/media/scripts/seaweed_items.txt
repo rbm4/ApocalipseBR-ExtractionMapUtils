@@ -1,0 +1,175 @@
+module Base
+{
+
+item Dulse
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Seaweed/Seaweed_Icons/Dulse_ico,
+        EvolvedRecipe = Soup:10;Stew:10;Rice:5;Pasta:5;Stir fry:5;Salad:5,
+        FoodType = Seaweed,
+        DaysFresh = 1,
+        DaysTotallyRotten = 30,
+        HungerChange = -5,
+        ThirstChange = -4,
+        UnhappyChange = -5,
+        Calories = 15,
+        Carbohydrates = 10,
+        Lipids = 1,
+        Proteins = 4,
+        CustomEatSound = EatingFruit,
+        WorldStaticModel = Dulse,
+    }
+
+item IrishMoss
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Seaweed/Seaweed_Icons/IrishMoss_ico,
+        EvolvedRecipe = Cake:5;PieSweet:10;Soup:5;Stew:5;Salad:5,
+        FoodType = Seaweed,
+        Poison = true,
+        PoisonDetectionLevel = 1,
+        PoisonPower = 10,
+        DaysFresh = 1,
+        DaysTotallyRotten = 45,
+        HungerChange = -1,
+        ThirstChange = -1,
+        Calories = 2,
+        Carbohydrates = 3,
+        Lipids = 0,
+        Proteins = 0.5,
+        CustomEatSound = EatingFruit,
+        WorldStaticModel = IrishMoss,
+    }
+
+item Rockweed
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.2,
+        Icon = Seaweed/Seaweed_Icons/Rockweed_ico,
+        EvolvedRecipe = Soup:5;Stew:5;PieSweet:2;Salad:5,
+        FoodType = Seaweed,
+        DaysFresh = 1,
+        DaysTotallyRotten = 25,
+        HungerChange = -2,
+        ThirstChange = -5,
+        UnhappyChange = 5,
+        Calories = 8,
+        Carbohydrates = 5,
+        Lipids = 0.5,
+        Proteins = 1,
+        CustomEatSound = EatingFruit,
+        WorldStaticModel = Rockweed,
+    }
+
+item SugarKelp
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.2,
+        Icon = Seaweed/Seaweed_Icons/SugarKelp_ico,
+        EvolvedRecipe = Soup:8;Stew:8;Stir fry:5;Salad:10;Sandwich:5,
+        FoodType = Seaweed,
+        DaysFresh = 1,
+        DaysTotallyRotten = 20,
+        HungerChange = -3,
+        ThirstChange = -4,
+        Calories = 10,
+        Carbohydrates = 8,
+        Lipids = 0.2,
+        Proteins = 1.5,
+        CustomEatSound = EatingFruit,
+        WorldStaticModel = SugarKelp,
+    }
+
+item Bladderwrack
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Seaweed/Seaweed_Icons/Bladderwrack_ico,
+        EvolvedRecipe = Soup:5;Stew:5;Salad:5;Rice:5,
+        FoodType = Seaweed,
+        Poison = true,
+        PoisonDetectionLevel = 1,
+        PoisonPower = 5,
+        DaysFresh = 1,
+        DaysTotallyRotten = 25,
+        HungerChange = -2,
+        ThirstChange = -4,
+        UnhappyChange = 10,
+        Calories = 5,
+        Carbohydrates = 4,
+        Lipids = 0.5,
+        Proteins = 1,
+        CustomEatSound = EatingFruit,
+        WorldStaticModel = Bladderwrack,
+    }
+
+item SeaLettuce
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Seaweed/Seaweed_Icons/SeaLettuce_ico,
+        EvolvedRecipe = Soup:10;Stew:10;Salad:15;Sandwich:5;Stir fry:5,
+        FoodType = Seaweed,
+        DaysFresh = 1,
+        DaysTotallyRotten = 7,
+        HungerChange = -2,
+        ThirstChange = -3,
+        Calories = 6,
+        Carbohydrates = 4,
+        Lipids = 0.2,
+        Proteins = 1.5,
+        CustomEatSound = EatingFruit,
+        WorldStaticModel = SeaLettuce,
+    }
+
+item Kombu
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Seaweed/Seaweed_Icons/Kombu_ico,
+        EvolvedRecipe = Soup:10;Stew:10;Rice:10;Pasta:10;Stir fry:5,
+        FoodType = Seaweed,
+        DaysFresh = 1,
+        DaysTotallyRotten = 35,
+        HungerChange = -3,
+        ThirstChange = -5,
+        UnhappyChange = 5,
+        Calories = 10,
+        Carbohydrates = 6,
+        Lipids = 0.2,
+        Proteins = 2,
+        CustomEatSound = EatingFruit,
+        WorldStaticModel = Kombu,
+    }
+
+item SeaGrapes
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Seaweed/Seaweed_Icons/SeaGrapes_ico,
+        EvolvedRecipe = Soup:5;Stew:5;Salad:10;Sandwich:5,
+        FoodType = Seaweed,
+        DaysFresh = 1,
+        DaysTotallyRotten = 10,
+        HungerChange = -1,
+        ThirstChange = -2,
+        UnhappyChange = 10,
+        Calories = 3,
+        Carbohydrates = 2,
+        Lipids = 0.1,
+        Proteins = 0.5,
+        CustomEatSound = EatingFruit,
+        WorldStaticModel = SeaGrapes,
+    }
+
+}

@@ -1,0 +1,1235 @@
+module Base
+{
+    sound AmericanCrowCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_crow_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound AmericanCrowCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_crow_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound AmericanCrowCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_crow_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound AmericanCrowCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_crow_call4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound AmericanGoldfinchCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_goldfinch_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound AmericanGoldfinchCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_goldfinch_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound AmericanGoldfinchCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_goldfinch_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound AmericanGoldfinchCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_goldfinch_call4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound AmericanGoldfinchCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_goldfinch_call5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound AmericanGoldfinchCall6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_goldfinch_call6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound AmericanGoldfinchCall7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_goldfinch_call7.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound AmericanGoldfinchCall8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_goldfinch_call8.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound AmericanGoldfinchCall9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_goldfinch_call9.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound AmericanGoldfinchCall10
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_goldfinch_call10.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound AmericanGoldfinchCall11
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_goldfinch_call11.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound AmericanGoldfinchCall12
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_goldfinch_call12.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound AmericanGoldfinchSong1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_goldfinch_song1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+      sound AmericanGoldfinchSong2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_goldfinch_song2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+     sound AmericanGoldfinchSong3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_goldfinch_song3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+     sound AmericanGoldfinchSong4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_goldfinch_song4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+     sound AmericanGoldfinchSong5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_goldfinch_song5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound AmericanRobinCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_robin_call1.ogg, reverbFactor = 1, volume = 0.1, distanceMax = 37, }
+    }
+    sound AmericanRobinCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_robin_call2.ogg, reverbFactor = 1, volume = 0.1, distanceMax = 37, }
+    }
+    sound AmericanRobinCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_robin_call3.ogg, reverbFactor = 1, volume = 0.1, distanceMax = 37, }
+    }
+    sound AmericanRobinCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_robin_call4.ogg, reverbFactor = 1, volume = 0.1, distanceMax = 37, }
+    }
+    sound AmericanRobinCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_robin_call5.ogg, reverbFactor = 1, volume = 0.1, distanceMax = 37, }
+    }
+    sound AmericanRobinCall6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_robin_call6.ogg, reverbFactor = 1, volume = 0.1, distanceMax = 37, }
+    }
+    sound AmericanRobinSong1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_robin_song1.ogg, reverbFactor = 1, volume = 0.1, distanceMax = 37, }
+    }
+    sound AmericanRobinSong2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_robin_song2.ogg, reverbFactor = 1, volume = 0.1, distanceMax = 37, }
+    }
+    sound AmericanRobinSong3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_robin_song3.ogg, reverbFactor = 1, volume = 0.1, distanceMax = 37, }
+    }
+    sound AmericanRobinSong4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_robin_song4.ogg, reverbFactor = 1, volume = 0.1, distanceMax = 37, }
+    }
+    sound AmericanRobinSong5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_robin_song5.ogg, reverbFactor = 1, volume = 0.1, distanceMax = 37, }
+    }
+    sound AmericanRobinSong6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_robin_song6.ogg, reverbFactor = 1, volume = 0.1, distanceMax = 37, }
+    }
+    sound AmericanRobinSong7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_robin_song7.ogg, reverbFactor = 1, volume = 0.1, distanceMax = 37, }
+    }
+    sound AmericanRobinSong8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_robin_song8.ogg, reverbFactor = 1, volume = 0.1, distanceMax = 37, }
+    }
+    sound AmericanRobinSong9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/american_robin_song9.ogg, reverbFactor = 1, volume = 0.1, distanceMax = 37, }
+    }
+
+    sound BarredOwlCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/barred_owl_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BarredOwlCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/barred_owl_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BarredOwlCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/barred_owl_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BarredOwlCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/barred_owl_call4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BarredOwlCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/barred_owl_call5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BarredOwlCall6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/barred_owl_call6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BarredOwlCall7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/barred_owl_call7.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BarredOwlCall8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/barred_owl_call8.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BarredOwlCall9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/barred_owl_call9.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+
+    sound BeltedKingfisherCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/belted_kingfisher_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BeltedKingfisherCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/belted_kingfisher_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BeltedKingfisherCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/belted_kingfisher_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BeltedKingfisherCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/belted_kingfisher_call4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BeltedKingfisherCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/belted_kingfisher_call5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+
+    sound BlackCappedChickadeeCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/black_capped_chickadee_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlackCappedChickadeeCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/black_capped_chickadee_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlackCappedChickadeeCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/black_capped_chickadee_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlackCappedChickadeeCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/black_capped_chickadee_call4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlackCappedChickadeeCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/black_capped_chickadee_call5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlackCappedChickadeeCall6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/black_capped_chickadee_call6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlackCappedChickadeeSong1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/black_capped_chickadee_song1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlackCappedChickadeeSong2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/black_capped_chickadee_song2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlackCappedChickadeeSong3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/black_capped_chickadee_song3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlackCappedChickadeeSong4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/black_capped_chickadee_song4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlackCappedChickadeeSong5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/black_capped_chickadee_song5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlackCappedChickadeeSong6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/black_capped_chickadee_song6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlackCappedChickadeeSong7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/black_capped_chickadee_song7.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlackCappedChickadeeSong8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/black_capped_chickadee_song8.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+
+    sound BlueJayCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/blue_jay_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlueJayCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/blue_jay_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlueJayCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/blue_jay_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlueJayCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/blue_jay_call4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlueJayCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/blue_jay_call5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BlueJayCall6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/blue_jay_call6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+
+    sound BohemianWaxwingCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/bohemian_waxwing_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BohemianWaxwingCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/bohemian_waxwing_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BohemianWaxwingCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/bohemian_waxwing_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BohemianWaxwingCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/bohemian_waxwing_call4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BohemianWaxwingCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/bohemian_waxwing_call5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BohemianWaxwingCall6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/bohemian_waxwing_call6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BohemianWaxwingCall7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/bohemian_waxwing_call7.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BohemianWaxwingCall8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/bohemian_waxwing_call8.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BohemianWaxwingCall9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/bohemian_waxwing_call9.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound BohemianWaxwingCall10
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/bohemian_waxwing_call10.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+
+    sound CanadaGooseCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/canada_goose_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CanadaGooseCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/canada_goose_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CanadaGooseCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/canada_goose_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CanadaGooseCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/canada_goose_call4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CanadaGooseCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/canada_goose_call5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CanadaGooseCall6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/canada_goose_call6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CanadaGooseCall7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/canada_goose_call7.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CanadaGooseCall8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/canada_goose_call8.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+
+    sound CommonGrackleCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_grackle_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonGrackleCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_grackle_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonGrackleCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_grackle_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonGrackleCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_grackle_call4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonGrackleCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_grackle_call5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonGrackleSong1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_grackle_song1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonGrackleSong2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_grackle_song2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonGrackleSong3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_grackle_song3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonGrackleSong4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_grackle_song4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonGrackleSong5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_grackle_song5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonGrackleSong6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_grackle_song6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonGrackleSong7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_grackle_song7.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+
+    sound CommonLoonCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_loon_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonLoonCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_loon_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonLoonCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_loon_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonLoonCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_loon_call4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonLoonCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_loon_call5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonLoonCall6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_loon_call6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonLoonCall7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_loon_call7.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonLoonCall8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_loon_call8.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonLoonCall9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_loon_call9.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonLoonCall10
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_loon_call10.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonLoonSong1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_loon_song1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonLoonSong2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_loon_song2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound CommonLoonSong3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/common_loon_song3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+
+    sound DarkEyedJuncoCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/dark_eyed_junco_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound DarkEyedJuncoCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/dark_eyed_junco_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound DarkEyedJuncoCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/dark_eyed_junco_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound DarkEyedJuncoCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/dark_eyed_junco_call4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound DarkEyedJuncoCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/dark_eyed_junco_call5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound DarkEyedJuncoCall6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/dark_eyed_junco_call6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound DarkEyedJuncoCall7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/dark_eyed_junco_call7.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound DarkEyedJuncoCall8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/dark_eyed_junco_call8.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound DarkEyedJuncoCall9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/dark_eyed_junco_call9.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound DarkEyedJuncoSong1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/dark_eyed_junco_song1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound DarkEyedJuncoSong2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/dark_eyed_junco_song2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound DarkEyedJuncoSong3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/dark_eyed_junco_song3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound DarkEyedJuncoSong4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/dark_eyed_junco_song4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound DarkEyedJuncoSong5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/dark_eyed_junco_song5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+
+    sound HerringGullCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/herring_gull_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound HerringGullCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/herring_gull_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound HerringGullCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/herring_gull_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound HerringGullCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/herring_gull_call4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound HerringGullCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/herring_gull_call5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound HerringGullCall6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/herring_gull_call6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound HerringGullCall7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/herring_gull_call7.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound HerringGullCall8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/herring_gull_call8.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound HerringGullCall9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/herring_gull_call9.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+
+    sound MallardFemaleCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_female1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardFemaleCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_female2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardFemaleCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_female3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardFemaleCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_female4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardFemaleCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_female5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardFemaleCall6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_female6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardFemaleCall7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_female7.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardFemaleCall8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_female8.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardFemaleCall9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_female9.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardFemaleCall10
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_female10.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardFemaleCall11
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_female11.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardFemaleCall12
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_female12.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardFemaleCall13
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_female13.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardFemaleCall14
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_female14.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardFemaleCall15
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_female15.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardFemaleCall16
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_female16.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardMaleCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_male1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardMaleCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_male2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardMaleCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_male3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardMaleCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_male4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardMaleCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_male5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardMaleCall6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_male6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardMaleCall7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_male7.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardMaleCall8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_male8.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardMaleCall9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_male9.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound MallardMaleCall10
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/mallard_call_male10.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+
+    sound NorthernFlickerCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/northern_flicker_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound NorthernFlickerCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/northern_flicker_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound NorthernFlickerCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/northern_flicker_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+
+    sound PileatedWoodpeckerCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/pileated_woodpecker_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound PileatedWoodpeckerCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/pileated_woodpecker_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound PileatedWoodpeckerCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/pileated_woodpecker_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound PileatedWoodpeckerCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/pileated_woodpecker_call4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+
+    sound RedWingedBlackbirdCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/red_winged_blackbird_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound RedWingedBlackbirdCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/red_winged_blackbird_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound RedWingedBlackbirdCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/red_winged_blackbird_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound RedWingedBlackbirdCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/red_winged_blackbird_call4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound RedWingedBlackbirdCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/red_winged_blackbird_call5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound RedWingedBlackbirdCall6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/red_winged_blackbird_call6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound RedWingedBlackbirdSong1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/red_winged_blackbird_song1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound RedWingedBlackbirdSong2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/red_winged_blackbird_song2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound RedWingedBlackbirdSong3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/red_winged_blackbird_song3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound RedWingedBlackbirdSong4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/red_winged_blackbird_song4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+
+    sound SongSparrowCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_call4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_call5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowCall6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_call6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowCall7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_call7.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowCall8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_call8.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowCall9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_call9.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowCall10
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_call10.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowCall11
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_call11.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowCall12
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_call12.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowCall13
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_call13.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowCall14
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_call14.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowCall15
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_call15.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowSong1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_song1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowSong2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_song2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowSong3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_song3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowSong4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_song4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound SongSparrowSong5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/song_sparrow_song5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+
+    sound WhiteThroatedSparrowCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/white_throated_sparrow_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound WhiteThroatedSparrowCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/white_throated_sparrow_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound WhiteThroatedSparrowCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/white_throated_sparrow_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound WhiteThroatedSparrowCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/white_throated_sparrow_call4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound WhiteThroatedSparrowCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/white_throated_sparrow_call5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound WhiteThroatedSparrowCall6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/white_throated_sparrow_call6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound WhiteThroatedSparrowCall7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/white_throated_sparrow_call7.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound WhiteThroatedSparrowCall8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/white_throated_sparrow_call8.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound WhiteThroatedSparrowCall9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/white_throated_sparrow_call9.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound WhiteThroatedSparrowCall10
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/white_throated_sparrow_call10.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound WhiteThroatedSparrowCall11
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/white_throated_sparrow_call11.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound WhiteThroatedSparrowSong1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/white_throated_sparrow_song1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound WhiteThroatedSparrowSong2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/white_throated_sparrow_song2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound WhiteThroatedSparrowSong3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/white_throated_sparrow_song3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound WhiteThroatedSparrowSong4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/white_throated_sparrow_song4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound WhiteThroatedSparrowSong5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/white_throated_sparrow_song5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+
+    sound YellowRumpedWarblerCall1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/yellow_rumped_warbler_call1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound YellowRumpedWarblerCall2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/yellow_rumped_warbler_call2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound YellowRumpedWarblerCall3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/yellow_rumped_warbler_call3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound YellowRumpedWarblerCall4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/yellow_rumped_warbler_call4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound YellowRumpedWarblerCall5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/yellow_rumped_warbler_call5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound YellowRumpedWarblerCall6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/yellow_rumped_warbler_call6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound YellowRumpedWarblerCall7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/yellow_rumped_warbler_call7.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound YellowRumpedWarblerCall8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/yellow_rumped_warbler_call8.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound YellowRumpedWarblerCall9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/yellow_rumped_warbler_call9.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound YellowRumpedWarblerCall10
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/yellow_rumped_warbler_call10.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound YellowRumpedWarblerCall11
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/yellow_rumped_warbler_call11.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound YellowRumpedWarblerSong1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/yellow_rumped_warbler_song1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound YellowRumpedWarblerSong2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/yellow_rumped_warbler_song2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound YellowRumpedWarblerSong3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/yellow_rumped_warbler_song3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound YellowRumpedWarblerSong4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/yellow_rumped_warbler_song4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound FlyAway1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/flyaway1.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound FlyAway2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/flyaway2.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound FlyAway3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/flyaway3.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound FlyAway4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/flyaway4.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound FlyAway5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/flyaway5.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound FlyAway6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/flyaway6.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound FlyAway7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/flyaway7.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound FlyAway8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/flyaway8.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound FlyAway9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/flyaway9.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound FlyAway10
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/flyaway10.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound FlyAway11
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/flyaway11.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound FlyAway12
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/flyaway12.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+    sound FlyAway13
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/birds/flyaway13.ogg, reverbFactor = 1, volume = 0.2, distanceMax = 37, }
+    }
+}

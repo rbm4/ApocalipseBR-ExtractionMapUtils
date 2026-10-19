@@ -1,0 +1,516 @@
+module Base
+{
+
+model lp_AgaricusArvensis
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_AgaricusCampestris
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_AmanitaBisporigera
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_AmanitaBrunnescens
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_AmanitaMuscaria
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_AmanitaPhalloides
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_AmanitaVirosa
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_AuriculariaAuricula
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_BoletusEdulis
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_CalvatiaGigantea
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_CantharellulaUmbonata
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_CantharellusCibarius
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_ChlorophyllumRhacodes
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_CollybiaNuda
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_ConocybeTenera
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_CoprinellusMicaceus
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_CoprinopsisAtramentaria
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_CoprinusComatus
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_CortinariusEvernius
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_CortinariusMucosus
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_CraterellusCornucopioides
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_CrepidotusCesatii
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_CyptotramaChrysopepla
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_FomesExcavatus
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_FomitopsisBetulina
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_FomitopsisMounceae
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_GalerinaMarginata
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_GanodermaApplanatum
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_GanodermaTsugae
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_GenusGliophorus
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_GomphidiusGlutinosus
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_GomphidiusSubroseus
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_GrifolaFondosa
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_GuepiniaHelvelloides
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_HericiumAmericanum
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_HericiumCoralloides
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_HericiumErinaceus
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_HydnumRepandum
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_HypholomaFasciculare
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_HypomycesLactifluorum
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_InonotusObliquus
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_IrpexLacteus
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_LaccariaLaccata
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_LacrymariaLacrymabunda
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_LactariusDeliciosus
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_LactariusTabidus
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_LaetiporusSulphureus
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_LepiotaBrunneoincarnata
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_LepiotaClypeolaria
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_LycogalaEpidendrum
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_LycoperdonPerlatum
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_MacrolepiotaProcera
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_MarasmiusOreades
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_MorchellaElata
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_MycenaGalopus
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_OmphalotusIlludens
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_PanellusStipticus
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_PhaeolusSchweinitzii
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_PhaeotremellaFoliacea
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_PleurotusLevis
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_PsilocybeSemilanceata
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_RussulaClaroflava
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_RussulaEmetica
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_RussulaLutea
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_RussulaXerampelina
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_SarcodonImbricatus
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_SclerodermaCitrinum
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_SuillusGrevillei
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_TrametesOchracea
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_TrametesVersicolor
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_TremellaMesenterica
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_TricholomopsisDecora
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+model lp_TubariaFurfuracea
+	{
+		mesh = WorldItems/Mushroom,
+		texture = WorldItems/Mushroom,
+		scale = 0.6,
+	}
+
+
+}

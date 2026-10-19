@@ -1,0 +1,35 @@
+module Base
+{
+    craftRecipe BoilShellfish
+    {
+        timedAction = MixingBowl,
+        time = 40,
+        Tags = AnySurfaceCraft, Cooking,
+        category = Cooking,
+        inputs
+        {
+            item 1 [Base.Pot;Base.PotForged] mode:destroy flags[InheritCondition;ItemCount] mappers[potType],
+            fluid 1.5 categories[Water] mode:mixture,
+            item 1 [Base.SoftShellClam;Base.Quahog;Base.BlueMussel;Base.Oyster2;Base.Scallop;Base.Periwinkle] mappers[shellfishType] flags[InheritFoodAge;ItemCount],
+        }
+        outputs
+        {
+            item 1 mapper:potType,
+            item 1 mapper:shellfishType,
+        }
+        itemMapper shellfishType
+        {
+            Base.CookedSoftShellClam = Base.SoftShellClam,
+            Base.CookedQuahog = Base.Quahog,
+            Base.CookedBlueMussel = Base.BlueMussel,
+            Base.CookedOyster = Base.Oyster2,
+            Base.CookedPeriwinkle = Base.Periwinkle,
+            Base.CookedScallop = Base.Scallop
+        }
+        itemMapper potType
+        {
+            Base.Pot = Base.Pot,
+            Base.PotForged = Base.PotForged
+        }
+    }
+}

@@ -1,0 +1,460 @@
+module Base
+{ 
+  
+model AtlanticCod
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticCod,
+		scale = 0.8,
+	}
+model AtlanticCodBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticCodBurnt,
+		scale = 0.8,
+	}
+model AtlanticCodCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticCodCooked,
+		scale = 0.8,
+	}
+model AtlanticCodRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticCodRotten,
+		scale = 0.8,
+	}
+model AtlanticHalibut
+	{
+		mesh = WorldItems/Sunfish,
+		texture = Item_PeiFish/AtlanticHalibut,
+		scale = 0.9,
+	}
+model AtlanticHalibutBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticHalibutBurnt,
+		scale = 0.9,
+	}
+model AtlanticHalibutCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticHalibutCooked,
+		scale = 0.9,
+	}
+model AtlanticHalibutRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticHalibutRotten,
+		scale = 0.9,
+	}
+model AtlanticHerring
+	{
+		mesh = WorldItems/Trout,
+		texture = Item_PeiFish/AtlanticHerring,
+		scale = 0.5,
+	}
+model AtlanticHerringBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticHerringBurnt,
+		scale = 0.5,
+	}
+model AtlanticHerringCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticHerringCooked,
+		scale = 0.5,
+	}
+model AtlanticHerringRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticHerringRotten,
+		scale = 0.5,
+	}
+model AtlanticMackerel
+	{
+		mesh = WorldItems/Trout,
+		texture = Item_PeiFish/AtlanticMackerel,
+		scale = 0.2,
+	}
+model AtlanticMackerelBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticMackerelBurnt,
+		scale = 0.2,
+	}
+model AtlanticMackerelCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticMackerelCooked,
+		scale = 0.2,
+	}
+model AtlanticMackerelRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticMackerelRotten,
+		scale = 0.2,
+	}
+model AtlanticSalmon
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticSalmon,
+		scale = 0.8,
+	}
+model AtlanticSalmonBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticSalmonBurnt,
+		scale = 0.8,
+	}
+model AtlanticSalmonCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticSalmonCooked,
+		scale = 0.8,
+	}
+model AtlanticSalmonRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticSalmonRotten,
+		scale = 0.8,
+	}
+model AtlanticTomcod
+	{
+		mesh = WorldItems/Pike,
+		texture = Item_PeiFish/AtlanticTomcod,
+		scale = 0.4,
+	}
+model AtlanticTomcodBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticTomcodBurnt,
+		scale = 0.4,
+	}
+model AtlanticTomcodCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticTomcodCooked,
+		scale = 0.4,
+	}
+model AtlanticTomcodRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/AtlanticTomcodRotten,
+		scale = 0.4,
+	}
+model SummerFlounder
+	{
+		mesh = WorldItems/Sunfish,
+		texture = Item_PeiFish/SummerFlounder,
+		scale = 0.6,
+	}
+model SummerFlounderBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/SummerFlounderBurnt,
+		scale = 0.6,
+	}
+model SummerFlounderCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/SummerFlounderCooked,
+		scale = 0.6,
+	}
+model SummerFlounderRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/SummerFlounderRotten,
+		scale = 0.6,
+	}
+model Haddock
+	{
+		mesh = WorldItems/Trout,
+		texture = Item_PeiFish/Haddock,
+		scale = 0.4,
+	}
+model HaddockBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/HaddockBurnt,
+		scale = 0.4,
+	}
+model HaddockCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/HaddockCooked,
+		scale = 0.4,
+	}
+model HaddockRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/HaddockRotten,
+		scale = 0.4,
+	}
+model Lumpfish
+	{
+		mesh = WorldItems/Perch,
+		texture = Item_PeiFish/Lumpfish,
+		scale = 0.3,
+	}
+model LumpfishBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/LumpfishBurnt,
+		scale = 0.3,
+	}
+model LumpfishCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/LumpfishCooked,
+		scale = 0.3,
+	}
+model LumpfishRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/LumpfishRotten,
+		scale = 0.3,
+	}
+model Pollack
+	{
+		mesh = WorldItems/Trout,
+		texture = Item_PeiFish/Pollack,
+		scale = 0.5,
+	}
+model PollackBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/PollackBurnt,
+		scale = 0.5,
+	}
+model PollackCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/PollackCooked,
+		scale = 0.5,
+	}
+model PollackRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/PollackRotten,
+		scale = 0.5,
+	}
+model RainbowSmelt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/RainbowSmelt,
+		scale = 0.5,
+	}
+model RainbowSmeltBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/RainbowSmeltBurnt,
+		scale = 0.5,
+	}
+model RainbowSmeltCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/RainbowSmeltCooked,
+		scale = 0.5,
+	}
+model RainbowSmeltRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/RainbowSmeltRotten,
+		scale = 0.5,
+	}
+model SpinyDogfish
+	{
+		mesh = WorldItems/Pike,
+		texture = Item_PeiFish/SpinyDogfish,
+		scale = 0.3,
+	}
+model SpinyDogfishBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/SpinyDogfishBurnt,
+		scale = 0.3,
+	}
+model SpinyDogfishCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/SpinyDogfishCooked,
+		scale = 0.3,
+	}
+model SpinyDogfishRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/SpinyDogfishRotten,
+		scale = 0.3,
+	}
+model StripedBass2
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/StripedBass,
+		scale = 0.6,
+	}
+model StripedBass2Burnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/StripedBassBurnt,
+		scale = 0.6,
+	}
+model StripedBass2Cooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/StripedBassCooked,
+		scale = 0.6,
+	}
+model StripedBass2Rotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/StripedBassRotten,
+		scale = 0.6,
+	}
+model WhitePerch
+	{
+		mesh = WorldItems/Crappie,
+		texture = Item_PeiFish/WhitePerch,
+		scale = 0.3,
+	}
+model WhitePerchBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/WhitePerchBurnt,
+		scale = 0.3,
+	}
+model WhitePerchCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/WhitePerchCooked,
+		scale = 0.3,
+	}
+model WhitePerchRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/WhitePerchRotten,
+		scale = 0.3,
+	}
+model WinterFlounder
+	{
+		mesh = WorldItems/Sunfish,
+		texture = Item_PeiFish/WinterFlounder,
+		scale = 0.4,
+	}
+model WinterFlounderBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/WinterFlounderBurnt,
+		scale = 0.4,
+	}
+model WinterFlounderCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/WinterFlounderCooked,
+		scale = 0.4,
+	}
+model WinterFlounderRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/WinterFlounderRotten,
+		scale = 0.4,
+	}
+model BrookTrout
+	{
+		mesh = WorldItems/Trout,
+		texture = Item_PeiFish/BrookTrout,
+		scale = 0.6,
+	}
+model BrookTroutBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/BrookTroutBurnt,
+		scale = 0.6,
+	}
+model BrookTroutCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/BrookTroutCooked,
+		scale = 0.6,
+	}
+model BrookTroutRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/BrookTroutRotten,
+		scale = 0.6,
+	}
+model BrownTrout
+	{
+		mesh = WorldItems/Trout,
+		texture = Item_PeiFish/BrownTrout,
+		scale = 0.5,
+	}
+model BrownTroutBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/BrownTroutBurnt,
+		scale = 0.5,
+	}
+model BrownTroutCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/BrownTroutCooked,
+		scale = 0.5,
+	}
+model BrownTroutRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/BrownTroutRotten,
+		scale = 0.5,
+	}
+model Gaspereau
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/Gaspereau,
+		scale = 0.3,
+	}
+model GaspereauBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/GaspereauBurnt,
+		scale = 0.3,
+	}
+model GaspereauCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/GaspereauCooked,
+		scale = 0.3,
+	}
+model GaspereauRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/GaspereauRotten,
+		scale = 0.3,
+	}
+model BrownBullheadCatfish
+	{
+		mesh = WorldItems/Catfish,
+		texture = Item_PeiFish/BrownBullheadCatfish,
+		scale = 0.4,
+	}
+model BrownBullheadCatfishBurnt
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/BrownBullheadCatfishBurnt,
+		scale = 0.4,
+	}
+model BrownBullheadCatfishCooked
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/BrownBullheadCatfishCooked,
+		scale = 0.4,
+	}
+model BrownBullheadCatfishRotten
+	{
+		mesh = WorldItems/Bass,
+		texture = Item_PeiFish/BrownBullheadCatfishRotten,
+		scale = 0.4,
+	}
+}

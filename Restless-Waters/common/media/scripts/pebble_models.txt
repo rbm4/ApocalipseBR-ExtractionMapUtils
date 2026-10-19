@@ -1,0 +1,585 @@
+module Base
+{
+
+model DirtyPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/DirtyPebble,
+        scale = 0.12,
+    }
+
+model GranitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/GranitePebble,
+        scale = 0.12,   
+    }
+
+model SlatePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/SlatePebble,
+        scale = 0.12,  
+    }
+
+model SandstonePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/SandstonePebble,
+        scale = 0.12,
+    }
+
+model SiltstonePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/SiltstonePebble,
+        scale = 0.12, 
+    }
+
+model DioritePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/DioritePebble,
+        scale = 0.12,
+    }
+
+model GabbroPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/GabbroPebble,
+        scale = 0.12,
+    }
+
+model PhyllitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/PhyllitePebble,
+        scale = 0.12, 
+    }
+
+model SchistPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/SchistPebble,
+        scale = 0.12,
+    }
+
+model GneissPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/GneissPebble,
+        scale = 0.12,
+    }
+
+model QuartzitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/QuartzitePebble,
+        scale = 0.12,
+    }
+
+model HornfelsPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/HornfelsPebble,
+        scale = 0.12,
+    }
+
+model AmphibolitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/AmphibolitePebble,
+        scale = 0.12,
+    }
+
+model GranofelsPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/GranofelsPebble,
+        scale = 0.12,
+    }
+
+model ChertPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/ChertPebble,
+        scale = 0.12,
+    }
+
+model BrickPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/BrickPebble,
+        scale = 0.12,
+    }
+
+model BrickPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/BrickPebble,
+        scale = 0.12,
+    }
+
+model SeaGlass
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/SeaGlass,
+        scale = 0.12,
+    }
+
+model SeaPottery
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/SeaPottery,
+        scale = 0.12,
+    }
+
+model PyritePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/PyritePebble,
+        scale = 0.12, 
+    }
+
+model FeldsparPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/FeldsparPebble,
+        scale = 0.12, 
+    }
+
+model AgatePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/AgatePebble,
+        scale = 0.12,
+    }
+
+model ChalcedonyPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/ChalcedonyPebble,
+        scale = 0.12,
+    }
+
+model ChabazitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/ChabazitePebble,
+        scale = 0.12,
+    }
+
+model HeulanditePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/HeulanditePebble,
+        scale = 0.12, 
+    }
+
+model ApophyllitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/ApophyllitePebble,
+        scale = 0.12,  
+    }
+
+model MordenitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/MordenitePebble,
+        scale = 0.12,
+    }
+
+model NatrolitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/NatrolitePebble,
+        scale = 0.12,
+    }
+
+model AnalcimePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/AnalcimePebble,
+        scale = 0.12, 
+    }
+
+model BiotitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/BiotitePebble,
+        scale = 0.12,
+    }
+
+model SideritePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/SideritePebble,
+        scale = 0.12, 
+    }
+
+model FlouritePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/FlouritePebble,
+        scale = 0.12,
+    }
+
+model HornblendePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/HornblendePebble,
+        scale = 0.12,
+    }
+
+model GarnetPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/GarnetPebble,
+        scale = 0.12,
+    }
+
+model TourmalinePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/TourmalinePebble,
+        scale = 0.12,
+    }
+
+model HematitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/HematitePebble,
+        scale = 0.12,
+    }
+
+model GoethitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/GoethitePebble,
+        scale = 0.12,
+    }
+
+model PyritePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/PyritePebble,
+        scale = 0.12, 
+    }
+
+model GalenaPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/GalenaPebble,
+        scale = 0.12,
+    }
+
+model ChalcopyritePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/ChalcopyritePebble,
+        scale = 0.12,  
+    }
+
+model ManganitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/ManganitePebble,
+        scale = 0.12,
+    }
+
+model ArsenopyritePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/ArsenopyritePebble,
+        scale = 0.12, 
+    }
+
+model MagnetitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/MagnetitePebble,
+        scale = 0.12,
+    }
+
+model OrthoclasePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/OrthoclasePebble,
+        scale = 0.12, 
+    }
+
+model AmazonitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/AmazonitePebble,
+        scale = 0.12,
+    }
+
+model SelenitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/SelenitePebble,
+        scale = 0.12, 
+    }
+
+model MuscovitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/MuscovitePebble,
+        scale = 0.12,  
+    }
+
+model GypsumPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/GypsumPebble,
+        scale = 0.12, 
+    }
+
+model CalcitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/CalcitePebble,
+        scale = 0.12, 
+    }
+
+model AnhydritePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/AnhydritePebble,
+        scale = 0.12,
+    }
+
+model SpodumenePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/SpodumenePebble,
+        scale = 0.12,
+    }
+
+model HalitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/HalitePebble,
+        scale = 0.12, 
+    }
+
+model BaritePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/BaritePebble,
+        scale = 0.12,
+    }
+
+model CelestitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/CelestitePebble,
+        scale = 0.12,
+    }
+
+model ProbertitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/ProbertitePebble,
+        scale = 0.12, 
+    }
+
+model HowlitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/HowlitePebble,
+        scale = 0.12, 
+    }
+
+model AragonitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/AragonitePebble,
+        scale = 0.12, 
+    }
+
+model BloodstonePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/BloodstonePebble,
+        scale = 0.12,  
+    }
+
+model CarnelianPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/CarnelianPebble,
+        scale = 0.12,
+    }
+
+model CitrinePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/CitrinePebble,
+        scale = 0.12,
+    }
+
+model HawksEyePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/HawksEyePebble,
+        scale = 0.12, 
+    }
+
+model JasperPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/JasperPebble,
+        scale = 0.12, 
+    }
+
+model ObsidianPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/ObsidianPebble,
+        scale = 0.12,
+    }
+
+model SmokeyQuartzPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/SmokeyQuartzPebble,
+        scale = 0.12,
+    }
+
+model UnakitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/UnakitePebble,
+        scale = 0.12, 
+    }
+
+model OrangeCalcitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/OrangeCalcitePebble,
+        scale = 0.12, 
+    }
+
+model RedTigersEyePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/RedTigersEyePebble,
+        scale = 0.12,  
+    }
+
+model DesertRosePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/DesertRosePebble,
+        scale = 0.12,
+    }
+
+model MalachitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/MalachitePebble,
+        scale = 0.12,
+    }
+
+model RutilatedQuartzPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/RutilatedQuartzPebble,
+        scale = 0.12,
+    }
+
+model AventurinePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/AventurinePebble,
+        scale = 0.12, 
+    }
+
+model LabradoritePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/LabradoritePebble,
+        scale = 0.12, 
+    }
+
+model LepidolitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/LepidolitePebble,
+        scale = 0.12, 
+    }
+
+model MicaPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/MicaPebble,
+        scale = 0.12,
+    }
+
+model RoseQuartzPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/RoseQuartzPebble,
+        scale = 0.12, 
+    }
+
+model TigersIronPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/TigersIronPebble,
+        scale = 0.12,
+    }
+
+model AmberPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/AmberPebble,
+        scale = 0.12
+    }
+
+model AmethystPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/AmethystPebble,
+        scale = 0.12,
+    }
+
+model BlueLaceAgatePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/BlueLaceAgatePebble,
+        scale = 0.12, 
+    }
+
+model LapisLazuliPebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/LapisLazuliPebble,
+        scale = 0.12,
+    }
+
+model MoonstonePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/MoonStonePebble,
+        scale = 0.12,  
+    }
+
+model SodalitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/SodalitePebble,
+        scale = 0.12, 
+    }
+
+model YellowCalcitePebble
+    {
+        mesh = WorldItems/Stone,
+        texture = Item_Pebbles/YellowCalcitePebble,
+        scale = 0.12,
+    }
+
+}

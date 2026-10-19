@@ -1,0 +1,463 @@
+module Base
+{
+
+    model SoftShellClam
+    {
+         mesh = WorldItems/Oysters,
+        texture = WorldItems/OystersRaw,
+        scale = 0.5,
+        attachment Bip01_Prop2
+        {
+            offset = -0.0038 0.0572 -0.0023,
+            rotate = -148.6079 33.4068 146.2586,
+            scale = 0.75,
+        }
+    }
+
+    model Quahog
+    {
+        mesh = WorldItems/Oysters,
+        texture = WorldItems/OystersRaw,
+        scale = 0.2,
+        attachment Bip01_Prop2
+        {
+            offset = -0.0038 0.0572 -0.0023,
+            rotate = -148.6079 33.4068 146.2586,
+            scale = 0.75,
+        }
+    }
+
+    model BlueMussel
+    {
+        mesh = WorldItems/Oysters,
+        texture = WorldItems/OystersRaw,
+        scale = 0.3,
+        attachment Bip01_Prop2
+        {
+            offset = -0.0038 0.0572 -0.0023,
+            rotate = -148.6079 33.4068 146.2586,
+            scale = 0.75,
+        }
+    }
+
+    model Oyster
+    {
+        mesh = WorldItems/Oysters,
+        texture = WorldItems/OystersRaw,
+        scale = 0.4,
+        attachment Bip01_Prop2
+        {
+            offset = -0.0038 0.0572 -0.0023,
+            rotate = -148.6079 33.4068 146.2586,
+            scale = 0.75,
+        }
+    }
+
+    model Scallop
+    {
+        mesh = WorldItems/Oysters,
+        texture = WorldItems/OystersRaw,
+        scale = 0.009,
+    }
+
+    model Periwinkle
+    {
+        mesh = WorldItems/Snail,
+        texture = WorldItems/OystersRaw,
+        scale = 0.4,
+        attachment Bip01_Prop2
+        {
+            offset = -0.0351 0.0465 0.0026,
+            rotate = -1.0 32.0 -103.5965,
+        }
+    }
+
+    model AtlanticLobster
+    {
+        mesh = WorldItems/Lobster,
+        texture = WorldItems/LobsterRaw,
+        scale = 0.38,
+ attachment Bip01_Prop2
+        {
+            offset = 0.0007 0.0765 -0.0092,
+            rotate = -178.8978 -29.739 -25.5686,
+            scale = 0.67,
+        }
+    }
+    }
+
+    model SnowCrab
+    {
+        mesh = WorldItems/Lobster,
+        texture = WorldItems/LobsterRaw,
+        scale = 0.45,
+ attachment Bip01_Prop2
+        {
+            offset = 0.0007 0.0765 -0.0092,
+            rotate = -178.8978 -29.739 -25.5686,
+            scale = 0.67,
+        }
+    }
+    
+
+    model GreenCrab
+    {
+        mesh = WorldItems/Lobster,
+        texture = WorldItems/LobsterRaw,
+        scale = 0.30,
+ attachment Bip01_Prop2
+        {
+            offset = 0.0007 0.0765 -0.0092,
+            rotate = -178.8978 -29.739 -25.5686,
+            scale = 0.67,
+        }
+    }
+    
+
+    model ClamMeat
+    {
+        mesh = WorldItems/SmallAnimalMeat,
+        texture = WorldItems/SmallAnimalMeat,
+        scale = 0.1,
+        attachment Bip01_Prop2
+        {
+            offset = -0.034 0.027 -0.018,
+            rotate = -162.0 68.0 -90.0,
+            scale = 0.5,
+        }
+    }
+
+    model QuahogMeat
+    {
+        mesh = WorldItems/SmallAnimalMeat,
+        texture = WorldItems/SmallAnimalMeat,
+        scale = 0.1,
+        attachment Bip01_Prop2
+        {
+            offset = -0.034 0.027 -0.018,
+            rotate = -162.0 68.0 -90.0,
+            scale = 0.6,
+        }
+    }
+
+    model MusselMeat
+    {
+        mesh = WorldItems/SmallAnimalMeat,
+        texture = WorldItems/SmallAnimalMeat,
+        scale = 0.1,
+        attachment Bip01_Prop2
+        {
+            offset = -0.034 0.027 -0.018,
+            rotate = -162.0 68.0 -90.0,
+            scale = 0.4,
+        }
+    }
+
+    model OysterMeat
+    {
+        mesh = WorldItems/SmallAnimalMeat,
+        texture = WorldItems/SmallAnimalMeat,
+        scale = 0.1,
+        attachment Bip01_Prop2
+        {
+            offset = -0.034 0.027 -0.018,
+            rotate = -162.0 68.0 -90.0,
+            scale = 0.5,
+        }
+    }
+
+    model ScallopMeat
+    {
+        mesh = WorldItems/SmallAnimalMeat,
+        texture = WorldItems/SmallAnimalMeat,
+        scale = 0.1,
+        attachment Bip01_Prop2
+        {
+            offset = -0.034 0.027 -0.018,
+            rotate = -162.0 68.0 -90.0,
+            scale = 0.5,
+        }
+    }
+
+    model LobsterMeat
+    {
+        mesh = WorldItems/SmallAnimalMeat,
+        texture = WorldItems/SmallAnimalMeat,
+        scale = 0.1,
+        attachment Bip01_Prop2
+        {
+            offset = -0.034 0.027 -0.018,
+            rotate = -162.0 68.0 -90.0,
+            scale = 0.8,
+        }
+    }
+
+    model SnowCrabMeat
+    {
+        mesh = WorldItems/SmallAnimalMeat,
+        texture = WorldItems/SmallAnimalMeat,
+        scale = 0.1,
+        attachment Bip01_Prop2
+        {
+            offset = -0.034 0.027 -0.018,
+            rotate = -162.0 68.0 -90.0,
+            scale = 0.7,
+        }
+    }
+
+    model GreenCrabMeat
+    {
+        mesh = WorldItems/SmallAnimalMeat,
+        texture = WorldItems/SmallAnimalMeat,
+        scale = 0.1,
+        attachment Bip01_Prop2
+        {
+            offset = -0.034 0.027 -0.018,
+            rotate = -162.0 68.0 -90.0,
+            scale = 0.5,
+        }
+    }
+
+    model PeriwinkleMeat
+    {
+        mesh = WorldItems/FrogMeat,
+        texture = WorldItems/FrogMeat,
+        scale = 0.3,
+        attachment Bip01_Prop2
+        {
+            offset = -0.0353 0.0228 -0.0151,
+            rotate = -75.9439 -19.7866 -150.4808,
+            scale = 0.4,
+        }
+    }
+
+    model CookedSoftShellClam
+    {
+        mesh = WorldItems/Oysters,
+        texture = WorldItems/OystersCooked,
+        scale = 0.5,
+        attachment Bip01_Prop2
+        {
+            offset = -0.0038 0.0572 -0.0023,
+            rotate = -148.6079 33.4068 146.2586,
+            scale = 0.75,
+        }
+    }
+
+    model CookedQuahog
+    {
+        mesh = WorldItems/Oysters,
+        texture = WorldItems/OystersCooked,
+        scale = 0.2,
+        attachment Bip01_Prop2
+        {
+            offset = -0.0038 0.0572 -0.0023,
+            rotate = -148.6079 33.4068 146.2586,
+            scale = 0.75,
+        }
+    }
+
+    model CookedBlueMussel
+    {
+        mesh = WorldItems/Oysters,
+        texture = WorldItems/OystersCooked,
+        scale = 0.3,
+        attachment Bip01_Prop2
+        {
+            offset = -0.0038 0.0572 -0.0023,
+            rotate = -148.6079 33.4068 146.2586,
+            scale = 0.75,
+        }
+    }
+
+    model CookedOyster
+    {
+        mesh = WorldItems/Oysters,
+        texture = WorldItems/OystersCooked,
+        scale = 0.4,
+        attachment Bip01_Prop2
+        {
+            offset = -0.0038 0.0572 -0.0023,
+            rotate = -148.6079 33.4068 146.2586,
+            scale = 0.75,
+        }
+    }
+
+    model CookedLobster
+    {
+        mesh = WorldItems/Lobster,
+        texture = WorldItems/LobsterCooked,
+        scale = 0.38,
+ attachment Bip01_Prop2
+        {
+            offset = 0.0007 0.0765 -0.0092,
+            rotate = -178.8978 -29.739 -25.5686,
+            scale = 0.67,
+        }
+    }
+    
+
+    model CookedSnowCrab
+    {
+        mesh = WorldItems/Lobster,
+        texture = WorldItems/LobsterCooked,
+        scale = 0.45,
+ attachment Bip01_Prop2
+        {
+            offset = 0.0007 0.0765 -0.0092,
+            rotate = -178.8978 -29.739 -25.5686,
+            scale = 0.67,
+        }
+    }
+    
+
+    model CookedGreenCrab
+    {
+        mesh = WorldItems/Lobster,
+        texture = WorldItems/LobsterCooked,
+        scale = 0.30,
+ attachment Bip01_Prop2
+        {
+            offset = 0.0007 0.0765 -0.0092,
+            rotate = -178.8978 -29.739 -25.5686,
+            scale = 0.67,
+        }
+    }
+    
+
+    model CookedPeriwinkle
+    {
+        mesh = WorldItems/Snail,
+        texture = WorldItems/SnailCooked,
+        scale = 0.4,
+        attachment Bip01_Prop2
+        {
+            offset = -0.0351 0.0465 0.0026,
+            rotate = -1.0 32.0 -103.5965,
+        }
+    }
+
+    model CookedSoftShellClamMeat
+    {
+        mesh = WorldItems/SmallAnimalMeat,
+        texture = WorldItems/SmallAnimalMeatCooked,
+        scale = 0.4,
+        attachment Bip01_Prop2
+        {
+            offset = -0.034 0.027 -0.018,
+            rotate = -162.0 68.0 -90.0,
+            scale = 0.5,
+        }
+    }
+
+    model CookedQuahogMeat
+    {
+        mesh = WorldItems/SmallAnimalMeat,
+        texture = WorldItems/SmallAnimalMeatCooked,
+        scale = 0.5,
+        attachment Bip01_Prop2
+        {
+            offset = -0.034 0.027 -0.018,
+            rotate = -162.0 68.0 -90.0,
+            scale = 0.6,
+        }
+    }
+
+    model CookedMusselMeat
+    {
+        mesh = WorldItems/SmallAnimalMeat,
+        texture = WorldItems/SmallAnimalMeatCooked,
+        scale = 0.3,
+        attachment Bip01_Prop2
+        {
+            offset = -0.034 0.027 -0.018,
+            rotate = -162.0 68.0 -90.0,
+            scale = 0.4,
+        }
+    }
+
+    model ClamShell
+    {
+        mesh = WorldItems/Oysters,
+        texture = WorldItems/OystersShell,
+        scale = 0.5,
+        attachment Bip01_Prop2
+        {
+            offset = -0.0038 0.0572 -0.0023,
+            rotate = -148.6079 33.4068 146.2586,
+            scale = 0.75,
+        }
+    }
+
+    model OysterShell
+    {
+        mesh = WorldItems/Oysters,
+        texture = WorldItems/OystersShell,
+        scale = 0.4,
+        attachment Bip01_Prop2
+        {
+            offset = -0.0038 0.0572 -0.0023,
+            rotate = -148.6079 33.4068 146.2586,
+            scale = 0.75,
+        }
+    }
+
+    model ScallopShell
+    {
+        mesh = WorldItems/Oysters,
+        texture = WorldItems/OystersShell,
+        scale = 0.009,
+    }
+
+    model MusselShell
+    {
+        mesh = WorldItems/Oysters,
+        texture = WorldItems/OystersShell,
+        scale = 0.3,
+        attachment Bip01_Prop2
+        {
+            offset = -0.0038 0.0572 -0.0023,
+            rotate = -148.6079 33.4068 146.2586,
+            scale = 0.75,
+        }
+    }
+
+    model LobsterShell
+    {
+        mesh = WorldItems/Lobster,
+        texture = WorldItems/LobsterShell,
+        scale = 0.38,
+ attachment Bip01_Prop2
+        {
+            offset = 0.0007 0.0765 -0.0092,
+            rotate = -178.8978 -29.739 -25.5686,
+            scale = 0.67,
+        }
+    }
+    
+
+    model CrabShell
+    {
+        mesh = WorldItems/Lobster,
+        texture = WorldItems/LobsterShell,
+        scale = 0.45,
+ attachment Bip01_Prop2
+        {
+            offset = 0.0007 0.0765 -0.0092,
+            rotate = -178.8978 -29.739 -25.5686,
+            scale = 0.67,
+        }
+    }
+    
+
+    model PeriwinkleShell
+    {
+        mesh = WorldItems/Snail,
+        texture = WorldItems/SnailShell,
+        scale = 0.4,
+        attachment Bip01_Prop2
+        {
+            offset = -0.0351 0.0465 0.0026,
+            rotate = -1.0 32.0 -103.5965,
+        }
+    }

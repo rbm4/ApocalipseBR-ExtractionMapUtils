@@ -1,0 +1,55 @@
+function SpawnPoints()
+	local spawns = {
+	  { posX = 13743, posY = 12382, posZ = 0 },
+     { posX = 13779, posY = 12327, posZ = 0 },
+     { posX = 13837, posY = 12192, posZ = 0 },
+     { posX = 13853, posY = 12128, posZ = 0 },
+     { posX = 13831, posY = 12073, posZ = 0 },
+     { posX = 13821, posY = 11981, posZ = 0 },
+     { posX = 13852, posY = 11940, posZ = 0 },
+     { posX = 13885, posY = 11914, posZ = 0 },
+     { posX = 13930, posY = 11885, posZ = 0 },
+     { posX = 13971, posY = 11881, posZ = 0 },
+     { posX = 14041, posY = 11852, posZ = 0 },
+     { posX = 14087, posY = 11820, posZ = 0 },
+     { posX = 14125, posY = 11792, posZ = 0 },
+     { posX = 14226, posY = 11709, posZ = 0 },
+     { posX = 14260, posY = 11678, posZ = 0 },
+     { posX = 14305, posY = 11638, posZ = 0 },
+     { posX = 14382, posY = 11544, posZ = 0 },
+     { posX = 14409, posY = 11517, posZ = 0 },
+     { posX = 14450, posY = 11490, posZ = 0 },
+     { posX = 14528, posY = 11430, posZ = 0 },
+     { posX = 14457, posY = 11628, posZ = 0 },
+     { posX = 14531, posY = 11511, posZ = 0 },
+     { posX = 14637, posY = 11450, posZ = 0 },
+     { posX = 14682, posY = 11298, posZ = 0 },
+     { posX = 14859, posY = 11189, posZ = 0 },
+     { posX = 14926, posY = 11208, posZ = 0 },
+     { posX = 15053, posY = 11356, posZ = 0 },
+     { posX = 15045, posY = 11311, posZ = 0 },
+     { posX = 15066, posY = 11272, posZ = 0 },
+     { posX = 15114, posY = 11249, posZ = 0 },
+     { posX = 15155, posY = 11230, posZ = 0 },
+     { posX = 15210, posY = 11246, posZ = 0 },
+     { posX = 15242, posY = 11226, posZ = 0 },
+     { posX = 15216, posY = 11174, posZ = 0 },
+     { posX = 15085, posY = 11161, posZ = 0 },
+     { posX = 14723, posY = 11424, posZ = 0 },
+     { posX = 14800, posY = 11449, posZ = 0 },
+  
+	}
+
+	return {
+		chef = spawns,
+		constructionworker = spawns,
+		doctor = spawns,
+		fireofficer = spawns,
+		parkranger = spawns,
+		policeofficer = spawns,
+		repairman = spawns,
+		securityguard = spawns,
+		unemployed = spawns
+	}
+end
+

@@ -1,0 +1,804 @@
+module Base
+{
+
+item GranitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Granite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/GranitePebble_ico,
+        WorldStaticModel = GranitePebble,
+    }
+
+item SlatePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Slate Rock,
+        Icon	=	Pebbles/Pebbles_Icon/SlatePebble_ico,
+        WorldStaticModel = SlatePebble,
+    }
+
+item SandstonePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Sandstone Rock,
+        Icon	=	Pebbles/Pebbles_Icon/SandstonePebble_ico,
+        WorldStaticModel = SandstonePebble,
+    }
+
+item SiltstonePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Siltstone Rock,
+        Icon	=	Pebbles/Pebbles_Icon/SiltstonePebble_ico,
+        WorldStaticModel = SiltstonePebble,
+    }
+
+item DioritePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Diorite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/DioritePebble_ico,
+        WorldStaticModel = DioritePebble,
+    }
+
+item GabbroPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Gabro Rock,
+        Icon	=	Pebbles/Pebbles_Icon/GabbroPebble_ico,
+        WorldStaticModel = GabbroPebble,
+    }
+
+item PhyllitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Phyllite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/PhyllitePebble_ico,
+        WorldStaticModel = PhyllitePebble,
+    }
+
+item SchistPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Schist Rock,
+        Icon	=	Pebbles/Pebbles_Icon/SchistPebble_ico,
+        WorldStaticModel = SchistPebble,
+    }
+
+item GneissPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Gneiss Rock,
+        Icon	=	Pebbles/Pebbles_Icon/GneissPebble_ico,
+        WorldStaticModel = GneissPebble,
+    }
+	
+item QuartzitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Quartzite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/QuartzitePebble_ico,
+        WorldStaticModel = QuartzitePebble,
+    }
+
+item HornfelsPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Hornfels Rock,
+        Icon	=	Pebbles/Pebbles_Icon/HornfelsPebble_ico,
+        WorldStaticModel = HornfelsPebble,
+    }
+
+item AmphibolitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Amphibolite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/AmphibolitePebble_ico,
+        WorldStaticModel = AmphibolitePebble,
+    }
+
+item GranofelsPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Granofels Rock,
+        Icon	=	Pebbles/Pebbles_Icon/GranofelsPebble_ico,
+        WorldStaticModel = GranofelsPebble,
+    }
+
+item ChertPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Chert Rock,
+        Icon	=	Pebbles/Pebbles_Icon/ChertPebble_ico,
+        WorldStaticModel = ChertPebble,
+    }
+
+item BrickPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Sea Brick,
+        Icon	=	Pebbles/Pebbles_Icon/BrickPebble_ico,
+        WorldStaticModel = BrickPebble,
+    }
+
+item SeaGlass
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Sea Glass,
+        Icon	=	Pebbles/Pebbles_Icon/GlassPebble_ico,
+        WorldStaticModel = SeaGlass,
+    }
+
+item SeaPottery
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Sea Pottery,
+        Icon	=	Pebbles/Pebbles_Icon/PotteryPebble_ico,
+        WorldStaticModel = SeaPottery,
+    }
+
+item PyritePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Pyrite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/PyritePebble_ico,
+        WorldStaticModel = PyritePebble,
+    }
+
+item FeldsparPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Feldspar Rock,
+        Icon	=	Pebbles/Pebbles_Icon/FeldsparPebble_ico,
+        WorldStaticModel = FeldsparPebble,
+    }
+
+item AgatePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Agate Rock,
+        Icon	=	Pebbles/Pebbles_Icon/AgatePebble_ico,
+        WorldStaticModel = AgatePebble,
+    }
+	
+item ChalcedonyPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Chalcedony Rock,
+        Icon	=	Pebbles/Pebbles_Icon/ChalcedonyPebble_ico,
+        WorldStaticModel = ChalcedonyPebble,
+    }
+
+item ChabazitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Chabazite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/ChabazitePebble_ico,
+        WorldStaticModel = ChabazitePebble,
+    }
+
+item HeulanditePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Chabazite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/HeulanditePebble_ico,
+        WorldStaticModel = HeulanditePebble,
+    }
+
+item ApophyllitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Apophyllite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/ApophyllitePebble_ico,
+        WorldStaticModel = ApophyllitePebble,
+    }
+
+item MordenitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Mordenite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/MordenitePebble_ico,
+        WorldStaticModel = MordenitePebble,
+    }
+
+item NatrolitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Natrolite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/NatrolitePebble_ico,
+        WorldStaticModel = NatrolitePebble,
+    }
+
+item AnalcimePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Analcime Rock,
+        Icon	=	Pebbles/Pebbles_Icon/AnalcimePebble_ico,
+        WorldStaticModel = AnalcimePebble,
+    }
+	
+item BiotitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Biotite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/BiotitePebble_ico,
+        WorldStaticModel = BiotitePebble,
+    }
+
+item SideritePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Siderite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/SideritePebble_ico,
+        WorldStaticModel = SideritePebble,
+    }
+
+item FlouritePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Flourite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/FlouritePebble_ico,
+        WorldStaticModel = FlouritePebble,
+    }
+
+item HornblendePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Hornblende Rock,
+        Icon	=	Pebbles/Pebbles_Icon/HornblendePebble_ico,
+        WorldStaticModel = HornblendePebble,
+    }
+
+item GarnetPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Garnet Rock,
+        Icon	=	Pebbles/Pebbles_Icon/GarnetPebble_ico,
+        WorldStaticModel = GarnetPebble,
+    }
+
+item TourmalinePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Tourmaline Rock,
+        Icon	=	Pebbles/Pebbles_Icon/TourmalinePebble_ico,
+        WorldStaticModel = TourmalinePebble,
+    }
+
+item HematitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Hematite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/HematitePebble_ico,
+        WorldStaticModel = HematitePebble,
+    }
+
+item GoethitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Goethite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/GoethitePebble_ico,
+        WorldStaticModel = GoethitePebble,
+    }
+
+item GalenaPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Galena Rock,
+        Icon	=	Pebbles/Pebbles_Icon/GalenaPebble_ico,
+        WorldStaticModel = GalenaPebble,
+    }
+
+item ChalcopyritePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Chalcopyrite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/ChalcopyritePebble_ico,
+        WorldStaticModel = ChalcopyritePebble,
+    }
+
+item ManganitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Manganite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/ManganitePebble_ico,
+        WorldStaticModel = ManganitePebble,
+    }
+
+item ArsenopyritePebble
+{
+	DisplayCategory = Material,
+	Weight	=	0.2,
+	ItemType = base:normal,
+	DisplayName	=	Arsenopyrite Rock,
+	Icon	=	Pebbles/Pebbles_Icon/ArsenopyritePebble_ico,
+	WorldStaticModel = ArsenopyritePebble,
+}
+
+item MagnetitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Magnetite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/MagnetitePebble_ico,
+        WorldStaticModel = MagnetitePebble,
+    }
+
+item OrthoclasePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Orthoclase Rock,
+        Icon	=	Pebbles/Pebbles_Icon/OrthoclasePebble_ico,
+        WorldStaticModel = OrthoclasePebble,
+    }
+
+item AmazonitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Amazonite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/AmazonitePebble_ico,
+        WorldStaticModel = AmazonitePebble,
+    }
+
+item SelenitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Selenite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/SelenitePebble_ico,
+        WorldStaticModel = SelenitePebble,
+    }
+
+item MuscovitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Muscovite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/MuscovitePebble_ico,
+        WorldStaticModel = MuscovitePebble,
+    }
+
+item GypsumPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Gypsum Rock,
+        Icon	=	Pebbles/Pebbles_Icon/GypsumPebble_ico,
+        WorldStaticModel = GypsumPebble,
+    }
+
+item CalcitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Calcite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/CalcitePebble_ico,
+        WorldStaticModel = CalcitePebble,
+    }
+
+item AnhydritePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Anhydrite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/AnhydritePebble_ico,
+        WorldStaticModel = AnhydritePebble,
+    }
+
+item SpodumenePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Spodumene Rock,
+        Icon	=	Pebbles/Pebbles_Icon/SpodumenePebble_ico,
+        WorldStaticModel = SpodumenePebble,
+    }
+
+item HalitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Halite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/HalitePebble_ico,
+        WorldStaticModel = HalitePebble,
+    }
+
+item BaritePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Barite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/BaritePebble_ico,
+        WorldStaticModel = BaritePebble,
+    }
+
+item CelestitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Celestite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/Celestite_ico,
+        WorldStaticModel = CelestitePebble,
+    }
+
+item ProbertitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Probertite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/ProbertitePebble_ico,
+        WorldStaticModel = ProbertitePebble,
+    }
+
+item HowlitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Howlite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/HowlitePebble_ico,
+        WorldStaticModel = HowlitePebble,
+    }
+
+item AragonitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Aragonite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/AragonitePebble_ico,
+        WorldStaticModel = AragonitePebble,
+    }
+
+item BloodstonePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Bloodstone Rock,
+        Icon	=	Pebbles/Pebbles_Icon/BloodstonePebble_ico,
+        WorldStaticModel = BloodstonePebble,
+    }
+
+item CarnelianPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Carnelian Rock,
+        Icon	=	Pebbles/Pebbles_Icon/CarnelianPebble_ico,
+        WorldStaticModel = CarnelianPebble,
+    }
+
+item CitrinePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Citrine Rock,
+        Icon	=	Pebbles/Pebbles_Icon/CitrinePebble_ico,
+        WorldStaticModel = CitrinePebble,
+    }
+
+item HawksEyePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Hawk's Eye Rock,
+        Icon	=	Pebbles/Pebbles_Icon/HawksEyePebble_ico,
+        WorldStaticModel = HawksEyePebble,
+    }
+
+item JasperPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Jasper Rock,
+        Icon	=	Pebbles/Pebbles_Icon/JasperPebble_ico,
+        WorldStaticModel = JasperPebble,
+    }
+	
+item ObsidianPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Obsidian Rock,
+        Icon	=	Pebbles/Pebbles_Icon/ObsidianPebble_ico,
+        WorldStaticModel = ObsidianPebble,
+    }
+
+item SmokeyQuartzPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Smokey Quartz Rock,
+        Icon	=	Pebbles/Pebbles_Icon/SmokeyQuartzPebble_ico,
+        WorldStaticModel = SmokeyQuartzPebble,
+    }
+
+item UnakitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Unakite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/UnakitePebble_ico,
+        WorldStaticModel = UnakitePebble,
+    }
+
+item OrangeCalcitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Orange Calcite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/OrangeCalcitePebble_ico,
+        WorldStaticModel = OrangeCalcitePebble,
+    }
+
+item RedTigersEyePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Red Tiger's Eye Rock,
+        Icon	=	Pebbles/Pebbles_Icon/RedTigersEyePebble_ico,
+        WorldStaticModel = RedTigersEyePebble,
+    }
+
+item DesertRosePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Desert Rose Rock,
+        Icon	=	Pebbles/Pebbles_Icon/DesertRosePebble_ico,
+        WorldStaticModel = DesertRosePebble,
+    }
+
+item MalachitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Malachite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/MalachitePebble_ico,
+        WorldStaticModel = MalachitePebble,
+    }
+	
+item RutilatedQuartzPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Rutilated Quartz Rock,
+        Icon	=	Pebbles/Pebbles_Icon/RutilatedQuartzPebble_ico,
+        WorldStaticModel = RutilatedQuartzPebble,
+    }
+	
+item AventurinePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Aventurine Rock,
+        Icon	=	Pebbles/Pebbles_Icon/AventurinePebble_ico,
+        WorldStaticModel = AventurinePebble,
+    }
+	
+item LabradoritePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Labradorite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/LabradoritePebble_ico,
+        WorldStaticModel = LabradoritePebble,
+    }
+
+item LepidolitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Lepidolite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/LepidolitePebble_ico,
+        WorldStaticModel = LepidolitePebble,
+    }
+
+item MicaPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Mica Rock,
+        Icon	=	Pebbles/Pebbles_Icon/MicaPebble_ico,
+        WorldStaticModel = MicaPebble,
+    }
+
+item RoseQuartzPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Rose Quartz Rock,
+        Icon	=	Pebbles/Pebbles_Icon/RoseQuartzPebble_ico,
+        WorldStaticModel = RoseQuartzPebble,
+    }
+
+item TigersIronPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Tiger Iron Rock,
+        Icon	=	Pebbles/Pebbles_Icon/TigersIronPebble_ico,
+        WorldStaticModel = TigersIronPebble,
+    }
+
+item AmberPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Amber Rock,
+        Icon	=	Pebbles/Pebbles_Icon/AmberPebble_ico,
+        WorldStaticModel = AmberPebble,
+    }
+
+item AmethystPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Amethyst Rock,
+        Icon	=	Pebbles/Pebbles_Icon/AmethystPebble_ico,
+        WorldStaticModel = AmethystPebble,
+    }
+
+item BlueLaceAgatePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Blue Lace Agate Rock,
+        Icon	=	Pebbles/Pebbles_Icon/BlueLaceAgatePebble_ico,
+        WorldStaticModel = BlueLaceAgatePebble,
+    }
+
+item LapisLazuliPebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Lapis Lazuli Rock,
+        Icon	=	Pebbles/Pebbles_Icon/LapisLazuliPebble_ico,
+        WorldStaticModel = LapisLazuliPebble,
+    }
+
+item MoonstonePebble
+{
+	DisplayCategory = Material,
+	Weight	=	0.2,
+	ItemType = base:normal,
+	DisplayName	=	Moonstone Rock,
+	Icon	=	Pebbles/Pebbles_Icon/MoonStonePebble_ico,
+	WorldStaticModel = MoonstonePebble,
+}
+
+item SodalitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Sodalite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/SodalitePebble_ico,
+        WorldStaticModel = SodalitePebble,
+    }
+
+item YellowCalcitePebble
+    {
+        DisplayCategory = Material,
+        Weight	=	0.2,
+        ItemType = base:normal,
+        DisplayName	=	Yellow Calcite Rock,
+        Icon	=	Pebbles/Pebbles_Icon/YellowCalcitePebble_ico,
+        WorldStaticModel = YellowCalcitePebble,
+    }
+
+}

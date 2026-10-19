@@ -1,0 +1,26 @@
+module Base
+{
+    item SeaWaterBottle
+    {
+        DisplayCategory = Food,
+        ItemType = base:normal,
+        Weight = 1.0,
+        DisplayName = Debug Sea Water Bottle,
+        Icon = WineAged,
+        StaticModel = RedWineBottle,
+        WorldStaticModel = WineRedGround,
+        
+        Tags = base:glass;base:glassbottle,
+
+        component FluidContainer
+        {
+            ContainerName = BottleGlass,
+            Capacity = 1.0,
+            
+            Fluids
+            {
+                fluid = SeaWater:1.0,
+            }
+        }
+    }
+}

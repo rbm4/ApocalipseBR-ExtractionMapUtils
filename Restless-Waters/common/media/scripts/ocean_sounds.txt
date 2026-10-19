@@ -1,0 +1,124 @@
+module Base 
+{
+
+    sound oceanwaves_01 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_01.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_02 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_02.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_03 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_03.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_04 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_04.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_05 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_05.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_06 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_06.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_07 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_07.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_08 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_08.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_09 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_09.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_10 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_10.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_11 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_11.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_12 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_12.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_13 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_13.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_14 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_14.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_15 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_15.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_16 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_16.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_17 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_17.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_18 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_18.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_19 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_19.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_20 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_20.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_21 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_21.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_22 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_22.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_23 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_23.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_24 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_24.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_25 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_25.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_26 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_26.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_27 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_27.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_28 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_28.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_29 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_29.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+    sound oceanwaves_30 {
+        category = Ocean, loop = false, is3D = true,
+        clip { file = media/sound/ocean/oceanwaves_30.ogg, distanceMax = 50, reverbFactor = 0, volume = 0.2, } }
+
+}

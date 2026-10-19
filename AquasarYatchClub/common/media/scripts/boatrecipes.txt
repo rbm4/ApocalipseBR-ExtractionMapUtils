@@ -1,0 +1,76 @@
+module Aquatsar
+{
+    craftRecipe Extract_Tire_Tube
+    {
+        time = 200,
+        timedAction = Making,
+        Tags = InHandCraft,
+        needToBeLearn = false,
+        category = Miscellaneous,
+        /*Sound:Aquatsar.ExtractTireTubeSound, todo OnCreate sound ?*/
+        inputs
+        {
+            item 1 tags[base:wholetire],
+            item 1 tags[base:screwdriver] mode:keep flags[MayDegradeLight],
+        }
+        outputs
+        {
+            item 1 Aquatsar.DeflatedTireTube,
+        }
+    }
+    
+    craftRecipe Inflate_Tire_Tube
+    {
+        time = 300,
+        timedAction = Making,
+        Tags = InHandCraft,
+        needToBeLearn = false,
+        category = Miscellaneous,
+        /*Sound:TireTubeInflatingSound,*/
+        inputs
+        {
+            item 1 [Aquatsar.DeflatedTireTube],
+        }
+        outputs
+        {
+            item 1 Aquatsar.TireTube,
+        }
+    }
+    
+    craftRecipe Flatten_Tire_Tube
+    {
+        time = 50,
+        timedAction = Making,
+        Tags = InHandCraft,
+        needToBeLearn = false,
+        category = Miscellaneous,
+        /*Sound:TireTubeFlattenSound,*/
+        inputs
+        {
+            item 1 [Aquatsar.TireTube],
+        }
+        outputs
+        {
+            item 1 Aquatsar.DeflatedTireTube,
+        }
+    }
+    
+    craftRecipe Inflate_Tire_Tube_With_Pump
+    {
+        time = 80,
+        timedAction = Making,
+        Tags = InHandCraft,
+        needToBeLearn = false,
+        category = Miscellaneous,
+        /*Sound:HandPumpSound,*/
+        inputs
+        {
+            item 1 [Aquatsar.DeflatedTireTube],
+            item 1 [Base.TirePump] mode:keep,
+        }
+        outputs
+        {
+            item 1 Aquatsar.TireTube,
+        }
+    }
+}

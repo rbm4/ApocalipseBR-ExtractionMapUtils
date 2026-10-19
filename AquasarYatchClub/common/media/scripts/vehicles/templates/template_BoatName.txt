@@ -1,0 +1,95 @@
+module Base
+{
+    template vehicle SailingYachtName
+    {
+        part BoatName
+        {
+            specificItem = false,
+            itemType = Aquatsar.SailingYachtName_Default_Item;Aquatsar.SailingYachtName_La_Brigandine_Item;Aquatsar.SailingYachtName_Sakharov_Item,
+            category = BoatBody,
+            table install
+            {
+                items
+                {
+                    1
+                    {
+                        type = Base.Paintbrush,
+                        count = 1,
+                        keep = true,
+                        equip = primary,
+                    }
+                    2
+                    {
+                        type = Base.PaintWhite,
+                        count = 1,
+                        keep = true,
+                    }
+                    3
+                    {
+                        type = Base.PaintBlack,
+                        count = 1,
+                        keep = true,
+                    }
+                }
+                time = 500,
+                professions = ,
+                skills = ,
+                traits = ,
+                recipes = ,
+                test = Vehicles.InstallTest.Default,
+                complete = Boats.InstallComplete.SailingYachtName,
+            }
+            lua
+            {
+                create = Boats.Create.SailingYachtName,
+                init = Boats.Init.SailingYachtName,
+            }
+        }
+    }
+    template vehicle BoatMotorName
+    {
+        part BoatName
+        {
+            specificItem = false,
+            itemType = Aquatsar.BoatMotorName_Default_Item;Aquatsar.BoatMotorName_NP_Item;Aquatsar.BoatMotorName_Orianna_Item,
+            category = BoatBody,
+            table install
+            {
+                items
+                {
+                    1
+                    {
+                        type = Base.Paintbrush,
+                        count = 1,
+                        keep = true,
+                        equip = primary,
+                    }
+                    2
+                    {
+                        type = Base.PaintWhite,
+                        count = 1,
+                        keep = true,
+                    }
+                    3
+                    {
+                        type = Base.PaintBlack,
+                        count = 1,
+                        keep = true,
+                    }
+                }
+                time = 500,
+                professions = ,
+                skills = ,
+                traits = ,
+                recipes = ,
+                test = Vehicles.InstallTest.Default,
+                complete = Boats.InstallComplete.MotorBoatName,
+            }
+            lua
+            {
+                create = Boats.Create.MotorBoatName,
+                init = Boats.Init.MotorBoatName,
+            }
+        }
+    }
+}

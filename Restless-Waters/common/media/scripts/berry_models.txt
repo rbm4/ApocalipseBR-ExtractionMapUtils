@@ -1,0 +1,144 @@
+module Base
+{
+
+	model Bearberry
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/BerriesGeneric1,
+		scale = 0.009,
+	}
+
+	model Blackcurrant
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/Berries,
+		scale = 0.009,
+	}
+
+	model BlackHuckleberry
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/Berries,
+		scale = 0.009,
+	}
+
+	model Blackberry
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/Berries,
+		scale = 0.009,
+	}
+
+	model Blueberry
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/BerriesGeneric2,
+		scale = 0.009,
+	}
+
+	model Bunchberry
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/BerriesGeneric4,
+		scale = 0.009,
+	}
+
+	model Chokecherry
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/Berries,
+		scale = 0.009,
+	}
+
+	model Cloudberry
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/BerriesGeneric3,
+		scale = 0.009,
+	}
+
+	model Cranberry
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/BerriesGeneric1,
+		scale = 0.009,
+	}
+
+	model Crowberry
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/Berries,
+		scale = 0.009,
+	}
+
+	model Gooseberry
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/BerriesGeneric3,
+		scale = 0.009,
+	}
+
+	model Hawberry
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/BerriesGeneric1,
+		scale = 0.009,
+	}
+
+	model Lingonberry
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/BerriesGeneric1,
+		scale = 0.009,
+	}
+
+	model Raspberry
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/BerriesGeneric1,
+		scale = 0.009,
+	}
+
+	model ClammyGroundCherry
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/BerriesWhite,
+		scale = 0.009,
+	}
+
+	model TwistedStalk
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/BerriesGeneric1,
+		scale = 0.009,
+	}
+
+	model Sumac
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/BerriesGeneric1,
+		scale = 0.009,
+	}
+
+	model Juneberry
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/Berries,
+		scale = 0.009,
+	}
+
+	model Redcurrant
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/BerryGeneric1,
+		scale = 0.009,
+	}
+
+	model Elderberry
+	{
+		mesh = WorldItems/BerryGeneric,
+		texture = WorldItems/Berries,
+		scale = 0.009,
+	}
+
+}

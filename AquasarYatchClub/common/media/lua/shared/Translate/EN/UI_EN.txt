@@ -1,0 +1,7 @@
+UI_EN = {
+    UI_Aquatsar_ModeOptionTitle = "Aquatsar",
+    UI_optionscreen_binding_Aquatsar_SailLeft = "Sail Left Control",
+    UI_optionscreen_binding_Aquatsar_SailLeft_tooltip = "Press that key to move your sail to the left.",
+    UI_optionscreen_binding_Aquatsar_SailRight = "Sail Right Control",
+    UI_optionscreen_binding_Aquatsar_SailRight_tooltip = "Press that key to move your sail to the right.",
+}

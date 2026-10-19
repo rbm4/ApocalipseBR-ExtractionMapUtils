@@ -1,0 +1,17 @@
+module Base
+{
+	
+    item peimap
+    {
+	DisplayCategory = Cartography,
+        ItemType = base:map,
+        DisplayName = Map of Prince Edward Island,
+        Icon = Map,
+        Weight = 0.2,
+        Map = PrinceEdwardIslandMap,
+	SurvivalGear = true,
+	StaticModel = MapInHand,
+	WorldStaticModel = Map,	
+    }
+}
+

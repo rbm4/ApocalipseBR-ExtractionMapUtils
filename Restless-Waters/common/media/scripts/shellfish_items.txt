@@ -1,0 +1,582 @@
+module Base
+{
+
+item SoftShellClam
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Shellfish/Shellfish_Icons/SoftShellClam_ico,
+        ReplaceOnUse = Base.ClamShell,
+        EvolvedRecipe = Pizza:5;Soup:5;Stew:5;Pie:5;Stir fry:5;Sandwich:5|Cooked;Burger:5|Cooked;Salad:5|Cooked;Rice:5;Pasta:5,
+        EatType = 2handforced,
+        FoodType = Seafood,
+        IsCookable = true,
+        MinutesToCook = 10,
+        MinutesToBurn = 25,
+        DaysFresh = 2,
+        DaysTotallyRotten = 3,
+        HungerChange = -5.0,
+        ThirstChange = -1,
+        Calories = 15.0,
+        Carbohydrates = 10.0,
+        Lipids = 4.0,
+        Proteins = 22.0,
+        StaticModel = SoftShellClam,
+        WorldStaticModel = SoftShellClam,
+        EvolvedRecipeName = Clam,
+        CookingSound = FryingFood,
+    }
+
+    item Quahog
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Shellfish/Shellfish_Icons/Quahog_ico,
+        ReplaceOnUse = Base.QuahogShell,
+        EvolvedRecipe = Pizza:5;Soup:5;Stew:5;Pie:5;Stir fry:5;Sandwich:5|Cooked;Burger:5|Cooked;Salad:5|Cooked;Rice:5;Pasta:5,
+        EatType = 2handforced,
+        FoodType = Seafood,
+        IsCookable = true,
+        MinutesToCook = 10,
+        MinutesToBurn = 25,
+        DaysFresh = 2,
+        DaysTotallyRotten = 3,
+        HungerChange = -5.0,
+        ThirstChange = -1,
+        Calories = 7.0,
+        Carbohydrates = 3.0,
+        Lipids = 3.0,
+        Proteins = 11.0,
+        StaticModel = Quahog,
+        WorldStaticModel = Quahog,
+        EvolvedRecipeName = Quahog,
+        CookingSound = FryingFood,
+    }
+
+    item BlueMussel
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Shellfish/Shellfish_Icons/BlueMussel_ico,
+        ReplaceOnUse = Base.BlueMusselShell,
+        EvolvedRecipe = Pizza:5;Soup:5;Stew:5;Pie:5;Stir fry:5;Sandwich:5|Cooked;Burger:5|Cooked;Salad:5|Cooked;Rice:5;Pasta:5,
+        EatType = 2handforced,
+        FoodType = Seafood,
+        IsCookable = true,
+        MinutesToCook = 10,
+        MinutesToBurn = 25,
+        DaysFresh = 2,
+        DaysTotallyRotten = 3,
+        HungerChange = -5.0,
+        ThirstChange = -1,
+        Calories = 7.0,
+        Carbohydrates = 3.0,
+        Lipids = 3.0,
+        Proteins = 11.0,
+        StaticModel = BlueMussel,
+        WorldStaticModel = BlueMussel,
+        EvolvedRecipeName = Mussel,
+        CookingSound = FryingFood,
+    }
+
+    item Oyster2
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Oysters,
+        ReplaceOnUse = Base.Oyster2Shell,
+        EvolvedRecipe = Pizza:5;Soup:5;Stew:5;Pie:5;Stir fry:5;Sandwich:5|Cooked;Burger:5|Cooked;Salad:5|Cooked;Rice:5;Pasta:5,
+        EatType = 2handforced,
+        FoodType = Seafood,
+        IsCookable = true,
+        MinutesToCook = 10,
+        MinutesToBurn = 25,
+        DaysFresh = 2,
+        DaysTotallyRotten = 4,
+        HungerChange = -5.0,
+        Calories = 15.0,
+        Carbohydrates = 10.0,
+        Lipids = 4.0,
+        Proteins = 22.0,
+        StaticModel = Oysters_Ground,
+        WorldStaticModel = Oysters_Ground,
+        EvolvedRecipeName = Oyster,
+        CookingSound = FryingFood,
+    }
+
+    item Scallop
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Shellfish/Shellfish_Icons/Scallop_ico,
+        ReplaceOnUse = Base.ScallopShell,
+        EvolvedRecipe = Pizza:5;Soup:5;Stew:5;Pie:5;Stir fry:5;Sandwich:5|Cooked;Burger:5|Cooked;Salad:5|Cooked;Rice:5;Pasta:5,
+        EatType = 2handforced,
+        FoodType = Seafood,
+        DaysFresh = 2,
+        DaysTotallyRotten = 3,
+        HungerChange = -5.0,
+        ThirstChange = -1,
+        Calories = 7.0,
+        Carbohydrates = 3.0,
+        Lipids = 3.0,
+        Proteins = 11.0,
+        StaticModel = Scallop,
+        WorldStaticModel = Scallop,
+        EvolvedRecipeName = Scallop,
+    }
+
+    item Periwinkle
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Shellfish/Shellfish_Icons/Periwinkle_ico,
+        ReplaceOnUse = Base.PeriwinkleShell,
+        EvolvedRecipe = Pizza:5;Soup:5;Stew:5;Pie:5;Stir fry:5;Sandwich:5|Cooked;Burger:5|Cooked;Salad:5|Cooked;Rice:5;Pasta:5,
+        EatType = 2handforced,
+        FoodType = Seafood,
+        IsCookable = true,
+        MinutesToCook = 10,
+        MinutesToBurn = 25,
+        DaysFresh = 2,
+        DaysTotallyRotten = 3,
+        HungerChange = -5.0,
+        ThirstChange = -1,
+        Calories = 7.0,
+        Carbohydrates = 3.0,
+        Lipids = 3.0,
+        Proteins = 11.0,
+        StaticModel = Periwinkle,
+        WorldStaticModel = Periwinkle,
+        EvolvedRecipeName = Periwinkle,
+        CookingSound = FryingFood,
+    }
+
+    item AtlanticLobster
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.4,
+        Icon = Shellfish/Shellfish_Icons/AtlanticLobster_ico,
+        EatType = 2handforced,
+        BadInMicrowave = true,
+        DangerousUncooked = true,
+        EvolvedRecipe = Taco:5|Cooked;Burrito:10|Cooked;Pizza:10;Soup:20;Stew:20;Pie:10;Stir fry:20;Sandwich:5|Cooked;Burger:10|Cooked;Salad:5|Cooked;Rice:20;Pasta:20,
+        FoodType = Seafood,
+        GoodHot = true,
+        IsCookable = true,
+        MinutesToCook = 30,
+        MinutesToBurn = 60,
+        DaysFresh = 2,
+        DaysTotallyRotten = 4,
+        HungerChange = -40.0,
+        Calories = 120.0,
+        Carbohydrates = 0.0,
+        Lipids = 7.0,
+        Proteins = 28.0,
+        StaticModel = AtlanticLobster,
+        WorldStaticModel = AtlanticLobster,
+        CookingSound = FryingFood,
+
+         
+    }
+
+    item SnowCrab
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.4,
+        Icon = Shellfish/Shellfish_Icons/SnowCrab_ico,
+        EatType = 2handforced,
+        BadInMicrowave = true,
+        DangerousUncooked = true,
+        EvolvedRecipe = Taco:5|Cooked;Burrito:10|Cooked;Pizza:10;Soup:20;Stew:20;Pie:10;Stir fry:20;Sandwich:5|Cooked;Burger:10|Cooked;Salad:5|Cooked;Rice:20;Pasta:20,
+        FoodType = Seafood,
+        GoodHot = true,
+        IsCookable = true,
+        MinutesToCook = 30,
+        MinutesToBurn = 60,
+        DaysFresh = 2,
+        DaysTotallyRotten = 4,
+        HungerChange = -24.0,
+        Calories = 87.0,
+        Carbohydrates = 0.0,
+        Lipids = 4.0,
+        Proteins = 17.0,
+        StaticModel = SnowCrab,
+        WorldStaticModel = SnowCrab,
+        CookingSound = FryingFood,
+    }
+
+    item GreenCrab
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.4,
+        Icon = Shellfish/Shellfish_Icons/GreenCrab_ico,
+        EatType = 2handforced,
+        BadInMicrowave = true,
+        DangerousUncooked = true,
+        EvolvedRecipe = Taco:5|Cooked;Burrito:10|Cooked;Pizza:10;Soup:20;Stew:20;Pie:10;Stir fry:20;Sandwich:5|Cooked;Burger:10|Cooked;Salad:5|Cooked;Rice:20;Pasta:20,
+        FoodType = Seafood,
+        GoodHot = true,
+        IsCookable = true,
+        MinutesToCook = 30,
+        MinutesToBurn = 60,
+        DaysFresh = 2,
+        DaysTotallyRotten = 4,
+        HungerChange = -21.0,
+        Calories = 85.0,
+        Carbohydrates = 0.0,
+        Lipids = 4.0,
+        Proteins = 15.0,
+        StaticModel = GreenCrab,
+        WorldStaticModel = GreenCrab,
+        CookingSound = FryingFood,
+    }
+
+    item LobsterMeat
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Shellfish/Shellfish_Icons/Shellmeat_ico,
+        EvolvedRecipe = Pizza:10;Soup:10;Stew:10;Pie:10;Stir fry:10;Sandwich:5|Cooked;Burger:10|Cooked;Salad:10|Cooked;Rice:10;Pasta:10;Taco:5|Cooked;Burrito:10|Cooked,
+        FoodType = Seafood,
+        IsCookable = true,
+        MinutesToCook = 10,
+        MinutesToBurn = 20,
+        DaysFresh = 2,
+        DaysTotallyRotten = 4,
+        HungerChange = -10.0,
+        Calories = 99.0,
+        Carbohydrates = 3.0,
+        Lipids = 0.0,
+        Proteins = 18.0,
+        StaticModel = SquidCalimari_Ground,
+        WorldStaticModel = SquidCalimari_Ground,
+        CookingSound = FryingFood,
+    }
+
+    item SnowCrabMeat
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Shellfish/Shellfish_Icons/Shellmeat_ico,
+        EvolvedRecipe = Pizza:10;Soup:10;Stew:10;Pie:10;Stir fry:10;Sandwich:5|Cooked;Burger:10|Cooked;Salad:10|Cooked;Rice:10;Pasta:10;Taco:5|Cooked;Burrito:10|Cooked,
+        FoodType = Seafood,
+        IsCookable = true,
+        MinutesToCook = 10,
+        MinutesToBurn = 20,
+        DaysFresh = 2,
+        DaysTotallyRotten = 4,
+        HungerChange = -10.0,
+        Calories = 87.0,
+        Carbohydrates = 3.0,
+        Lipids = 0.0,
+        Proteins = 15.0,
+        StaticModel = SquidCalimari_Ground,
+        WorldStaticModel = SquidCalimari_Ground,
+        CookingSound = FryingFood,
+    }
+
+    item GreenCrabMeat
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Shellfish/Shellfish_Icons/Shellmeat_ico,
+        EvolvedRecipe = Pizza:10;Soup:10;Stew:10;Pie:10;Stir fry:10;Sandwich:5|Cooked;Burger:10|Cooked;Salad:10|Cooked;Rice:10;Pasta:10;Taco:5|Cooked;Burrito:10|Cooked,
+        FoodType = Seafood,
+        IsCookable = true,
+        MinutesToCook = 10,
+        MinutesToBurn = 20,
+        DaysFresh = 2,
+        DaysTotallyRotten = 4,
+        HungerChange = -10.0,
+        Calories = 55.0,
+        Carbohydrates = 3.0,
+        Lipids = 0.0,
+        Proteins = 12.0,
+        StaticModel = SquidCalimari_Ground,
+        WorldStaticModel = SquidCalimari_Ground,
+        CookingSound = FryingFood,
+    }
+
+    item CookedSoftShellClam
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Shellfish/Shellfish_Icons/SoftShellClam_ico,
+        ReplaceOnUse = Base.ClamShell,
+        EvolvedRecipe = Pizza:5;Soup:5;Stew:5;Pie:5;Stir fry:5;Sandwich:5|Cooked;Burger:5|Cooked;Salad:5|Cooked;Rice:5;Pasta:5,
+        EatType = 2handforced,
+        FoodType = Seafood,
+        DaysFresh = 2,
+        DaysTotallyRotten = 3,
+        HungerChange = -5.0,
+        ThirstChange = -1,
+        Calories = 15.0,
+        Carbohydrates = 10.0,
+        Lipids = 4.0,
+        Proteins = 22.0,
+        StaticModel = SoftShellClam,
+        WorldStaticModel = SoftShellClam,
+        EvolvedRecipeName = Clam,
+    }
+
+    item CookedQuahog
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Shellfish/Shellfish_Icons/Quahog_ico,
+        ReplaceOnUse = Base.QuahogShell,
+        EvolvedRecipe = Pizza:5;Soup:5;Stew:5;Pie:5;Stir fry:5;Sandwich:5|Cooked;Burger:5|Cooked;Salad:5|Cooked;Rice:5;Pasta:5,
+        EatType = 2handforced,
+        FoodType = Seafood,
+        DaysFresh = 2,
+        DaysTotallyRotten = 3,
+        HungerChange = -5.0,
+        ThirstChange = -1,
+        Calories = 7.0,
+        Carbohydrates = 3.0,
+        Lipids = 3.0,
+        Proteins = 11.0,
+        StaticModel = Quahog,
+        WorldStaticModel = Quahog,
+        EvolvedRecipeName = Quahog,
+    }
+
+    item CookedBlueMussel
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Shellfish/Shellfish_Icons/BlueMussel_ico,
+        ReplaceOnUse = Base.BlueMusselShell,
+        EvolvedRecipe = Pizza:5;Soup:5;Stew:5;Pie:5;Stir fry:5;Sandwich:5|Cooked;Burger:5|Cooked;Salad:5|Cooked;Rice:5;Pasta:5,
+        EatType = 2handforced,
+        FoodType = Seafood,
+        DaysFresh = 2,
+        DaysTotallyRotten = 3,
+        HungerChange = -5.0,
+        ThirstChange = -1,
+        Calories = 7.0,
+        Carbohydrates = 3.0,
+        Lipids = 3.0,
+        Proteins = 11.0,
+        StaticModel = BlueMussel,
+        WorldStaticModel = BlueMussel,
+        EvolvedRecipeName = Mussel,
+    }
+
+    item CookedOyster
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Oysters,
+        ReplaceOnUse = Base.OysterShell,
+        EvolvedRecipe = Pizza:5;Soup:5;Stew:5;Pie:5;Stir fry:5;Sandwich:5|Cooked;Burger:5|Cooked;Salad:5|Cooked;Rice:5;Pasta:5,
+        EatType = 2handforced,
+        FoodType = Seafood,
+        DaysFresh = 2,
+        DaysTotallyRotten = 4,
+        HungerChange = -5.0,
+        Calories = 15.0,
+        Carbohydrates = 10.0,
+        Lipids = 4.0,
+        Proteins = 22.0,
+        StaticModel = Oysters_Ground,
+        WorldStaticModel = Oysters_Ground,
+        EvolvedRecipeName = Oyster,
+    }
+
+     item CookedScallop
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Shellfish/Shellfish_Icons/Scallop_ico,
+        ReplaceOnUse = Base.ScallopShell,
+        EvolvedRecipe = Pizza:5;Soup:5;Stew:5;Pie:5;Stir fry:5;Sandwich:5|Cooked;Burger:5|Cooked;Salad:5|Cooked;Rice:5;Pasta:5,
+        EatType = 2handforced,
+        FoodType = Seafood,
+        DaysFresh = 2,
+        DaysTotallyRotten = 4,
+        HungerChange = -5.0,
+        Calories = 15.0,
+        Carbohydrates = 10.0,
+        Lipids = 4.0,
+        Proteins = 22.0,
+        StaticModel = Scallop,
+        WorldStaticModel = Scallop,
+        EvolvedRecipeName = Scallop,
+    }
+
+    item CookedPeriwinkle
+    {
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.1,
+        Icon = Shellfish/Shellfish_Icons/Periwinkle_ico,
+        ReplaceOnUse = Base.PeriwinkleShell,
+        EvolvedRecipe = Pizza:5;Soup:5;Stew:5;Pie:5;Stir fry:5;Sandwich:5|Cooked;Burger:5|Cooked;Salad:5|Cooked;Rice:5;Pasta:5,
+        EatType = 2handforced,
+        FoodType = Seafood,
+        DaysFresh = 2,
+        DaysTotallyRotten = 3,
+        HungerChange = -5.0,
+        ThirstChange = -1,
+        Calories = 7.0,
+        Carbohydrates = 3.0,
+        Lipids = 3.0,
+        Proteins = 11.0,
+        StaticModel = Periwinkle,
+        WorldStaticModel = Periwinkle,
+        EvolvedRecipeName = Periwinkle,
+    }
+
+    item CookedLobster
+    {
+        DisplayName = Cooked Lobster,
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.8,
+        Icon = Shellfish/Shellfish_Icons/Lobster_ico,
+        FoodType = Shellfish,
+        DaysFresh = 2,
+        DaysTotallyRotten = 4,
+        HungerChange = -45,
+        ThirstChange = -5,
+        UnhappyChange = 15,
+        Calories = 55.0,
+        Carbohydrates = 1,
+        Lipids = 1.2,
+        Proteins = 27,
+        CustomEatSound = EatingMeat,
+        WorldStaticModel = AtlanticLobster,
+    }
+
+    item CookedSnowCrab
+    {
+        DisplayName = Cooked Snow Crab,
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.5,
+        Icon = Shellfish/Shellfish_Icons/SnowCrab_ico,
+        FoodType = Shellfish,
+        DaysFresh = 2,
+        DaysTotallyRotten = 4,
+        HungerChange = -25,
+        ThirstChange = -3,
+        UnhappyChange = 8,
+        Calories = 33.0,
+        Carbohydrates = 1,
+        Lipids = 1.8,
+        Proteins = 22,
+        CustomEatSound = EatingMeat,
+        WorldStaticModel = SnowCrab,
+    }
+
+    item CookedGreenCrab
+    {
+        DisplayName = Cooked Green Crab,
+        DisplayCategory = Food,
+        ItemType = base:food,
+        Weight = 0.5,
+        Icon = Shellfish/Shellfish_Icons/GreenCrab_ico,
+        FoodType = Shellfish,
+        DaysFresh = 2,
+        DaysTotallyRotten = 4,
+        HungerChange = -12,
+        ThirstChange = -2,
+        UnhappyChange = 12,
+        Calories = 17,
+        Carbohydrates = 1,
+        Lipids = 1.2,
+        Proteins = 11,
+        CustomEatSound = EatingMeat,
+        WorldStaticModel = GreenCrab,
+    }
+
+    item ClamShell
+    {
+        DisplayName = Clam Shell,
+        DisplayCategory = Junk,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Shellfish/Shellfish_Icons/Clam_ico,
+        WorldStaticModel = SoftShellClam,
+    }
+
+    item OysterShell
+    {
+        DisplayName = Oyster Shell,
+        DisplayCategory = Junk,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Shellfish/Shellfish_Icons/Oyster_ico,
+        WorldStaticModel = Oyster,
+    }
+
+    item ScallopShell
+    {
+        DisplayName = Scallop Shell,
+        DisplayCategory = Junk,
+        ItemType = base:normal,
+        Weight = 0.09,
+        Icon = Shellfish/Shellfish_Icons/Scallop_ico,
+        WorldStaticModel = Scallop,
+    }
+
+    item MusselShell
+    {
+        DisplayName = Mussel Shell,
+        DisplayCategory = Junk,
+        ItemType = base:normal,
+        Weight = 0.07,
+        Icon = Shellfish/Shellfish_Icons/BlueMussel_ico,
+        WorldStaticModel = BlueMussel,
+    }
+
+    item LobsterShell
+    {
+        DisplayName = Lobster Shell,
+        DisplayCategory = Junk,
+        ItemType = base:normal,
+        Weight = 0.6,
+        Icon = Shellfish/Shellfish_Icons/AtlanticLobster_ico,
+        WorldStaticModel = AtlanticLobster,
+    }
+
+    item CrabShell
+    {
+        DisplayName = Crab Shell,
+        DisplayCategory = Junk,
+        ItemType = base:normal,
+        Weight = 0.4,
+        Icon = Shellfish/Shellfish_Icons/GreenCrab_ico,
+        WorldStaticModel = SnowCrab,
+    }
+
+    item PeriwinkleShell
+    {
+        DisplayName = Periwinkle Shell,
+        DisplayCategory = Junk,
+        ItemType = base:normal,
+        Weight = 0.04,
+        Icon = Shellfish/Shellfish_Icons/Periwinkle_ico,
+        WorldStaticModel = Periwinkle,
+    }
+
+}

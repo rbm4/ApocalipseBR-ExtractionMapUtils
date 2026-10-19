@@ -1,0 +1,17 @@
+module Base
+{
+    template vehicle BoatAnchor
+    {
+        part BoatAnchor
+        {
+            specificItem = false,
+            itemType = Aquatsar.BoatAnchor,
+            category = nodisplay,
+            lua
+            {
+                create = Boats.Create.BoatAnchor,
+                init = Boats.Init.BoatAnchor,
+            }
+        }
+    }
+}

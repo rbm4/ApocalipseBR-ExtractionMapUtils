@@ -1,0 +1,10 @@
+name=Aquatsar Yacht Club
+poster=poster.png
+icon=AquatsarIcon.png
+require=\TSAR_APOC
+id=AquatsarYachtClubB42
+versionMin=42.14
+modversion=1.37
+categories=vehicle,features
+description=Aquatsar Yacht Club v.1.19 from IbrRus port to B42.13+
+url=https://steamcommunity.com/linkfilter/?u=https://discord.gg/theindiestone

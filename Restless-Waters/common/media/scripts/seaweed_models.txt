@@ -1,0 +1,60 @@
+module Base
+{
+
+    model Dulse
+    {
+        mesh = WorldItems/SeaWeed,
+        texture = Item_Seaweed/SeaweedBrown,
+        scale = 0.009,
+    }
+
+    model IrishMoss
+    {
+        mesh = WorldItems/SeaWeed,
+        texture = Item_Seaweed/SeaweedYellow,
+        scale = 0.009,
+    }
+
+    model Rockweed
+    {
+        mesh = WorldItems/SeaWeed,
+        texture = Item_Seaweed/SeaweedGreen,
+        scale = 0.4,
+    }
+
+    model SugarKelp
+    {
+        mesh = WorldItems/SeaWeed,
+        texture = Item_Seaweed/SeaweedBrown,
+        scale = 0.4,
+    }
+
+    model Bladderwrack
+    {
+        mesh = WorldItems/SeaWeed,
+        texture = Item_Seaweed/SeaweedGreen,
+        scale = 0.4,
+    }
+
+    model SeaLettuce
+    {
+        mesh = WorldItems/SeaWeed,
+        texture = Item_Seaweed/SeaweedGreen,
+        scale = 0.4,
+    }
+
+    model Kombu
+    {
+        mesh = WorldItems/SeaWeed,
+        texture = Item_Seaweed/SeaweedGreen,
+        scale = 0.4,
+    }
+
+    model SeaGrapes
+    {
+        mesh = WorldItems/SeaWeed,
+        texture = Item_Seaweed/SeaweedGreen,
+        scale = 0.4,
+    }
+
+}

@@ -1,0 +1,9 @@
+{
+    "IGUI_ModOptions_AcadiaName": "Acadia Settings",
+    "IGUI_ModOptions_OceanSoundVolume_Desc": "Adjust volume of ocean sounds",
+    "IGUI_ModOptions_OceanSoundVolume_Name": "Ocean Sound Volume (Default 1.00)",
+    "IGUI_ModOptions_BirdSoundVolume_Desc": "Adjust volume of bird sounds",
+    "IGUI_ModOptions_BirdSoundVolume_Name": "Bird Sound Volume (Default 1.00)",
+    "IGUI_ModOptions_SingingInsectVolume_Desc": "Adjust volume of insect sounds",
+    "IGUI_ModOptions_SingingInsectVolume_Name": "Insect Volume (Default 1.00)"
+}

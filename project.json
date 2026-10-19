@@ -1,12 +1,15 @@
 {
     "$schema": "https://raw.githubusercontent.com/Konijima/project-zomboid-studio/master/pzstudio.schema.json",
     "title": "ApocalipseBR - Extraction Map Utils",
-    "authors": ["Hypothetic"],
+    "authors": [
+        "Hypothetic"
+    ],
     "workshop": {
-        "visibility": "public",
-        "id":3822608465,
+        "visibility": "unlisted",
+        "id": 3822608465,
         "tags": [
-            "Build 42", "Multiplayer"
+            "Build 42",
+            "Multiplayer"
         ],
         "excludes": []
     },
@@ -14,6 +17,18 @@
         "ApocalipseBR-ExtractionMapUtils": {
             "name": "ApocalipseBR - Extraction Map Utils",
             "description": "Event lobby login relocation and forced world map/minimap reveal for Build 42."
+        },
+        "Restless-Waters": {
+            "name": "Restless-Waters",
+            "description": ""
+        },
+        "MakeshiftRaft": {
+            "name": "MakeshiftRaft",
+            "description": ""
+        },
+        "AquasarYatchClub": {
+            "name": "AquasarYatchClub",
+            "description": ""
         }
     }
 }

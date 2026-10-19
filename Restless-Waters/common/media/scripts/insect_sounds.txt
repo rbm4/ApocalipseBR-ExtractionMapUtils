@@ -1,0 +1,456 @@
+module Base 
+{
+    sound Mosquito1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/mosquito1.ogg, reverbFactor = 1, volume = 0.4, distanceMax = 3, }
+    }
+    sound Mosquito2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/mosquito2.ogg, reverbFactor = 1, volume = 0.4, distanceMax = 3, }
+    }
+    sound Mosquito3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/mosquito3.ogg, reverbFactor = 1, volume = 0.4, distanceMax = 3, }
+    }
+    sound Mosquito4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/mosquito4.ogg, reverbFactor = 1, volume = 0.4, distanceMax = 3, }
+    }
+    sound Mosquito5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/mosquito5.ogg, reverbFactor = 1, volume = 0.4, distanceMax = 3, }
+    }
+
+    sound Flybuzz1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/flybuzz1.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 3, }
+    }
+    sound Flybuzz2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/flybuzz2.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 3, }
+    }
+    sound Flybuzz3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/flybuzz3.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 3, }
+    }
+    sound Flybuzz4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/flybuzz4.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 3, }
+    }
+    sound Flybuzz5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/flybuzz5.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 3, }
+    }
+    sound Flybuzz6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/flybuzz6.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 3, }
+    }
+    sound Flybuzz7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/flybuzz7.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 3, }
+    }
+    sound Flybuzz8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/flybuzz8.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 3, }
+    }
+    sound Flybuzz9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/flybuzz9.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 3, }
+    }
+
+    sound Swarm1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/swarm1.ogg, reverbFactor = 1, volume = 0.4, distanceMax = 3, }
+    }
+    sound Swarm2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/swarm2.ogg, reverbFactor = 1, volume = 0.4, distanceMax = 3, }
+    }
+    sound Swarm3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/swarm3.ogg, reverbFactor = 1, volume = 0.4, distanceMax = 3, }
+    }
+    sound Swarm4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_biting/swarm4.ogg, reverbFactor = 1, volume = 0.4, distanceMax = 3, }
+    }
+
+    sound BlackLeggedMeadowKatydid1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/black_legged_meadow_katydid1.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound BlackLeggedMeadowKatydid2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/black_legged_meadow_katydid2.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound BlackLeggedMeadowKatydid3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/black_legged_meadow_katydid3.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound BlackLeggedMeadowKatydid4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/black_legged_meadow_katydid4.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound BlackLeggedMeadowKatydid5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/black_legged_meadow_katydid5.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound BlackLeggedMeadowKatydid6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/black_legged_meadow_katydid6.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound BlackLeggedMeadowKatydid7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/black_legged_meadow_katydid7.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound CommonMeadowKatydid1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/common_meadow_katydid1.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound CommonMeadowKatydid2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/common_meadow_katydid2.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound CommonMeadowKatydid3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/common_meadow_katydid3.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound CommonMeadowKatydid4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/common_meadow_katydid4.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound CommonMeadowKatydid5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/common_meadow_katydid5.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound CommonMeadowKatydid6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/common_meadow_katydid6.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound CommonTrueKatydid1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/common_true_katydid1.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound CommonTrueKatydid10
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/common_true_katydid10.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound CommonTrueKatydid2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/common_true_katydid2.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound CommonTrueKatydid3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/common_true_katydid3.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound CommonTrueKatydid4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/common_true_katydid4.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound CommonTrueKatydid5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/common_true_katydid5.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound CommonTrueKatydid6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/common_true_katydid6.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound CommonTrueKatydid7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/common_true_katydid7.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound CommonTrueKatydid8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/common_true_katydid8.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound CommonTrueKatydid9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/common_true_katydid9.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound FallFieldCricket1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/fall_field_cricket1.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound FallFieldCricket2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/fall_field_cricket2.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound FallFieldCricket3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/fall_field_cricket3.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound FallFieldCricket4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/fall_field_cricket4.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound FallFieldCricket5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/fall_field_cricket5.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound FallFieldCricket6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/fall_field_cricket6.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound FallFieldCricket7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/fall_field_cricket7.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound FallFieldCricket8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/fall_field_cricket8.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound ForbesTreeCricket1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/forbes_tree_cricket1.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound ForbesTreeCricket2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/forbes_tree_cricket2.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound ForbesTreeCricket3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/forbes_tree_cricket3.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound ForbesTreeCricket4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/forbes_tree_cricket4.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound ForbesTreeCricket5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/forbes_tree_cricket5.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound ForbesTreeCricket6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/forbes_tree_cricket6.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound GladiatorMeadowKatydid1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/gladiator_meadow_katydid1.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound GladiatorMeadowKatydid2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/gladiator_meadow_katydid2.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound GladiatorMeadowKatydid3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/gladiator_meadow_katydid3.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound GladiatorMeadowKatydid4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/gladiator_meadow_katydid4.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound GladiatorMeadowKatydid5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/gladiator_meadow_katydid5.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound GladiatorMeadowKatydid6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/gladiator_meadow_katydid6.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound GladiatorMeadowKatydid7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/gladiator_meadow_katydid7.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound GladiatorMeadowKatydid8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/gladiator_meadow_katydid8.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound GladiatorMeadowKatydid9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/gladiator_meadow_katydid9.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound GladiatorMeadowKatydid10
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/gladiator_meadow_katydid10.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound GladiatorMeadowKatydid11
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/gladiator_meadow_katydid11.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound NorthernMoleCricket1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/northern_mole_cricket1.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound NorthernMoleCricket2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/northern_mole_cricket2.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound NorthernMoleCricket3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/northern_mole_cricket3.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound NorthernMoleCricket4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/northern_mole_cricket4.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound NorthernMoleCricket5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/northern_mole_cricket5.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound NorthernMoleCricket6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/northern_mole_cricket6.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound NorthernMoleCricket7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/northern_mole_cricket7.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound NorthernMoleCricket8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/northern_mole_cricket8.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound NorthernMoleCricket9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/northern_mole_cricket9.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound ShortWingedMeadowKatydid1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/short_winged_meadow_katydid1.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound SnowyTreeCricket1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/snowy_tree_cricket1.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound SnowyTreeCricket2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/snowy_tree_cricket2.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound SpringFieldCricket1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/spring_field_cricket1.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound SpringFieldCricket2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/spring_field_cricket2.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound SpringFieldCricket3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/spring_field_cricket3.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound SpringFieldCricket4
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/spring_field_cricket4.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound SpringFieldCricket5
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/spring_field_cricket5.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound SpringFieldCricket6
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/spring_field_cricket6.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound SpringFieldCricket7
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/spring_field_cricket7.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound SpringFieldCricket8
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/spring_field_cricket8.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound SpringFieldCricket9
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/spring_field_cricket9.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound StraightLancedMeadowKatydid1
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/straight_lanced_meadow_katydid1.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound StraightLancedMeadowKatydid2
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/straight_lanced_meadow_katydid2.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+    sound StraightLancedMeadowKatydid3
+    {
+        category = Ambient, is3D = true,
+        clip { file = media/sound/insects_singing/straight_lanced_meadow_katydid3.ogg, reverbFactor = 1, volume = 0.65, distanceMax = 27, }
+    }
+}

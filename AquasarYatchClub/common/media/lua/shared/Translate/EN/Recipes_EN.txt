@@ -1,0 +1,11 @@
+RecipesEN = {
+/************ Aquatsar Yacht Club ************/
+    Extract_Tire_Tube = "Extract Tire Tube",
+    Flatten_Tire_Tube = "Flatten Tire Tube",
+    Inflate_Tire_Tube = "Inflate Tire Tube",
+    Inflate_Tire_Tube_With_Pump = "Inflate Tire Tube (with Pump)",
+    Powerboats_Mechanics = "Powerboats Mechanics",
+    Sailboats_Mechanics = "Sailboats Mechanics",
+    Performance_Boat_Mechanics = "Performance Boat Mechanics",
+    Swimming = "Best Swimming Technique",
+}
