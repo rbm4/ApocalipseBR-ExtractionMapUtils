@@ -5,22 +5,6 @@ local oldGetBestBButtonAction = ISButtonPrompt.getBestAButtonAction
 local oldGetBestLBButtonAction = ISButtonPrompt.getBestLBButtonAction
 local oldGetBestRBButtonAction = ISButtonPrompt.getBestRBButtonAction
 
-local isWaterAhead = function(player)
-    local waterDirectlyAhead = false
-    local direction = player:getForwardDirection()
-    local x = player:getX() + direction:getX()
-    local y = player:getY() + direction:getY()
-    local location = player:getSquare()
-    local destination = getCell():getGridSquare(x, y, player:getZ())
-    if location and destination 
-            and AquatsarYachts.Swim.isWater(destination)
-            and not AquatsarYachts.Swim.isWater(location)
-            and not location:isWallTo(destination)
-            and not location:isWindowTo(destination) then 
-        return true
-    end
-end
-
 function ISButtonPrompt:getBestAButtonAction(dir)
     local playerObj = getSpecificPlayer(self.player)
     oldGetBestBButtonAction(self, dir)
@@ -37,13 +21,6 @@ function ISButtonPrompt:getBestAButtonAction(dir)
     boat = ISBoatMenu.getBoatToInteractWith(playerObj)
     if boat then
         self:setAPrompt(getText("IGUI_EnterBoat"), self.cmdEnterBoat, playerObj, boat)
-        return
-    end
-    if (playerObj:isSprinting() or playerObj:isRunning())
-            and playerObj:getSquare()
-            and not AquatsarYachts.Swim.isWater(playerObj:getSquare())
-            and isWaterAhead(playerObj) then
-        self:setAPrompt(getText("IGUI_JumpInWater"), fastSwimJoypad, Keyboard.KEY_SPACE, nil, nil)
         return
     end
 end

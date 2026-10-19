@@ -1,3 +1,4 @@
+-- Water detection for boat physics, launching and menus. Player swimming is handled by external mods.
 AquatsarYachts = AquatsarYachts or {}
 AquatsarYachts.Swim = AquatsarYachts.Swim or {}
 
@@ -17,59 +18,3 @@ function AquatsarYachts.Swim.isWater(sq)
     
     return hasWater
 end
-
-function AquatsarYachts.Swim.isSwimming(playerObj)
-    if not playerObj or playerObj:getVehicle() then return false end
-    return AquatsarYachts.Swim.isWater(playerObj:getSquare())
-end
-
-function AquatsarYachts.EvalFloater(inventoryItem)
-    --print('AquatsarYachts.EvalFloater '..tostring(inventoryItem)..' '..tostring(inventoryItem and inventoryItem:hasTag(Aquatsar.TAG_Floater))..' '..tostring(inventoryItem and inventoryItem:isEquipped()))
-    return inventoryItem and inventoryItem:hasTag(Aquatsar.TAG_Floater) and inventoryItem:isEquipped()
-end
-function AquatsarYachts.EvalUnderWaterSight(inventoryItem)
-    --print('AquatsarYachts.EvalFloater '..tostring(inventoryItem)..' '..tostring(inventoryItem and inventoryItem:hasTag(Aquatsar.TAG_UnderWaterSight))..' '..tostring(inventoryItem and inventoryItem:isEquipped()))
-    return inventoryItem and inventoryItem:hasTag(Aquatsar.TAG_UnderWaterSight) and inventoryItem:isEquipped()
-end
-function AquatsarYachts.EvalSwimSuit(inventoryItem)
-    --print('AquatsarYachts.EvalFloater '..tostring(inventoryItem)..' '..tostring(inventoryItem and inventoryItem:hasTag(Aquatsar.TAG_SwimSuit))..' '..tostring(inventoryItem and inventoryItem:isEquipped()))
-    return inventoryItem and inventoryItem:hasTag(Aquatsar.TAG_SwimSuit) and inventoryItem:isEquipped()
-end
-
-
-local function addTagToItemList(itemList, tag)
-    if not itemList or not tag then return end
-    for iterItem=1, #itemList do
-        local itemName = itemList[iterItem]
-        local item = getScriptManager():getItem(itemName)
-        if item then
-            if not item:hasTag(tag) then
-                local arrTags = item:getTags()
-                arrTags:add(tag)
-            else
-                print("Warning "..itemName.." has already the tag "..tag:toString())
-            end
-        else
-            print("Warning Missing item "..itemName.." cannot add the tag "..tag:toString())
-        end
-    end
-end
-AquatsarYachts.Swim.vanillaFloaterItems = {}
-AquatsarYachts.Swim.vanillaUnderWaterSightItems = {"Glasses_SwimmingGoggles"}
-AquatsarYachts.Swim.vanillaSwimSuitItems = {
-"SwimTrunks_Yellow",
-"SwimTrunks_Red",
-"SwimTrunks_Blue",
-"SwimTrunks_Green",
-"Swimsuit_TINT"
-}
-
-function AquatsarYachts.Swim.addTagToItems()
-    addTagToItemList(AquatsarYachts.Swim.vanillaFloaterItems, Aquatsar.TAG_Floater)
-    addTagToItemList(AquatsarYachts.Swim.vanillaUnderWaterSightItems, Aquatsar.TAG_UnderWaterSight)
-    addTagToItemList(AquatsarYachts.Swim.vanillaSwimSuitItems, Aquatsar.TAG_SwimSuit)
-    --print('added tags to vanilla items')
-end
-
-Events.OnLoad.Add(AquatsarYachts.Swim.addTagToItems)
-

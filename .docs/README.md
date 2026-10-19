@@ -1,0 +1,29 @@
+# Extraction module documentation
+
+The core mod controls the ApocalipseBR test-server lobby and will grow into the
+orchestrator for extraction and other gameplay events. The server is intended to
+be linked to PostgreSQL; the existing core Lua files do not implement that
+integration. Repository conventions live in [AGENTS.md](../AGENTS.md).
+
+## Features
+
+Durable gameplay specifications and current behavior belong in `features/`.
+
+- [Lobby placement and map visibility](features/lobby-and-map-visibility.md):
+  existing foundation, configuration, and validation limits.
+
+Future event activation and database integration should receive their own feature
+documents when designed. Mark proposals as planned until implemented.
+
+## Hotfixes
+
+Targeted corrections and compatibility workarounds belong in `hotfixes/`.
+
+- [Chernarus road rendering](hotfixes/chernarus-road-rendering.md): existing
+  cartography workaround and remaining in-game verification.
+
+## Reports
+
+[Reports](reports/README.md) hold dated investigations and test results. They are
+evidence for feature and hotfix documents, not the source of ongoing behavior
+specifications.

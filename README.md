@@ -2,6 +2,15 @@
 
 Build 42 event lobby foundation. Mod ID: `ApocalipseBR-ExtractionMapUtils`.
 
+This repository brings together the extraction/lobby core in
+`ApocalipseBR-ExtractionMapUtils/`, boats in `AquasarYatchClub/`, and the event map
+in `Restless-Waters/`. The core will orchestrate gameplay events on the test
+server, which is intended to be linked to PostgreSQL. That database integration
+and event lifecycle are follow-up work.
+
+See [AGENTS.md](AGENTS.md) for repository conventions and [.docs/](.docs/README.md)
+for separate feature, hotfix, and report documentation.
+
 ## Install
 
 Copy the `ApocalipseBR-ExtractionMapUtils` directory (containing `42` and `common`) into your `Zomboid/mods` directory, or package that directory under a Workshop item's `Contents/mods`. Enable the mod on the server and clients. No map dependency is required yet.

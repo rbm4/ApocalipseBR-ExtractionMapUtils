@@ -75,10 +75,6 @@ function ISExitBoat:perform()
         self.character:clearVariable("ATVehicleType")
         self.character:clearVariable("ATVehicleStatus")
         self.character:clearVariable("ATPassengerStatus")
-        if isClient() then
-            ModData.getOrCreate("tsaranimations")[self.character:getOnlineID()] = nil
-            ModData.transmit("tsaranimations")
-        end
         sendClientCommand(self.character, 'autotsaranim', 'updateVariables', {vehicle = self.character:getVehicle():getId(), seatId = self.character:getVehicle():getSeat(self.character), status = "none",})
     end
     vehicle:exit(self.character)
