@@ -1,9 +1,9 @@
 name=ApocalipseBR - Extraction Map Utils
 id=ApocalipseBR-ExtractionMapUtils
 author=Hypothetic
-description=Event lobby utilities: protected perimeter and RCON door release, login relocation, and world map/minimap reveal.
+description=Event lobby utilities: military fence perimeter and RCON exit removal, login relocation, and world map/minimap reveal.
 poster=poster.png
 icon=icon.png
 versionMin=42.13.0
 require=ApocalipseBrRCONextension
-modversion=0.2.0
+modversion=0.2.2

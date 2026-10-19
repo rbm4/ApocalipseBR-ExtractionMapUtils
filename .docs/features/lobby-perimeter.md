@@ -1,19 +1,19 @@
 # Lobby perimeter and RCON release
 
-Status: implemented in 0.2.0; awaiting Build 42 dedicated-server/client validation.
+Status: updated in 0.2.2; awaiting Build 42 dedicated-server/client validation.
 Related foundation: [Login placement and map visibility](lobby-and-map-visibility.md).
 Source investigation: [World-control APIs](../reports/2026-10-19-lobby-world-control-api-investigation.md).
 
 ## Behavior
 
-The dedicated server builds a metal-wall perimeter around the inclusive interior
+The dedicated server builds a non-climbable military/barbed-fence perimeter around the inclusive interior
 X=14260..14321, Y=11812..11892, Z=0. The supplied corners are normalized so their
-order does not matter. This encloses 62 by 81 tiles with 286 edge objects: 280
-walls and six single-tile door positions. North/west edges belong to the square
+order does not matter. This encloses 62 by 81 tiles with 286 identical fence edge
+objects, including six single-tile removable exits. North/west edges belong to the square
 at that coordinate; east/south edges occupy the neighbouring square, so the
 east wall is stored at X=14322 and the south wall at Y=11893.
 
-Door positions are randomly selected once and saved in global ModData under
+Exit positions are randomly selected once and saved in global ModData under
 `ApocExtractionLobby`. They avoid corners and have at least two intervening wall
 tiles along an edge. Positions stay fixed across chunk reloads and normal save
 restarts. Single-tile openings are intended for pedestrians and keep ordinary
@@ -28,15 +28,33 @@ deletion, fire, vehicle physics, animal damage, other mods and modified clients
 are not a universal indestructibility guarantee. Missing assets are repaired
 when the square loads or during the slow scan.
 
-Before release, each door uses the metal-door graphics on an `IsoThumpable`
-barrier with `isDoor=false`. This prevents ordinary door interactions from
-opening it from either side; vanilla locks alone do not provide that rule.
-The release command replaces only the six barriers with open, single-piece
-`IsoThumpable` doors. Their flags/health remain protected. The server reasserts
-the open state if a player later closes a released door.
+Version 0.2.2 additionally blocks world-object scrap/disassembly and thumpable
+dismantling on every interior tile and the east/south perimeter squares at the
+configured Z. This applies to all players, regardless of faction or role, and
+continues after exit release. It covers native welding scrap actions and
+already-queued actions at completion, on both client and server. Target object
+positions are checked, not the player's position or ownership marker. Outside
+the protected footprint, native checks still apply. Pickup, placement, rotation,
+repair and inventory-item disassembly are not included in this restriction.
+See [the disassembly hotfix](../hotfixes/lobby-disassembly-protection.md) for
+verified action paths, tests and limitations. Authorized RCON fence removal
+continues to use native world removal without going through these player actions.
+
+Every segment, including the exits, uses `fencing_01_88` (north) or
+`fencing_01_90` (west). The installed vanilla tile definitions give these sprites
+`CantClimb` and `WallNTrans`/`WallWTrans`; the loader converts those wall properties
+to directional collision. Both short/tall hoppable flags are absent. Startup
+validates directional collision plus `CantClimb` and rejects either hoppable
+flag family. `setIsHoppable(false)` alone does not stop normal wall climbing.
+
+There are no door sprites or door-state transitions. The release command
+despawns only the six designated fence segments through native server removal.
+The result is 280 fence objects and six single-tile pedestrian gaps. Rescans,
+repairs and chunk reloads deliberately leave those gaps empty. Other fence
+segments retain their protection and repair behavior.
 
 The release latch is saved with the layout. A normal restart of an already
-released save leaves doors open; this version has no close/reset command or
+released save leaves exit gaps empty; this version has no close/reset command or
 daily schedule. The module does not implement zombie clearance, an event
 lifecycle, server-authoritative player relocation or forced chunk streaming.
 Existing map objects are preserved; the builder does not clear buildings,
@@ -50,7 +68,7 @@ Enable `ApocalipseBrRCONextension` on both server and clients before the core
 dependency ID; the extension is installed separately, not copied into this
 repository. Minimum version is now 42.13.0, matching that dependency.
 
-On server startup with unreleased doors, the core generates a one-use UUID and
+On server startup with unreleased exits, the core generates a one-use UUID and
 writes it to the server's Lua cache:
 
 ```text
@@ -63,7 +81,7 @@ file on the server and send the following through RCON, substituting the token
 and a unique request ID:
 
 ```text
-servermsg ##APOCBR_RCON##ExtractionLobby##OpenDoors##lobby-open-001##<TOKEN>
+servermsg ##APOCBR_RCON##ExtractionLobby##ReleaseExits##lobby-release-001##<TOKEN>
 ```
 
 The extension receives `servermsg` on connected clients and relays it to the
@@ -71,7 +89,9 @@ server, then waits its two-second duplicate-relay grace period before dispatch.
 **At least one connected client with the extension is required.** With an empty
 server, this transport cannot deliver the command; retry after a client joins
 with a new request ID. No lobby coordinates or object IDs are accepted from the
-payload: the only operation is releasing the configured perimeter.
+payload: the only operation is releasing the six configured exits. The former
+`OpenDoors` command remains an alias of `ReleaseExits`, so existing integrations
+now remove exit fences instead of opening doors. The token filename is unchanged.
 
 This extension's relay callback is not proof of RCON authentication. Ordinary
 clients can forge relay packets. The server-local token authorizes the fixed
@@ -82,29 +102,31 @@ consumption cannot initiate a later release. Do not reuse this mechanism for
 arbitrary payload-bearing or repeatable privileged commands without a separate
 authentication design. Restarting an unreleased server generates a new token.
 
-On acceptance the token file reads `consumed` and the log says `OpenDoors
+On acceptance the token file reads `consumed` and the log says `ReleaseExits
 accepted`. File creation/verification/consumption failures leave the release
 disabled/closed. Invalid-token payloads are rejected without logging their
 contents. The extension has no response channel to RCON, so use the server log
-and actual door state to confirm execution. Repeating the command after release
+and actual exit gaps to confirm execution. Repeating the command after release
 has no effect.
 
 ## Configuration and work budget
 
-Edit `common/media/lua/server/ApocExtractionMapUtils_LobbyConfig.lua` in the core
-mod and restart. This is server-owned Lua configuration, independent of the
-existing sandbox login coordinates.
+Edit `common/media/lua/shared/ApocExtractionMapUtils_LobbySettings.lua` in the core
+mod and restart clients/server with identical configuration. The existing server
+`ApocExtractionMapUtils_LobbyConfig.lua` now forwards to the shared settings so
+older module requires continue to work. Server enforcement uses the server's
+own configuration. These bounds remain independent of sandbox login coordinates.
 
 | Configuration | Default | Meaning |
 | --- | --- | --- |
 | Enabled | true | Enables perimeter initialization/maintenance. |
 | X1/Y1, X2/Y2, Z | Supplied bounds, Z=0 | Inclusive interior tiles. |
-| DoorCount | 6 | Clamped to 0..6, selected once per saved layout. |
+| ExitCount | 6 | Clamped to 0..6, selected once per saved layout. Replaces DoorCount. |
 | MaxEdgesPerTick | 4 | Hard count cap; configurable from 1 to 16. |
 | MaxTickMilliseconds | 2 | Stops starting more edge operations after elapsed budget. |
 | RescanMilliseconds | 60000 | Recheck all edges, spreading operations across ticks. Minimum 10000. |
-| DoorCheckMilliseconds | 2000 | Recheck only doors. Minimum 1000. |
-| Wall/Door sprite fields | Vanilla metal assets | N/W closed walls/doors and N/W open door sprites. |
+| ExitCheckMilliseconds | 2000 | Recheck only exits. Minimum 1000. Replaces DoorCheckMilliseconds. |
+| FenceNorth / FenceWest | fencing_01_88 / fencing_01_90 | N/W military fence sprites; validated collision and climb flags. |
 
 Initialization creates a small plan and enqueues edges; it does not mutate the
 world in one startup loop. Each tick processes at most four edges, checking the
@@ -114,12 +136,20 @@ Unloaded/null squares are skipped once, without repeatedly retrying them each
 tick. `LoadGridsquare` only queues matching edges; placement happens later.
 Repeated callbacks are deduplicated, no square references are retained, and the
 finite plan is capped at 4096 edges. A mostly unloaded default lobby costs 286
-lookups per minute plus six door lookups per two seconds, spread across ticks.
+lookups per minute plus six exit lookups per two seconds, spread across ticks.
 Errors log once per failing edge until it succeeds and retry only on a later
 load/check/scan. Intact objects are not continually recreated or rebroadcast.
 
-Changing bounds, door count or sprites on an existing save is rejected rather
-than silently relocating the perimeter. Deliberately remove the old owned
+The known default 0.2.0 perimeter upgrades automatically at identical bounds
+and exit count. Its saved door positions become exit positions and its release
+latch is preserved. Owned old walls/doors are replaced as their squares load,
+using the same tick budgets. Legacy ownership signatures remain saved so an old
+chunk loaded after another restart is still repaired. A released old save has
+its old doors removed rather than replaced. Unrelated map objects are preserved.
+No world reset or manual cleanup is needed for this upgrade.
+
+Other changes to bounds, exit count or sprites on an existing save are rejected
+rather than silently relocating the perimeter. Deliberately remove the old owned
 assets and migrate/remove its `ApocExtractionLobby` state while the server is
 stopped or through trusted administrative tooling before changing the layout.
 Disabling this feature stops its work; it does not delete existing assets.
@@ -136,20 +166,22 @@ Disabling this feature stops its work; it does not delete existing assets.
   (`IsoGridSquare.java:5855`). `object:transmitCompleteItemToClients()` sends the
   native `AddItemToMap` packet (`IsoObject.java:4811`). Normal world saves own
   chunk persistence; the mod does not force a synchronous world save.
-- Door replacement uses `square:transmitRemoveItemFromSquare()` and the same
-  complete add path. Opening is set with `ToggleDoorSilent()` BEFORE insertion
-  and full serialization. This avoids a nil actor in `ToggleDoor(nil)` and
-  avoids treating a silent toggle as a complete live-world sync operation.
+- Exit removal uses `square:transmitRemoveItemFromSquare()` with its native
+  server removal/network/collision path. It creates no replacement door object.
 - Like the inspected BrushToolSaveFix, mutation happens on the server and marks
   the square's zone as having construction. Its movable-item pipeline is not
   required for purpose-built `IsoThumpable` walls. Unlike its brush helper,
   the lobby does not try to create squares for missing chunks.
-- Metal sprites come from vanilla `entity_metal_walllvl2.txt` and
-  `entity_metal_doorlvl1.txt`. Do not replace them with climbable fence sprites.
+- Fence properties were read from the complete installed
+  `media/newtiledefinitions.tiles` (2,972,120 bytes). The Java loader's
+  `WallNTrans`/`WallWTrans` conversions live in `IsoWorld.java:897/924`.
+  `IsoPlayer.canClimbOverWall()` checks `CantClimb` (`IsoPlayer.java:5579`).
 
 ## Files and verification
 
-Runtime files: `server/ApocExtractionMapUtils_LobbyConfig.lua`,
+Runtime files: `shared/ApocExtractionMapUtils_LobbySettings.lua`,
+`shared/ApocExtractionMapUtils_LobbyProtection.lua`,
+`server/ApocExtractionMapUtils_LobbyConfig.lua` (compatibility forwarder),
 `server/ApocExtractionMapUtils_Lobby.lua`, and `42/mod.info`.
 Packaging descriptions and the root README reflect the dependency/feature.
 
@@ -157,16 +189,19 @@ Executed successfully on 2026-10-19:
 
 ```powershell
 npm exec --yes --package=fengari-node-cli -- fengari tests/lobby-perimeter.lua Z:/git/Github/Apocalipse-RCON-extension
+npm exec --yes --package=fengari-node-cli -- fengari tests/lobby-disassembly.lua
 npm exec --yes --package=fengari-node-cli -- fengari tests/login-and-maps.lua
 npm exec --yes --package=fengari-node-cli -- fengari tests/map-reveal-server.lua
 npm exec --yes --package=fengari-node-cli -- fengari tests/cartography.lua
 ```
 
 The lobby harness mocks engine/file boundaries and verifies normalized bounds,
-286 edges, six separated exits, fixed saved positions, startup deferral, missing
+286 fences before release and 280 after, six separated exits, fixed saved positions, startup deferral, missing
 chunks, deduplication, count/time budgets, object protection, idempotency, saved
-release, late-load release, token validation/consumption/replay, file failures,
-invalid configuration and duplicate module loading. Its optional argument loads
+release, late-load release without fence respawning, token validation/consumption/replay, file failures,
+invalid configuration and duplicate module loading. Regressions cover rejection
+of climbable, passable and incorrectly oriented sprites, and closed/released
+0.2.0 migration with old assets loading after a further restart. Its optional argument loads
 the actual local RCON extension shared API and dispatcher, verifying parsing,
 relay/grace/dedup behavior against the lobby handler. Without that argument it
 runs the standalone engine-boundary harness only. Existing regression harnesses
