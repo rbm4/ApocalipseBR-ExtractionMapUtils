@@ -17,5 +17,21 @@
     "IGUI_ApocExtractionMapUtils_DialogThanks": "Obrigado pela ajuda!",
     "IGUI_ApocExtractionMapUtils_DialogThanksReply": "Disponha! Boa sorte l? fora.",
     "IGUI_ApocExtractionMapUtils_DialogBusy": "Estou atendendo outra pessoa. Aguarde um instante.",
-    "IGUI_ApocExtractionMapUtils_DialogUnavailable": "N?o foi poss?vel conversar agora. Aproxime-se e tente novamente."
+    "IGUI_ApocExtractionMapUtils_DialogUnavailable": "N?o foi poss?vel conversar agora. Aproxime-se e tente novamente.",
+    "IGUI_ApocExtractionMapUtils_ObjectivesSummary": "%1 / %2 required objectives completed",
+    "IGUI_ApocExtractionMapUtils_ObjectivesPage": "%1-%2 of %3",
+    "IGUI_ApocExtractionMapUtils_ObjectivesSync": "Synchronizing objectives...",
+    "IGUI_ApocExtractionMapUtils_ObjectivesEdit": "O: finish editing",
+    "IGUI_ApocExtractionMapUtils_ObjectivesHint": "O: move / scroll",
+    "IGUI_ApocExtractionMapUtils_ObjectivesCompleted": "Objective completed",
+    "IGUI_ApocExtractionMapUtils_ObjectivesScope_player": "Personal",
+    "IGUI_ApocExtractionMapUtils_ObjectivesScope_team": "Faction",
+    "IGUI_ApocExtractionMapUtils_ObjectivesScope_event": "Event",
+    "IGUI_ApocExtractionMapUtils_ObjectivesStatus_active": "In progress",
+    "IGUI_ApocExtractionMapUtils_ObjectivesStatus_complete": "Completed",
+    "IGUI_ApocExtractionMapUtils_ObjectivesStatus_locked": "Prerequisites pending",
+    "IGUI_ApocExtractionMapUtils_ObjectivesStatus_unavailable": "Region or faction unavailable",
+    "IGUI_ApocExtractionMapUtils_ObjectivesStatus_unsupported": "Handler not installed",
+    "IGUI_ApocExtractionMapUtils_ClearDocks": "Eliminate zombies at the docks",
+    "IGUI_ApocExtractionMapUtils_ObjectivesOptional": "Optional"
 }

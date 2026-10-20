@@ -71,7 +71,7 @@ client sandbox synchronization and existing-save behavior still need live tests.
 
 Debug logging verification: `tests/debug-logging.lua` passes 5 assertions for
 missing/false/nonboolean settings, runtime toggling, single-line bounds and
-preview serialization suppression. `tests/human-dialogue.lua` passes 57 assertions
+preview serialization suppression. `tests/human-dialogue.lua` passes 59 assertions
 including diagnostics while retaining the original dialogue flow checks.
 `python tests/human-dialogue-labels.py` verifies sandbox labels, default-off
 configuration and the shared print gate. Engine boundaries remain mocked.

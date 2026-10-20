@@ -8,7 +8,7 @@ function Notification.prepare(record)
 end
 
 function Notification.activate(plan)
-    Log.log(Notification.name, "Event activating (console notification only; gameplay is mocked)", plan)
+    Log.log(Notification.name, "Event activating (objectives enabled; other world handlers remain previews)", plan)
 end
 
 return Notification

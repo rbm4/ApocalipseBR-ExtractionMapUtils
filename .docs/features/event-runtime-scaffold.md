@@ -1,48 +1,47 @@
-# Event runtime and preview modules
+# Event runtime and modular handlers
 
-Status: implemented scaffold; awaiting live dedicated-server validation. All
-modules run in **preview mode** and write console diagnostics. No objective,
-population, boss spawning, PvP override or player notification UI is implemented.
+Status: implemented runtime with authoritative objectives; other world handlers
+remain previews. See [objective tracking](objective-tracker.md) for the server
+service, recipient protocol, real zombie-kill handler and client UI.
 
-## Entry points and activation order
+## Activation order
 
-`EventDefinitions.onEventDue` retains the authorized, validated record in
-`latest`, then calls `EventRuntime.acceptDefinition` with a defensive copy.
-The runtime prepares modules in a fixed order: Notification, Gameplay, Regions,
-Bosses, Objectives. Failed schema/authorization checks never reach this handoff.
-An exception in a module marks the preview failed and stops downstream modules.
-Intake still retains its valid record; runtime failure does not acknowledge or
-prevent the existing perimeter release.
+`EventDefinitions.onEventDue` retains an authorized, validated record in `latest`
+and passes a copy to `EventRuntime.acceptDefinition`. Modules prepare in this
+fixed order: Notification, Gameplay, Regions, Bosses, Objectives. Schema or
+authorization failures do not reach preparation. A failed preparation marks the
+runtime failed and prevents module activation. Intake retains the valid record;
+runtime errors do not acknowledge or prevent existing lobby release behavior.
 
-`Lobby.releaseForEvent` calls `EventRuntime.confirmRelease(id, revision)` only
-after `ApocBREventControl.acknowledgeRelease` succeeds. The runtime also checks
-the bridge's current `isDue` identity. A matching prepared definition plus this
-confirmation triggers activation preview. Either listener can run first; a
-single pending confirmation handles the order. The lobby protects this callback
-with `pcall`, so a preview error cannot undo an accepted release.
-Confirmation means accepted perimeter-removal intent, not completion of all
-queued or unloaded terrain work.
+`Lobby.releaseForEvent` calls `EventRuntime.confirmRelease(id, revision)` after
+the bridge acknowledges release successfully. A prepared definition and a
+matching due release are both required. A pending latch supports either Lua
+listener order. Confirmation is desired-state acceptance, not proof that all
+queued/unloaded fence work is complete. Manual RCON exit release does not start
+these modules. With lobby control disabled, preparation can occur but no
+release-confirmed activation is performed.
 
-States are `preparing`, `prepared`, `activating`, `preview_active`, and `failed`.
-`preview_active` means a successful mock dispatch, not a playable event with
-working rules. Successful parsing alone leaves the event `prepared`. With lobby
-control disabled or unsuccessful acknowledgement it remains prepared; no
-activation notification is printed. Manual RCON exit release does not activate
-this runtime.
+States are `preparing`, `prepared`, `activating`, `in_progress`, `failed` and
+`finished`. Mode is `objectives`: objectives are authoritative, while gameplay
+selection, region policy changes and boss spawning still only print previews.
+`Objectives.activate` attaches the server-owned plan and subscribers receive it;
+the Notification module's console message alone is not gameplay activation.
+`EventRuntime.finish(eventId)` detaches the objective service and marks the
+runtime finished, causing an empty snapshot to clear client trackers.
 
-Repeated ID/revision deliveries do not repeat preparation or activation. Older
-revisions and conflicting identities at the same revision cannot replace the
-preview. A newer validated revision replaces it; this is safe only because
-modules have no gameplay effects. Receipt replays print a bounded diagnostic
-but do not start modules, even with matching metadata. Receipt-only replays
-remain ignored by intake. Failed modules have no automatic retry for that revision.
+Duplicate ID/revision delivery does not rerun modules. Older revisions or
+conflicting identity at the same revision cannot replace current state. A newer
+accepted revision prepares/activates a replacement plan; objective counters are
+migrated only when that objective's plan is unchanged within the same event UUID.
+Receipt replay is logged but never starts a new round. Module failures have no
+automatic retry for that revision. Duration is informational, not an implicit end.
 
-The scaffold keeps **one preview and one pending release in memory**. It does
-not persist active rounds, progress or module effects. Durable restart recovery,
-stop/cancel/rearm, rollback and cleanup must be implemented before replacing
-mock handlers with world mutations. A restart receipt cannot synthesize a new round.
+State remains in memory. Player reconnect uses the live server objective state;
+server process restart recovery is not implemented. Durable round state,
+receipt-to-save recovery, cancellation/rollback, and rearm still need their own
+contracts before promising full multi-round recovery.
 
-## Folder and extension interface
+## Files and module interface
 
 Runtime files live under
 `ApocalipseBR-ExtractionMapUtils/common/media/lua/server/`:
@@ -57,84 +56,56 @@ ApocExtractionMapUtils_EventRuntime/
     Regions.lua
     Bosses.lua
     Objectives.lua
+ApocExtractionMapUtils_Objectives/
+  Service.lua
+  Sync.lua
+  Kills.lua
+ApocExtractionMapUtils_ObjectivesServer.lua
 ```
 
-The orchestrator is exposed as `ApocExtractionMapUtils.EventRuntime`.
-`getSnapshot()` returns a defensive copy of event ID/revision, mode, status and
-module plans. These are trusted server-Lua APIs, not network commands. Nothing
-is broadcast or placed in client-requestable global ModData.
+The runtime is `ApocExtractionMapUtils.EventRuntime`; `getSnapshot()` returns a
+copy of event identity, status and module plans. These are trusted server Lua
+APIs, not client commands. Each module has a unique `name` and
+`prepare(record) -> planTable`; optional `activate(plan)` handles confirmed
+release. Register modules in the ordered list in `Runtime.lua`. Inputs/retained
+plans/activation arguments are copied. Do not poll `getLatest()` from modules.
 
-Each module returns a unique `name` and `prepare(record) -> planTable`. Optional
-`activate(plan)` handles the confirmed-release phase. Add modules to the ordered
-list in `Runtime.lua`. Inputs, retained plans and snapshots are copied to isolate
-modules and callers. Modules select relevant parsed values; future providers
-must also validate their own semantics. No module polls `getLatest()` or installs
-an OnTick handler.
-
-| Module | Current preview |
+| Module | Behavior |
 | --- | --- |
-| Notification | Prints event preparing, then event activating after release confirmation; server console only |
-| Gameplay | Reads game type, ruleset, informational duration and event properties |
-| Regions | Resolves registered IDs and prints proposed geometry/PvP/population/tags/properties |
-| Bosses | Selects `parameters.entities` with `type="boss"` and prints their bounded definition |
-| Objectives | Prints type, scope, target, required flag, references, dependencies and properties |
+| Notification | Console preparation/activation messages |
+| Gameplay | Previews game type/ruleset/duration/event properties |
+| Regions | Read-only existing-region lookup and proposed policy preview |
+| Bosses | Previews `entities` with `type="boss"`; no spawn |
+| Objectives | Builds the UI/server contract, then activates authoritative progress/synchronization |
 
-Bosses use the existing entities collection, not a new `bosses` field. Other
-entity types are logged as awaiting future providers. Unknown gameplay/objective
-types can be previewed; that does not claim their handlers exist.
+The Regions preview adapter reads
+`RegionManager.Server.registeredZones[regionId]` and reports resolved, missing,
+unavailable or inline-preview bindings. It does not call admin mutation APIs or
+edit the persistent region file. The Objectives adapter separately resolves
+geometry for regional kills; unresolved references are unavailable, not global.
+Zombie population control and runtime PvP policy overrides remain unimplemented.
+Bosses use the schema's entities collection, not an extra top-level bosses field.
 
-The Regions adapter reads optional
-`RegionManager.Server.registeredZones[regionId]`, the authoritative registry
-populated by the Regions server module. This is read-only integration with its
-existing contract; no generic event API exists there yet. Do not call its admin
-`addHotRegion`/`updateHotRegion` methods to preview data. Bindings report
-`resolved`, `missing_region`, `provider_unavailable` or `inline_preview`.
-External bounds/Z/properties and requested policies remain separate. No registry,
-engine zones or `RegionManager_Regions.txt` are modified. Missing providers/IDs
-are diagnostic here; real application must reject unresolved requirements.
-No dependency/packaging change is needed for this optional preview.
+## Validation and diagnostics
 
-## In-game validation and bounds
+Runtime diagnostics keep the existing `[ApocExtractionEventRuntime][preview]`
+prefix for the remaining preview modules; that prefix does not describe the
+objective service's authority. Emission follows the mod's existing `debugLog`
+sandbox setting. Payload previews are bounded/sanitized. The client tracker is
+independent of debug logging.
 
-Use the existing [schema example](../../contracts/examples/event-definition-v1.json).
-Paste only its `parameters` object in the website editor, and set game type,
-ruleset and duration in their existing fields. Schedule a new operation on the
-test world with the bridge enabled, V14 applied and lobby control enabled for
-the release-confirmed phase. No synthetic event is automatically injected.
+The existing [schema example](../../contracts/examples/event-definition-v1.json)
+contains future handlers, shown as unsupported by the tracker until installed.
+For a working first objective use the
+[kill tracker example](../../contracts/examples/objective-tracker-kills-v1.json),
+with valid configured region geometry. Only paste its `parameters` object in
+the website JSON editor. See [the objective guide](objective-tracker.md) for UI
+properties, recipients and in-game controls.
 
-Enable `ApocExtractionMapUtils.debugLog=true` in the server sandbox first.
-Look for `[ApocExtractionEventRuntime][preview]` in the dedicated-server log.
-Each line identifies Notification, Gameplay, Regions, Bosses, Objectives or Runtime.
-The final Notification line says `Event activating` and explicitly identifies
-console-only notification/mocked gameplay. Receipt replay has its own diagnostic.
-
-Diagnostics sanitize control characters and cap strings, recursion, fields and
-line size; large properties are omitted/truncated. Distinct previews log once,
-duplicates are suppressed. Work uses the schema bounds (64 regions, 64 entities,
-128 objectives) once per definition. There are no terrain/zombie/player scans
-or per-tick jobs. This is not a measured performance guarantee or population scheduler.
-
-## Verification
-
-Run from the repository root:
-
-```powershell
-npm exec --yes --package=fengari-node-cli -- fengari tests/event-runtime.lua
-npm exec --yes --package=fengari-node-cli -- fengari tests/event-definitions.lua
-npm exec --yes --package=fengari-node-cli -- fengari tests/lobby-perimeter.lua Z:/git/Github/Apocalipse-RCON-extension
-```
-
-The runtime harness passes 34 assertions covering intake-to-module routing,
-provider resolution/absence, nested properties, copy isolation, confirmation
-ordering, duplicates/replays, revision replacement, failure containment, empty
-definitions and bounded diagnostics. Intake retains its 90 passing assertions.
-The perimeter regression verifies notification only after successful
-acknowledgement; the actual RCON dispatcher integration also passes.
-
-Login/maps, map-reveal-server and cartography regressions also pass. Fixtures
-mock the engine/Regions registry. PZ auto-load order, website dispatch, live
-registry readiness and log output still need dedicated-server validation.
-No live event activation or deployment was performed.
-
-Related: [definition schema](event-definition-schema.md),
-[event bridge](postgresql-event-control.md), [lobby perimeter](lobby-perimeter.md).
+Run `tests/event-runtime.lua`, `tests/event-definitions.lua`,
+`tests/objectives-sync.lua`, `tests/objectives-ui.lua` and the existing
+`tests/lobby-perimeter.lua` RCON integration through Fengari. Fixtures cover
+listener ordering, copies, failed acknowledgements, replay/idempotence,
+recipient authority and client synchronization. They mock engine boundaries;
+actual PZ autoload, multiplayer and rendering remain to be checked in game.
+No live deployment was performed.

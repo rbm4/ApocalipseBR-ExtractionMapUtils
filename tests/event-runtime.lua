@@ -8,7 +8,7 @@ local id, other = "12345678-1234-1234-1234-123456789abc", "22345678-1234-1234-12
 local function fixture()
     for key in pairs(package.loaded) do
         if key == "ApocExtractionMapUtils" or key == "ApocExtractionMapUtils_EventDefinitions"
-            or key:find("ApocExtractionMapUtils_EventRuntime", 1, true) == 1 then package.loaded[key] = nil end
+            or key:find("ApocExtractionMapUtils_EventRuntime", 1, true) == 1 or key:find("ApocExtractionMapUtils_Objectives",1,true) == 1 then package.loaded[key] = nil end
     end
     ApocExtractionMapUtils = nil
     SandboxVars = { ApocExtractionMapUtils = { debugLog = true } }
@@ -49,7 +49,7 @@ local f = fixture()
 check(f.runtime.getSnapshot() == nil, "no preview synthesized from cached desired state")
 check(f.deliver(), "real intake dispatches validated data")
 local state = f.runtime.getSnapshot()
-check(state.status == "prepared" and state.mode == "preview", "parsing alone cannot activate preview")
+check(state.status == "prepared" and state.mode == "objectives", "parsing alone cannot activate preview")
 check(f.count("Event activating") == 0, "no activation notification before release")
 check(state.plans.Gameplay.gameType == "extraction" and state.plans.Gameplay.ruleset == "operation.default", "gameplay receives envelope")
 check(state.plans.Gameplay.properties.friendlyFire == false, "gameplay retains false extension properties")
@@ -59,7 +59,7 @@ check(state.plans.Regions[2].binding.status == "inline_preview", "inline geometr
 check(state.plans.Regions[1].population.minAlive == 30 and state.plans.Regions[1].pvp == "disabled", "requested policies retained")
 check(#state.plans.Bosses == 1 and state.plans.Bosses[1].id == "commander", "bosses selected from entities by type")
 check(state.plans.Bosses[1].properties.healthMultiplier == 5, "boss properties routed")
-check(#state.plans.Objectives == 5 and state.plans.Objectives[3].dependsOn[1] == "clear", "objectives and dependencies routed")
+check(#state.plans.Objectives.objectives == 5 and state.plans.Objectives.objectives[3].dependsOn[1] == "clear", "objectives and dependencies routed")
 state.plans.Regions[1].binding.bounds.minX = 999
 check(RegionManager.Server.registeredZones.event_docks.bounds.minX == 10
     and f.runtime.getSnapshot().plans.Regions[1].binding.bounds.minX == 10, "snapshots and provider data isolated")
@@ -69,7 +69,7 @@ check(#f.logs == logCount, "duplicate dispatch does not repeat previews")
 f.runtime.confirmRelease(other, 1)
 check(f.runtime.getSnapshot().status == "prepared", "unmatched release does not activate")
 f.runtime.confirmRelease(id, 1)
-check(f.runtime.getSnapshot().status == "preview_active" and f.count("Event activating") == 1, "matching accepted release activates once")
+check(f.runtime.getSnapshot().status == "in_progress" and f.count("Event activating") == 1, "matching accepted release activates once")
 f.runtime.confirmRelease(id, 1); f.deliver()
 check(f.count("Event activating") == 1, "duplicate acknowledgements are harmless")
 f.context.isReplay = true
@@ -82,7 +82,7 @@ f = fixture()
 f.runtime.confirmRelease(id, 1)
 check(f.runtime.getSnapshot() == nil, "release arriving first waits for a definition")
 f.deliver()
-check(f.runtime.getSnapshot().status == "preview_active" and f.count("Event activating") == 1, "reverse listener order works")
+check(f.runtime.getSnapshot().status == "in_progress" and f.count("Event activating") == 1, "reverse listener order works")
 
 f = fixture()
 f.context.isReplay = true
@@ -104,11 +104,11 @@ f = fixture()
 f.context.metadataJson = '{"schemaVersion":1,"gameType":"custom","ruleset":"default","durationMinutes":1,"parameters":{}}'
 f.deliver()
 state = f.runtime.getSnapshot()
-check(#state.plans.Regions == 0 and #state.plans.Bosses == 0 and #state.plans.Objectives == 0, "empty metadata normalizes for all modules")
+check(#state.plans.Regions == 0 and #state.plans.Bosses == 0 and #state.plans.Objectives.objectives == 0, "empty metadata normalizes for all modules")
 check(state.plans.Gameplay.gameType == "custom", "mock records unknown gameplay types without claiming implementation")
 f.context.revision, f.context.metadataJson = 2, sample
 f.deliver()
-check(f.runtime.getSnapshot().revision == 2 and #f.runtime.getSnapshot().plans.Objectives == 5, "new revision replaces previous preview without history")
+check(f.runtime.getSnapshot().revision == 2 and #f.runtime.getSnapshot().plans.Objectives.objectives == 5, "new revision replaces previous preview without history")
 f.context.revision = 1
 f.deliver()
 check(f.runtime.getSnapshot().revision == 2, "older definition cannot roll runtime back")
@@ -118,7 +118,7 @@ local gameplay = require "ApocExtractionMapUtils_EventRuntime/Modules/Gameplay"
 gameplay.prepare = function() error("simulated provider failure") end
 f.runtime.confirmRelease(id, 1); f.deliver(); f.deliver()
 check(f.runtime.getSnapshot().status == "failed" and f.count("Event activating") == 0, "provider failure blocks activation")
-check(f.count("Preparation preview failed") == 1 and f.count("Would select boss") == 0, "failure stops downstream modules without retry spam")
+check(f.count("Module preparation failed") == 1 and f.count("Would select boss") == 0, "failure stops downstream modules without retry spam")
 
 local Log = require "ApocExtractionMapUtils_EventRuntime/Diagnostics"
 local text = Log.describe({ text = "line1\nline2", payload = string.rep("x", 50000), ["key\nname"] = true })

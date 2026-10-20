@@ -35,9 +35,14 @@ dofile(serverFile); dofile(serverFile)
 check(#Events.OnClientCommand.callbacks == 1, "server hook installs once")
 local D = ApocExtractionMapUtils.HumanDialogs
 local commands, reacted, beginCalls = Events.OnClientCommand, {}, 0
-local function command(name, data) commands.fire(D.MODULE, "Human" .. name, player, data or {}) end
+local function command(name, data)
+    -- GameClient.sendClientCommand omits nil/empty tables on the wire;
+    -- GameServer.receiveClientCommand then passes nil to OnClientCommand.
+    if type(data) == "table" and next(data) == nil then data = nil end
+    commands.fire(D.MODULE, "Human" .. name, player, data)
+end
 command("List")
-check(sent[#sent].command == "HumanRejected", "missing patch fails closed")
+check(#sent > 0 and sent[#sent].command == "HumanRejected", "payload-free discovery reaches missing-patch rejection")
 check(#logs == 0, "module load and missing bridge stay silent with debugLog absent")
 SandboxVars = { ApocExtractionMapUtils = { debugLog = true } }
 Events.OnTick.fire()
@@ -54,6 +59,15 @@ ApocBRHumanAPI = {
 Events.OnTick.fire()
 command("List")
 check(sent[#sent].command == "HumanList" and #sent[#sent].data.actors[1].options == 3, "discover only registered NPC profiles")
+check(logged("argsType=nil command=HumanList"), "native payload-free discovery reaches server receive logging")
+local beforeInvalid = #sent
+for _, badArgs in ipairs({ false, 12, "invalid" }) do command("List", badArgs) end
+command("Begin")
+command("Arrive")
+command("Select")
+command("Close")
+check(#sent == beforeInvalid and beginCalls == 0 and logged("reason=invalid_args"),
+    "only discovery accepts nil; invalid payload types and payload-free mutations stay rejected")
 check(logged("bridge_status status=ready") and logged("discovered_actor") and logged("roster_ready"),
     "server discovery records bridge readiness and registered actors")
 check(sent[#sent].data.recipient == 3 and sent[#sent].data.actors[1].options[1].onSelect == nil, "public metadata excludes callbacks")

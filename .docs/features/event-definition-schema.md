@@ -4,9 +4,10 @@ Status: implemented as a data foundation; awaiting live dedicated-server
 validation. No objective, loot, rescue, territory, boss, population or moodle
 gameplay handler is implemented by this feature.
 
-Accepted definitions now feed the [event runtime scaffold](event-runtime-scaffold.md).
-Its modules preview data in the server log; release-confirmed activation remains
-mocked and no gameplay handler is installed.
+Accepted definitions feed the [event runtime](event-runtime-scaffold.md).
+Release-confirmed activation now attaches [authoritative objectives and a client
+tracker](objective-tracker.md), including regional zombie kills. Other world
+handlers remain previews; parsing alone never activates an objective.
 
 ## Contract and input
 
@@ -164,7 +165,7 @@ end
 active gameplay state. It is server-only, independent of the lobby sandbox
 switch, never broadcast, and never acknowledges/releases the lobby. After
 retaining the record, intake hands a copy to `EventRuntime.acceptDefinition`
-for module previews. The runtime's activation preview separately waits for a
+for module preparation. The runtime's activation separately waits for a
 successful lobby release acknowledgement. Existing
 perimeter behavior still runs through its original listener, including when
 metadata is invalid. This feature does not add a network command or SQL call.

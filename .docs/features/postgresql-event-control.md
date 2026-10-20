@@ -130,7 +130,9 @@ accepted definitions and progress rather than infer a new round from a replay.
 `ApocBREventControl.getEventContext(id, revision)` also provides a fresh matching
 cached table without SQL. The mod now parses these definitions through the
 [event definition schema](event-definition-schema.md), retaining validated server
-Lua data without activating objective gameplay handlers.
+Lua data. After release acknowledgement, the [objective runtime](objective-tracker.md)
+attaches authoritative progress and a client tracker; preparation alone does not
+activate gameplay, and receipt replays do not start a fresh round.
 
 Game schedule polling defaults to 30000 ms and freshness to 90000 ms; existing
 JVM overrides take precedence. Already-cached deadlines use the normal server

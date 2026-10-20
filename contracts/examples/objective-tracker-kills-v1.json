@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "gameType": "extraction",
+  "ruleset": "operation.default",
+  "durationMinutes": 60,
+  "parameters": {
+    "schemaVersion": 1,
+    "properties": {
+      "objectivesUI": {
+        "title": "Docks operation",
+        "visibleRows": 6
+      }
+    },
+    "regions": [
+      {
+        "id": "docks",
+        "regionId": "event_docks"
+      }
+    ],
+    "objectives": [
+      {
+        "id": "clear_docks",
+        "type": "kill_zombies",
+        "scope": "player",
+        "target": 100,
+        "titleKey": "IGUI_ApocExtractionMapUtils_ClearDocks",
+        "regionIds": [
+          "docks"
+        ],
+        "properties": {
+          "title": "Eliminate zombies at the docks"
+        }
+      },
+      {
+        "id": "faction_clear",
+        "type": "kill_zombies",
+        "scope": "team",
+        "target": 250,
+        "regionIds": [
+          "docks"
+        ],
+        "properties": {
+          "title": "Faction contribution"
+        }
+      },
+      {
+        "id": "event_clear",
+        "type": "kill_zombies",
+        "scope": "event",
+        "target": 500,
+        "regionIds": [
+          "docks"
+        ],
+        "properties": {
+          "title": "Combined event contribution"
+        }
+      }
+    ]
+  }
+}

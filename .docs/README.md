@@ -26,6 +26,8 @@ Durable gameplay specifications and current behavior belong in `features/`.
   objectives and entity data, JSON validation and server Lua metadata intake.
 - [Event runtime scaffold](features/event-runtime-scaffold.md): ordered preview
   modules, region lookup and release-confirmed console activation diagnostics.
+- [Authoritative objectives and tracker](features/objective-tracker.md): scoped
+  server progress, targeted versioned snapshots/updates and a cached client HUD.
 - [Zombie money drops](features/zombie-money-drops.md): server-confirmed player
   kills add 1–10 money items to the corpse inventory.
 
@@ -35,6 +37,9 @@ documents when designed. Mark proposals as planned until implemented.
 ## Hotfixes
 
 Targeted corrections and compatibility workarounds belong in `hotfixes/`.
+
+- [NPC dialogue discovery payload](hotfixes/npc-dialogue-empty-discovery-payload.md):
+  accept native payload-free roster requests instead of silently dropping them.
 
 - [Chernarus road rendering](hotfixes/chernarus-road-rendering.md): existing
   cartography workaround and remaining in-game verification.

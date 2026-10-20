@@ -28,9 +28,17 @@ local function reject(player, args, reason)
 end
 local function onCommand(module, command, player, args)
     if module ~= D.MODULE or type(command) ~= "string" or command:sub(1, 5) ~= "Human" then return end
-    if not player or type(args) ~= "table" then return end
+    if not player then return end
+    local argsType = type(args)
+    -- The native ClientCommand transport omits empty tables. Discovery has no
+    -- required payload; other commands must still supply a structured request.
+    if command == "HumanList" and args == nil then args = {} end
+    if type(args) ~= "table" then
+        D.log("server", "request_ignored", { command = command, reason = "invalid_args", argsType = argsType })
+        return
+    end
     D.log("server", "receive", { command = command, player = player:getOnlineID(),
-        id = args.id, option = args.option, request = args.request, sequence = args.sequence })
+        id = args.id, option = args.option, request = args.request, sequence = args.sequence, argsType = argsType })
     if not ApocBRHumanAPI then reject(player, args, "unavailable"); return end
     local now, playerId = getTimestampMs(), player:getOnlineID()
     local limit = throttles[playerId]

@@ -97,6 +97,11 @@ purchase receipts.
   accepted reaction per 500 ms. Discovery/open requests have separate throttles.
   Server replies include the recipient's online ID for split-screen filtering.
 
+`HumanList` has no required payload. Native 42.21.0 transport omits empty tables,
+so server Lua accepts nil arguments for this command only. All mutation commands
+still require a table, valid identifiers and the existing server validation.
+See [payload-free discovery hotfix](../hotfixes/npc-dialogue-empty-discovery-payload.md).
+
 The command module is `ApocExtractionMapUtils`, using `HumanList`, `HumanBegin`,
 `HumanArrive`, `HumanSelect`, and `HumanClose`. Responses are `HumanList`,
 `HumanReserved`, `HumanOpened`, `HumanSelected`, `HumanClosed`, and `HumanRejected`.
@@ -180,11 +185,13 @@ python tests/human-dialogue-labels.py
 npm exec --yes --package=fengari-node-cli -- fengari tests/debug-logging.lua
 ```
 
-The dialogue harness passes 57 assertions covering registration, authenticated
+The dialogue harness passes 59 assertions covering registration, authenticated
 routing, initial/follow-up reactions, invalid options/tokens, replay rejection,
 callback isolation, recipient filtering, context-menu probes, path/talk ordering,
 queue cancellation and panel close, default-off logging, roster wait diagnostics,
 bridge readiness, picking sources, silent menu probes and lifecycle tracing.
+Discovery tests model native empty-table-to-nil transport and reject malformed
+argument types and payload-free mutation commands.
 The shared logging harness passes 5 gate/bounds/preview assertions. Engine/UI boundaries are mocked. The panel's
 Lua syntax and translation JSON/UTF-8 are checked separately. Java production
 lease tests and game-JAR dry compilation are recorded in the patch guide.
