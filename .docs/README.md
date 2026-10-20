@@ -9,10 +9,21 @@ integration. Repository conventions live in [AGENTS.md](../AGENTS.md).
 
 Durable gameplay specifications and current behavior belong in `features/`.
 
+- [NPC dialogue](features/npc-dialogue.md): per-NPC right-click options, timed-action
+  walk-up, server-owned reactions and dialogue registration hooks.
+
+- [Sandbox feature switches](features/sandbox-feature-switches.md): map reveal
+  is on by default; lobby, relocation and zombie money drops require opt-in.
 - [Lobby placement and map visibility](features/lobby-and-map-visibility.md):
   existing foundation, configuration, and validation limits.
 - [Lobby perimeter and RCON release](features/lobby-perimeter.md): bounded server
   construction, non-climbable military fences, and the command to remove exits.
+- [Lobby construction protection](features/lobby-construction-protection.md):
+  blocks player construction and upgrades, including overlapping B42 entities.
+- [PostgreSQL event activation](features/postgresql-event-control.md): backend
+  contract, guide schedule announcements and scheduled whole-perimeter removal.
+- [Zombie money drops](features/zombie-money-drops.md): server-confirmed player
+  kills add 1–10 money items to the corpse inventory.
 
 Future event activation and database integration should receive their own feature
 documents when designed. Mark proposals as planned until implemented.
@@ -26,7 +37,8 @@ Targeted corrections and compatibility workarounds belong in `hotfixes/`.
 - [Lobby fence collision and exit removal](hotfixes/lobby-fence-collision-and-release.md):
   fixes the climbable perimeter/passable doors and migrates the existing save.
 - [Lobby disassembly protection](hotfixes/lobby-disassembly-protection.md): blocks
-  welding scrap and dismantling throughout lobby squares on client and server.
+  welding scrap, dismantling, furniture/floor pickup, sledgehammer destruction
+  and ground-material shoveling throughout lobby squares on client and server.
 
 ## Reports
 

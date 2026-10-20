@@ -13,7 +13,7 @@ for separate feature, hotfix, and report documentation.
 
 ## Install
 
-Copy the `ApocalipseBR-ExtractionMapUtils` directory (containing `42` and `common`) into your `Zomboid/mods` directory, or package that directory under a Workshop item's `Contents/mods`. Enable the mod on the server and clients. Version 0.2.2 requires Build 42.13.0 or newer and the separately installed RCON extension, mod ID `ApocalipseBrRCONextension`. No map dependency is required yet.
+Copy the `ApocalipseBR-ExtractionMapUtils` directory (containing `42` and `common`) into your `Zomboid/mods` directory, or package that directory under a Workshop item's `Contents/mods`. Enable the mod on the server and clients. Version 0.3.0 requires Build 42.13.0 or newer and the separately installed RCON extension, mod ID `ApocalipseBrRCONextension`. No map dependency is required yet.
 
 The checked-in B42 directory is ready to install directly. The template's npm scripts require Project Zomboid Studio; verify that your Studio version supports B42's `42`/`common` layout before using generated output.
 
@@ -24,19 +24,23 @@ Open **ApocalipseBR - Extraction Map Utils** in sandbox settings.
 | Setting | Default | Behavior |
 | --- | --- | --- |
 | Force map and minimap reveal | On | Enable both maps, reveal map knowledge on client/server, and bypass light requirements. Minimap visibility follows normal controls. |
-| Relocate to lobby on every login | On | Place players at the lobby each time they enter a game, including existing characters reconnecting. |
+| Enable lobby | Off | Enable fence construction, maintenance, disassembly protection, RCON release and scheduled perimeter removal. |
+| Relocate to lobby on every login | Off | Requires Enable lobby. Place players at the lobby each time they enter a game, including existing characters reconnecting. |
+| Zombie money drops | Off | Add 1-10 money items to eligible zombie corpses. Independent of Enable lobby. |
 | Lobby X | -1 | World tile X. Set to a nonnegative coordinate to configure. |
 | Lobby Y | -1 | World tile Y. Set to a nonnegative coordinate to configure. |
 | Lobby Z | 0 | Floor, from -32 to 31; 0 is ground level. |
 
-Both X and Y must be configured before relocation runs. Choose a valid floor tile on the loaded map; players arrive at its center. Login relocation does not validate distant tile geometry before loading it. The perimeter below is configured separately and does not set the login destination.
+Only map revealing is enabled by default. Both lobby switches and X/Y coordinates must be configured before relocation runs. Choose a valid floor tile on the loaded map; players arrive at its center. Login relocation does not validate distant tile geometry before loading it. The perimeter below is configured separately and does not set the login destination.
 
-Example server `SandboxVars` block (replace X and Y with the eventual lobby):
+Default server `SandboxVars` block (opt in to lobby behavior explicitly):
 
 ```lua
 ApocExtractionMapUtils = {
     ForceMapReveal = true,
-    RelocateOnLogin = true,
+    LobbyEnabled = false,
+    RelocateOnLogin = false,
+    ZombieMoneyDrops = false,
     LobbyX = -1,
     LobbyY = -1,
     LobbyZ = 0,
@@ -57,9 +61,9 @@ Restart/reconnect after changing settings. Relocation runs once at game entry, n
 - Reveal displays available worldmap XML/image data, including custom maps that provide it. It does not generate missing map data, reveal live zombies/items, or bundle Chernarus.
 - The 0.2.1 perimeter uses military fences and command-controlled removal of exit segments as described below. Event countdowns, zombie clearance, and a full event lifecycle remain future work.
 
-## Lobby perimeter (0.2.2)
+## Lobby perimeter and scheduled events (0.3.0)
 
-At dedicated-server startup, the mod queues a military-fence perimeter enclosing
+With `LobbyEnabled=true`, at dedicated-server startup the mod queues a military-fence perimeter enclosing
 X=14260..14321, Y=11812..11892, Z=0, including six randomized, saved single-tile exit
 positions. Placement waits for loaded squares and runs across ticks (at most
 four edges per tick with a two-millisecond elapsed-time budget). All fence segments
@@ -76,7 +80,13 @@ Install the same configuration on clients and server. The former server config
 file now forwards to these shared settings. Version 0.2.2 blocks world-object
 disassembly throughout the lobby and perimeter squares on Z=0, including welding
 scrap actions. Checks run on client and server, regardless of faction, while
-normal disassembly outside the lobby and other activities keep their behavior.
+normal disassembly outside the lobby keeps its behavior. Protection also blocks
+furniture/floor pickup, sledgehammer destruction and taking ground materials
+inside the configured footprint and Z; placement, rotation and repair remain available.
+Player construction and wall upgrades are also blocked, including B42 entities
+anchored outside whose occupied tiles overlap the lobby. Moving existing furniture
+remains available. See [construction protection](.docs/features/lobby-construction-protection.md)
+for verified paths, tests and limitations.
 Exit segments are the same protected fence as the rest of the perimeter. Read the one-use token from
 the server's `Zomboid/Lua/ApocExtractionLobby-<server-name>-open-token.txt`, then
 send through RCON:
@@ -95,6 +105,15 @@ Run `npm exec --yes --package=fengari-node-cli -- fengari tests/lobby-perimeter.
 for the standalone lobby regression harness.
 Run `npm exec --yes --package=fengari-node-cli -- fengari tests/lobby-disassembly.lua`
 for the disassembly-protection regression harness.
+
+The patched 42.21.0 server can now receive a next-event schedule through
+`player_rel.lobby_event_control`, without connected player relays. The backend
+owns its migration and asynchronous synchronization. Enable the optional event
+controller on the server JVM; its cached schedule supplies the guide's greeting
+and triggers removal of the **entire** perimeter at the real-time deadline.
+Removal stays spread across ticks and applies to unloaded squares when they
+load. Manual RCON still removes only six exits. See the [event integration
+contract and validation limits](.docs/features/postgresql-event-control.md).
 
 ## In-game verification
 

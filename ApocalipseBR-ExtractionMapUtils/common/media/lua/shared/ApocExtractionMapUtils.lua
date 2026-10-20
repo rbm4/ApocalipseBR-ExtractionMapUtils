@@ -3,11 +3,19 @@ ApocExtractionMapUtils = ApocExtractionMapUtils or {}
 local Utils = ApocExtractionMapUtils
 
 function Utils.getOptions()
-    return SandboxVars.ApocExtractionMapUtils or {}
+    return (SandboxVars and SandboxVars.ApocExtractionMapUtils) or {}
 end
 
 function Utils.forceMapReveal()
     return Utils.getOptions().ForceMapReveal ~= false
+end
+
+function Utils.lobbyEnabled()
+    return Utils.getOptions().LobbyEnabled == true
+end
+
+function Utils.zombieMoneyEnabled()
+    return Utils.getOptions().ZombieMoneyDrops == true
 end
 
 Utils.REVEAL_MODULE = "ApocExtractionMapUtils"
@@ -28,7 +36,7 @@ end
 
 function Utils.getLobbyPosition()
     local options = Utils.getOptions()
-    if options.RelocateOnLogin == false then return nil end
+    if not Utils.lobbyEnabled() or options.RelocateOnLogin ~= true then return nil end
 
     local x = tonumber(options.LobbyX) or -1
     local y = tonumber(options.LobbyY) or -1

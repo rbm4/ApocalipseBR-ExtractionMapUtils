@@ -17,6 +17,10 @@ in `../hotfixes/`. Update those documents when a report leads to a change.
 
 ## Investigations
 
+- [2026-10-19: PostgreSQL event control and guide announcements](2026-10-19-postgresql-event-control-design.md):
+  verified server-side integration points and proposed schedule/release contract;
+  no runtime changes or live database operations.
+
 - [2026-10-19: Lobby world-control APIs](2026-10-19-lobby-world-control-api-investigation.md):
   local Java/Lua evidence for zombie removal, perimeter placement, and timed gates;
   no live-server validation.

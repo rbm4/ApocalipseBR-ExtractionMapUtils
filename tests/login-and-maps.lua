@@ -29,6 +29,16 @@ assert(player.moves == 0, "unconfigured lobby must preserve the saved spawn")
 local options = SandboxVars.ApocExtractionMapUtils
 options.LobbyX, options.LobbyY, options.LobbyZ = 100, 200, 2
 callbacks[1]()
+assert(player.moves == 0, "coordinates alone must not enable lobby relocation")
+options.RelocateOnLogin = true
+callbacks[1]()
+assert(player.moves == 0, "master lobby option must override existing relocation settings")
+options.LobbyEnabled = true
+options.RelocateOnLogin = nil
+callbacks[1]()
+assert(player.moves == 0, "relocation must require its own explicit opt-in")
+options.RelocateOnLogin = true
+callbacks[1]()
 assert(player.moves == 1 and player.x == 100.5 and player.y == 200.5)
 assert(player.z == 2 and player.lastZ == 2)
 -- Simulate moving away and entering another session with the same character.
@@ -117,6 +127,7 @@ assert(native.known and native.writes == 1 and native.bounds[3] == 767)
 assert(#requests == 1 and requests[1].player == player and requests[1].command == 'RevealMap')
 assert(next(requests[1].args) == nil, 'requests must not supply world coordinates')
 local oldMoves = player.moves
+options.LobbyEnabled = false
 callbacks[2]()
 create()
 assert(native.writes == 1, 'UI reset / game-start must not duplicate the same session')

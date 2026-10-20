@@ -34,6 +34,10 @@ Local vanilla Lua confirms the separate scrap path:
 
 ## Change
 
+These guards now require sandbox `ApocExtractionMapUtils.LobbyEnabled=true`
+(default `false`). With the option absent or disabled, native actions remain
+available throughout the lobby footprint, on both client and server.
+
 `shared/ApocExtractionMapUtils_LobbyProtection.lua` loads the concrete native
 classes and wraps their relevant methods on client, dedicated server and SP.
 Duplicate loading does not multiply wrappers. Existing wrappers, arguments and
@@ -57,8 +61,9 @@ whose supplied square disagrees with an actual target object, a protected
 object's actual square still blocks the request. Multi-sprite grid members are
 also inspected so selecting an outside member does not scrap an inside member.
 
-Other activities retain their normal behavior: pickup, rotation, placement,
+Other activities retain their normal behavior: rotation, placement,
 repair and inventory-item disassembly are outside the scope of this restriction.
+Pickup is blocked by the follow-up removal fix described below.
 Authorized RCON exit removal calls native removal directly, so it is unaffected.
 `Enabled=false` disables the guard along with perimeter maintenance.
 
@@ -100,3 +105,55 @@ object, and confirm no removal/reward. Repeat outside the lobby to confirm norma
 scrapping, then release exits via RCON. These concrete Lua hooks cover native
 player disassembly, not administrative/other-mod direct world deletion, a
 modified client's raw removal packets, or every third-party action class.
+
+## Follow-up: furniture, floor and ground removal (2026-10-20)
+
+Status: implemented locally; awaiting live dedicated-server/client validation.
+Players reported removal of ground and chairs. The precise live action was not
+observed. Inspection confirmed that the previous guard explicitly allowed
+`ISMoveablesAction` mode `pickup`, which removes chairs/floor tiles and can break
+furniture for parts. Sledgehammer destruction and ground shoveling also used
+separate unguarded action classes. True `scrap` actions were already guarded;
+this investigation does not establish that native scrap bypassed those checks.
+
+The shared protection now blocks `pickup` validation/completion and movable
+pickup eligibility, cursor and internal pickup helpers. Multi-sprite members
+are checked for pickup just as for scrap. Vanilla rotation's internal pickup
+(`rotating=true`) is preserved. Native `perform()` cleanup remains intact.
+The footprint, single configured Z, sandbox opt-in and RCON removal are unchanged.
+
+Verified local vanilla sources under `ProjectZomboid/media/lua/shared/`:
+
+- `Moveables/ISMoveablesAction.lua`: separate `pickup` and `scrap` completion paths.
+- `Moveables/ISMoveableSpriteProps.lua`: pickup can remove/break objects, replace
+  floor sprites and grant items; rotation reuses pickup with its force/rotation flag.
+- `TimedActions/ISDestroyStuffAction.lua`: its world target is `self.item`.
+- `BuildingObjects/TimedActions/ISShovelGround.lua`: its target is `self.sandTile`;
+  `self.item` is a boolean. `shovelGround(square)` changes terrain and grants bag
+  contents. Both its timed-action methods and direct helper are now guarded.
+- Decompiled `characters/CharacterTimedActions/LuaTimedActionNew.java` invokes
+  Lua `complete()` outside the multiplayer client, so these guards remain shared.
+
+Affected runtime file: `shared/ApocExtractionMapUtils_LobbyProtection.lua`.
+Regression coverage added in `tests/lobby-disassembly.lua` reproduces the formerly
+allowed pickup, destruction and shoveling paths. It checks both realms, actual
+targets despite misleading squares, multi-tile pickup, direct helper denial,
+outside/disabled behavior, preserved cleanup and rotation's internal pickup.
+
+Executed successfully from the repository root:
+
+```powershell
+npm exec --yes --package=fengari-node-cli -- fengari tests/lobby-disassembly.lua
+npm exec --yes --package=fengari-node-cli -- fengari tests/lobby-perimeter.lua Z:/git/Github/Apocalipse-RCON-extension
+npm exec --yes --package=fengari-node-cli -- fengari tests/login-and-maps.lua
+npm exec --yes --package=fengari-node-cli -- fengari tests/map-reveal-server.lua
+npm exec --yes --package=fengari-node-cli -- fengari tests/cartography.lua
+```
+
+These are mocked regression tests, not in-game verification. After installing
+matching files and restarting clients/server with `LobbyEnabled=true`, attempt
+chair/floor pickup, scrap, sledgehammer destruction and ground collection inside
+the lobby and along its east/south edges. Confirm no removal or rewards; repeat
+outside and check rotation, repair and RCON release. Other elevations, weapon
+damage, fire, unrelated action classes and direct/raw world mutations are not
+made universally safe by these concrete Lua guards.

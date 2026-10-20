@@ -1,11 +1,11 @@
 require "ApocExtractionMapUtils"
 
 local function onGameStart()
+    if not ApocExtractionMapUtils.lobbyEnabled()
+        or ApocExtractionMapUtils.getOptions().RelocateOnLogin ~= true then return end
     local x, y, z = ApocExtractionMapUtils.getLobbyPosition()
     if not x then
-        if ApocExtractionMapUtils.getOptions().RelocateOnLogin ~= false then
-            print("[ApocExtractionMapUtils] Login relocation skipped: configure LobbyX and LobbyY in sandbox settings.")
-        end
+        print("[ApocExtractionMapUtils] Login relocation skipped: configure LobbyX and LobbyY in sandbox settings.")
         return
     end
 

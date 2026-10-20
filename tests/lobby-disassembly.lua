@@ -12,6 +12,7 @@ local outside = square(14259, 11840)
 -- Shared hooks must load and reject work without any client-only startup event.
 for _, realm in ipairs({ "client", "server" }) do
     ApocExtractionMapUtils = nil
+    SandboxVars = { ApocExtractionMapUtils = { LobbyEnabled = true } }
     for _, name in ipairs({ "ApocExtractionMapUtils", "ApocExtractionMapUtils_LobbySettings" }) do package.loaded[name] = nil end
     function isClient() return realm == "client" end
     function isServer() return realm == "server" end
@@ -29,8 +30,18 @@ for _, realm in ipairs({ "client", "server" }) do
     package.preload["TimedActions/ISDismantleAction"] = function()
         ISDismantleAction = { isValid = native("dismantleValid", true), complete = native("dismantleComplete", true), perform = native("dismantleCleanup", true) }
     end
+    package.preload["TimedActions/ISDestroyStuffAction"] = function()
+        ISDestroyStuffAction = { isValid = native("destroyValid", true), complete = native("destroyComplete", true), perform = native("destroyCleanup", true) }
+    end
+    package.preload["BuildingObjects/TimedActions/ISShovelGround"] = function()
+        ISShovelGround = { isValid = native("shovelValid", true), complete = native("shovelComplete", true),
+            perform = native("shovelCleanup", true), shovelGround = native("shovelGround", true) }
+    end
     package.preload["Moveables/ISMoveableSpriteProps"] = function()
         ISMoveableSpriteProps = {
+            canPickUpMoveable = native("canPickup", true),
+            pickUpMoveableViaCursor = native("pickupCursor", true),
+            pickUpMoveableInternal = native("pickupInternal", true),
             canScrapObjectInternal = native("canInternal", true),
             scrapObjectInternal = native("scrapInternal", 7),
             canScrapObject = native("canBase", { canScrap = true }),
@@ -43,7 +54,8 @@ for _, realm in ipairs({ "client", "server" }) do
             startScrapAction = native("startThump", true),
         }
     end
-    for _, name in ipairs({ "Moveables/ISMoveablesAction", "Moveables/ISMoveableSpriteProps", "TimedActions/ISDismantleAction" }) do package.loaded[name] = nil end
+    for _, name in ipairs({ "Moveables/ISMoveablesAction", "Moveables/ISMoveableSpriteProps", "TimedActions/ISDismantleAction",
+        "TimedActions/ISDestroyStuffAction", "BuildingObjects/TimedActions/ISShovelGround" }) do package.loaded[name] = nil end
     dofile(media .. "shared/ApocExtractionMapUtils_LobbyProtection.lua")
     local protection = ApocExtractionMapUtils.LobbyProtection
     local config = ApocExtractionMapUtils.LobbyConfig
@@ -76,6 +88,32 @@ for _, realm in ipairs({ "client", "server" }) do
     assert(ISDismantleAction.perform(old))
     assert(not calls.dismantleValid and not calls.dismantleComplete)
 
+    -- Chairs and floor tiles can disappear through pickup, not just scrap.
+    local pickup = { square = outside, mode = "pickup", moveProps = props(inside) }
+    assert(ISMoveablesAction.isValid(pickup) == false and ISMoveablesAction.complete(pickup) == false)
+    assert(ISMoveableSpriteProps.canPickUpMoveable(props(outside), {}, outside, object(inside)) == false)
+    assert(ISMoveableSpriteProps.pickUpMoveableViaCursor(props(inside), {}, outside) == nil)
+    assert(ISMoveableSpriteProps.pickUpMoveableInternal(props(outside), {}, outside, object(inside), nil, "chair", true, false) == nil)
+    assert(not calls.canPickup and not calls.pickupCursor and not calls.pickupInternal)
+    assert(ISMoveablesAction.complete({ square = outside, mode = "pickup", moveProps = props(outside) }))
+    assert(ISMoveableSpriteProps.canPickUpMoveable(props(outside), {}, outside, object(outside)))
+    assert(ISMoveableSpriteProps.pickUpMoveableViaCursor(props(outside), {}, outside))
+    assert(ISMoveableSpriteProps.pickUpMoveableInternal(props(outside), {}, outside, object(outside), nil, "chair", true, false))
+    assert(ISMoveableSpriteProps.pickUpMoveableInternal(props(inside), {}, inside, object(inside), nil, "chair", false, true), "rotation's internal pickup stays available")
+
+    local destroy = { item = object(inside), square = outside }
+    local shovel = { sandTile = object(inside), item = true, square = outside }
+    for _, case in ipairs({ { ISDestroyStuffAction, destroy }, { ISShovelGround, shovel } }) do
+        assert(case[1].isValid(case[2]) == false and case[1].complete(case[2]) == false)
+        assert(case[1].perform(case[2]), "preserve native queue and sound cleanup")
+    end
+    assert(ISShovelGround.shovelGround(shovel, outside) == false)
+    assert(ISShovelGround.shovelGround({ sandTile = object(outside) }, inside) == false)
+    assert(not calls.destroyComplete and not calls.shovelComplete and not calls.shovelGround)
+    assert(ISDestroyStuffAction.complete({ item = object(outside) }))
+    assert(ISShovelGround.complete({ sandTile = object(outside), item = true }))
+    assert(ISShovelGround.shovelGround({ sandTile = object(outside) }, outside))
+
     for _, class in ipairs({ ISMoveableSpriteProps, ISThumpableSpriteProps }) do
         local p = props(inside)
         local result, chance = class.canScrapObject(p, {})
@@ -93,6 +131,7 @@ for _, realm in ipairs({ "client", "server" }) do
     multi.isMultiSprite = true
     multi.getSpriteGridInfo = function() return { { object = object(inside), square = inside } } end
     assert(ISMoveablesAction.complete({ mode = "scrap", square = outside, moveProps = multi }) == false)
+    assert(ISMoveablesAction.complete({ mode = "pickup", square = outside, moveProps = multi }) == false)
     assert(ISMoveableSpriteProps.scrapObjectInternal(multi, {}, {}, outside, object(outside)) == 0)
 
     -- Outside target remains valid even when the character stands in the lobby.
@@ -109,16 +148,26 @@ for _, realm in ipairs({ "client", "server" }) do
         assert(class.startScrapAction(props(outside), allowed))
     end
     -- Protect only disassembly: ordinary interior activities still delegate.
-    for _, mode in ipairs({ "repair", "pickup", "place", "rotate" }) do
+    for _, mode in ipairs({ "repair", "place", "rotate" }) do
         assert(ISMoveablesAction.complete({ square = inside, mode = mode, moveProps = props(inside) }))
     end
     -- Configuration is read dynamically on both sides, including custom bounds.
-    config.Enabled = false
+    SandboxVars.ApocExtractionMapUtils.LobbyEnabled = false
     assert(ISMoveablesAction.complete(forged))
     assert(ISDismantleAction.complete(old))
-    config.Enabled = true
+    assert(ISMoveablesAction.complete(pickup))
+    assert(ISDestroyStuffAction.complete(destroy) and ISShovelGround.complete(shovel))
+    assert(ISShovelGround.shovelGround(shovel, inside))
+    assert(ISMoveableSpriteProps.canPickUpMoveable(props(inside), {}, inside, object(inside)))
+    assert(ISMoveableSpriteProps.pickUpMoveableViaCursor(props(inside), {}, inside))
+    assert(ISMoveableSpriteProps.pickUpMoveableInternal(props(inside), {}, inside, object(inside), nil, "chair", true, false))
+    SandboxVars.ApocExtractionMapUtils.LobbyEnabled = nil
+    assert(ISMoveablesAction.complete(forged) and ISDismantleAction.complete(old), "missing sandbox option must leave native actions available")
+    SandboxVars = nil
+    assert(ISMoveablesAction.complete(forged) and ISDismantleAction.complete(old), "load before SandboxVars must be safe")
+    SandboxVars = { ApocExtractionMapUtils = { LobbyEnabled = true } }
     config.X1, config.X2, config.Y1, config.Y2 = 210, 200, 310, 300
     assert(not protection.isProtectedSquare(inside) and protection.isProtectedSquare(square(205,305)))
     assert(ISMoveablesAction.complete(forged))
 end
-print("PASS: lobby disassembly client/server guards, all interior/perimeter squares, welding helpers, thumpable overrides, queued completion, multi-tile targets, trusted target bounds, native cleanup/returns, reload and disabled/outside behavior")
+print("PASS: lobby client/server guards for disassembly, furniture/floor pickup, sledgehammer and ground shoveling; boundaries, helpers, queued completion, multi-tile targets, native cleanup, rotation, reload and disabled/outside behavior")

@@ -1,0 +1,21 @@
+{
+    "IGUI_ApocExtractionMapUtils_GuideHello": "Olá!",
+    "IGUI_ApocExtractionMapUtils_EventCountdown": "A próxima operação, %1, começa em %2.",
+    "IGUI_ApocExtractionMapUtils_EventRemaining": "A operação %1 está ativa. Tempo restante estimado: %2.",
+    "IGUI_ApocExtractionMapUtils_EventNone": "Não há próximas operações agendadas no momento.",
+    "IGUI_ApocExtractionMapUtils_EventScheduled": "A próxima operação, %1, começa em %2.",
+    "IGUI_ApocExtractionMapUtils_EventPending": "A operação %1 está aguardando a liberação do perímetro do lobby.",
+    "IGUI_ApocExtractionMapUtils_EventReleased": "A operação %1 começou. O perímetro do lobby está sendo liberado.",
+    "IGUI_ApocExtractionMapUtils_EventUnavailable": "A agenda de operações está temporariamente indisponível.",
+    "IGUI_ApocExtractionMapUtils_DialogTalk": "Conversar com %1",
+    "IGUI_ApocExtractionMapUtils_DialogClose": "Encerrar conversa",
+    "IGUI_ApocExtractionMapUtils_DialogGreeting": "Ol?! Como posso ajudar?",
+    "IGUI_ApocExtractionMapUtils_DialogHello": "Ol?! Tudo bem?",
+    "IGUI_ApocExtractionMapUtils_DialogHelloReply": "Ol?, sobrevivente! Que bom ver voc? por aqui.",
+    "IGUI_ApocExtractionMapUtils_DialogHelp": "Como funciona este lugar?",
+    "IGUI_ApocExtractionMapUtils_DialogHelpReply": "Este ? o nosso ponto de encontro. Prepare seu equipamento e fique atento aos avisos das opera??es.",
+    "IGUI_ApocExtractionMapUtils_DialogThanks": "Obrigado pela ajuda!",
+    "IGUI_ApocExtractionMapUtils_DialogThanksReply": "Disponha! Boa sorte l? fora.",
+    "IGUI_ApocExtractionMapUtils_DialogBusy": "Estou atendendo outra pessoa. Aguarde um instante.",
+    "IGUI_ApocExtractionMapUtils_DialogUnavailable": "N?o foi poss?vel conversar agora. Aproxime-se e tente novamente."
+}

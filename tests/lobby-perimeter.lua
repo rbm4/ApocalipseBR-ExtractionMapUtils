@@ -6,6 +6,9 @@ end
 local function fixture(options)
     options = options or {}
     ApocExtractionMapUtils = nil
+    ApocBREventControl = nil
+    if options.noSandbox then SandboxVars = nil
+    else SandboxVars = { ApocExtractionMapUtils = options.sandbox or { LobbyEnabled = true } } end
     for _, name in ipairs({ "ApocExtractionMapUtils", "ApocExtractionMapUtils_LobbyConfig", "ApocExtractionMapUtils_LobbySettings", "ApocBRRCON" }) do
         package.loaded[name] = nil
     end
@@ -138,9 +141,36 @@ local function fixture(options)
 end
 
 fixture({ client = true })
-local disabled = fixture({ configure = function(c) c.Enabled = false end })
-disabled.start(); disabled.pump(100)
-assert(disabled.lookups == 0 and not disabled.command("bad"))
+for _, options in ipairs({ { sandbox = {} }, { sandbox = { LobbyEnabled = false } }, { noSandbox = true } }) do
+    local disabled = fixture(options)
+    local subscribed = false
+    Events.OnApocBRLobbyEventDue = { Add = function() subscribed = true end }
+    ApocBREventControl = setmetatable({}, { __index = function() error("disabled lobby must not call engine bridge") end })
+    disabled.start(); disabled.pump(100)
+    disabled.load(disabled.square(14260, 11812, 0))
+    assert(disabled.lookups == 0 and disabled.adds == 0 and next(disabled.store) == nil)
+    assert(not disabled.command and not package.loaded.ApocBRRCON and not subscribed)
+    assert(next(disabled.files) == nil, "disabled lobby must not create command tokens")
+    assert(not disabled.lobby.releaseExits("bad") and not disabled.lobby.releaseForEvent("event", 1))
+end
+
+local lateSettings = fixture({ noSandbox = true })
+lateSettings.start()
+SandboxVars = { ApocExtractionMapUtils = { LobbyEnabled = true } }
+lateSettings.start(); lateSettings.pump(100)
+assert(lateSettings.adds == 286 and lateSettings.command,
+    "sandbox values arriving after module loading must enable normal startup")
+
+local paused = fixture()
+paused.start()
+local pausedToken = paused.token()
+SandboxVars.ApocExtractionMapUtils.LobbyEnabled = false
+paused.load(paused.square(14260, 11812, 0)); paused.pump(100)
+assert(paused.lookups == 0 and not paused.command(pausedToken))
+assert(not paused.lobby.releaseForEvent("event", 1) and not paused.store.released)
+SandboxVars.ApocExtractionMapUtils.LobbyEnabled = true
+paused.pump(100)
+assert(paused.adds == 286, "re-enabling must resume existing bounded queue")
 
 local unloaded = { unloaded = true }
 local f = fixture(unloaded)
@@ -293,6 +323,43 @@ end
 local reload = fixture()
 dofile(media .. "server/ApocExtractionMapUtils_Lobby.lua")
 assert(#reload.handlers.OnTick == 1 and #reload.handlers.LoadGridsquare == 1 and #reload.handlers.OnServerStarted == 1)
+-- Scheduled activation removes the ENTIRE perimeter, independently of a client
+-- relay/token file, and leaves all edges absent through repair/reload/restart.
+local event = fixture()
+local due, acknowledge, acknowledgements = false, false, 0
+ApocBREventControl = {
+    getEventId = function() return "scheduled-event" end,
+    getRevision = function() return 3 end,
+    isReleaseAuthorized = function(id, revision) return due and id == "scheduled-event" and revision == 3 end,
+    acknowledgeRelease = function() acknowledgements = acknowledgements + 1; return acknowledge end,
+}
+local callback
+Events.OnApocBRLobbyEventDue = { Add = function(f) callback = f end }
+event.start(); event.pump(100)
+assert(callback and #event.objects() == 286)
+assert(not callback("scheduled-event", 3) and not event.store.removedAll)
+due = true
+assert(not callback("forged-event", 3) and not callback("scheduled-event", 4))
+assert(not callback("scheduled-event", 3) and event.store.removedAll, "failed acknowledgement must permit safe retry")
+assert(event.removes == 0, "activation only queues work")
+acknowledge = true
+assert(callback("scheduled-event", 3) and acknowledgements == 2)
+event.pump(100)
+assert(#event.objects() == 0 and event.removes == 286 and event.adds == 286)
+event.clock = 60000; event.pump(100)
+assert(#event.objects() == 0 and event.adds == 286, "full release must suppress all reconstruction")
+local releasedState = event.store
+local eventReload = fixture({ store = releasedState })
+eventReload.start(); eventReload.pump(100)
+assert(eventReload.adds == 0 and releasedState.eventId == "scheduled-event")
+local unloadedEvent = { unloaded = true }
+local empty = fixture(unloadedEvent)
+empty.start(); empty.pump(100)
+ApocBREventControl = { isReleaseAuthorized = function() return true end, acknowledgeRelease = function() return true end }
+assert(empty.lobby.releaseForEvent("no-clients-event", 1))
+unloadedEvent.unloaded = false
+empty.clock = 60000; empty.pump(100)
+assert(empty.adds == 0, "entire perimeter must remain absent when chunks load after activation")
 if arg and arg[1] then
     -- Optional local integration against the actual required extension, without
     -- copying its dispatcher into this repository or mocking its grace/dedup API.

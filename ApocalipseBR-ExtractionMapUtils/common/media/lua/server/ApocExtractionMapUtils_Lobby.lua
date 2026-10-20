@@ -1,7 +1,6 @@
 if isClient() then return end
 require "ApocExtractionMapUtils"
 require "ApocExtractionMapUtils_LobbyConfig"
-require "ApocBRRCON"
 
 local Utils = ApocExtractionMapUtils
 if Utils.Lobby then return end
@@ -157,7 +156,7 @@ local function applyEdge(index)
             if not existing then existing = object else duplicates[#duplicates + 1] = object end
         end
     end
-    if edge.exit and state.released == true then
+    if state.removedAll == true or (edge.exit and state.released == true) then
         if existing then
             assert(square:transmitRemoveItemFromSquare(existing) >= 0, "native exit removal failed; deferred")
         end
@@ -200,8 +199,26 @@ local function writeToken(value)
     assert(actual == value, "lobby command token file verification failed")
 end
 
+-- Trusted engine entry point. It is deliberately not a client/RCON command.
+-- The bridge confirms a fresh due schedule or a durable prior release receipt.
+function Lobby.releaseForEvent(eventId, revision)
+    if not Utils.lobbyEnabled() or not started or not ApocBREventControl
+        or type(eventId) ~= "string" or type(revision) ~= "number"
+        or not ApocBREventControl.isReleaseAuthorized(eventId, revision) then return false end
+    if state.removedAll ~= true then
+        state.removedAll, state.released = true, true
+        token = nil
+        enqueueAll()
+        log("Scheduled event accepted; entire perimeter removal queued")
+    end
+    state.eventId, state.eventRevision = eventId, revision
+    -- This acknowledges desired-state acceptance, not completion of unloaded
+    -- world edits. Repeating after a crash/save gap safely reapplies removal.
+    return ApocBREventControl.acknowledgeRelease(eventId, revision)
+end
+
 function Lobby.releaseExits(payload)
-    if not started or not config.Enabled or state.released == true then return false end
+    if not Utils.lobbyEnabled() or not started or state.released == true then return false end
     -- The RCON extension is a client relay, not an authenticated server callback.
     -- A server-only, single-use UUID authorizes this fixed operation. Never put
     -- it in ModData (clients can request GlobalModData by name) or log payloads.
@@ -218,7 +235,8 @@ function Lobby.releaseExits(payload)
 end
 
 function Lobby.onStarted()
-    if started or not Utils.LobbyConfig.Enabled then return end
+    if not Utils.lobbyEnabled() or started then return end
+    require "ApocBRRCON"
     config = Utils.LobbyConfig
     -- Validate sprite availability once, not once for every missing square.
     for _, entry in ipairs({ { config.FenceNorth, IsoFlagType.collideN }, { config.FenceWest, IsoFlagType.collideW } }) do
@@ -245,16 +263,25 @@ function Lobby.onStarted()
         else log("ReleaseExits disabled: " .. tostring(errorMessage)) end
     end
     log("Queued " .. #edges .. " fence edges, including " .. #exits .. " removable exits; released=" .. tostring(state.released == true))
+    ApocBRRCON.subscribe("ExtractionLobby", "ReleaseExits", Lobby.releaseExits)
+    ApocBRRCON.subscribe("ExtractionLobby", "OpenDoors", Lobby.releaseExits)
+    -- The patched engine registers this event before OnServerStarted; the mod
+    -- also remains usable on an unpatched server with its manual RCON transport.
+    if ApocBREventControl and Events.OnApocBRLobbyEventDue then
+        Events.OnApocBRLobbyEventDue.Add(Lobby.releaseForEvent)
+        local id = ApocBREventControl.getEventId()
+        if id then Lobby.releaseForEvent(id, ApocBREventControl.getRevision()) end
+    end
 end
 
 function Lobby.onSquareLoaded(square)
-    if not started or not config.Enabled or square:getZ() ~= config.Z then return end
+    if not Utils.lobbyEnabled() or not started or square:getZ() ~= config.Z then return end
     local indices = bySquare[squareKey(square:getX(), square:getY())]
     if indices then for _, index in ipairs(indices) do enqueue(index) end end
 end
 
 function Lobby.onTick()
-    if not started or not config.Enabled then return end
+    if not Utils.lobbyEnabled() or not started then return end
     local time = now()
     if time >= nextScan then enqueueAll(); nextScan = time + config.RescanMilliseconds end
     if time >= nextExitCheck then
@@ -277,8 +304,6 @@ function Lobby.onTick()
 end
 
 Lobby.openDoors = Lobby.releaseExits -- compatibility for existing server integrations
-ApocBRRCON.subscribe("ExtractionLobby", "ReleaseExits", Lobby.releaseExits)
-ApocBRRCON.subscribe("ExtractionLobby", "OpenDoors", Lobby.releaseExits)
 Events.OnServerStarted.Add(Lobby.onStarted)
 Events.LoadGridsquare.Add(Lobby.onSquareLoaded)
 Events.OnTick.Add(Lobby.onTick)

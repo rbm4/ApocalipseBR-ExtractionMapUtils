@@ -16,14 +16,10 @@
     "mods": {
         "ApocalipseBR-ExtractionMapUtils": {
             "name": "ApocalipseBR - Extraction Map Utils",
-            "description": "Build 42 event lobby: military fences, RCON exit removal, login relocation, and world map/minimap reveal. Requires ApocalipseBrRCONextension."
+            "description": "Build 42 event lobby: military fences, PostgreSQL scheduled activation with the patched server, RCON exit removal, login relocation, and map reveal. Requires ApocalipseBrRCONextension."
         },
         "Restless-Waters": {
             "name": "Restless-Waters",
-            "description": ""
-        },
-        "MakeshiftRaft": {
-            "name": "MakeshiftRaft",
             "description": ""
         },
         "AquasarYatchClub": {

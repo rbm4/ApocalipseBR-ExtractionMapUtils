@@ -17,7 +17,7 @@ and reveal hooks.
 
 ## Current behavior
 
-- At `OnGameStart`, local living players are moved to the configured lobby tile.
+- With both lobby and relocation enabled, at `OnGameStart` local living players are moved to the configured lobby tile.
   Reconnecting existing characters also runs this login hook. This is client
   placement; dedicated-server movement and anti-cheat acceptance remain to be
   verified. It does not enforce confinement or handle every in-session respawn.
@@ -37,7 +37,8 @@ Sandbox group: `ApocExtractionMapUtils`.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| `RelocateOnLogin` | `true` | Apply lobby placement at game entry. |
+| `LobbyEnabled` | `false` | Master opt-in for lobby behavior, including relocation. |
+| `RelocateOnLogin` | `false` | Apply lobby placement at game entry when the lobby is enabled. |
 | `LobbyX` | `-1` | Lobby world tile X; negative means unconfigured. |
 | `LobbyY` | `-1` | Lobby world tile Y; negative means unconfigured. |
 | `LobbyZ` | `0` | Lobby floor, from -32 to 31. |

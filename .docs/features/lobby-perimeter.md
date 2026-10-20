@@ -1,12 +1,15 @@
 # Lobby perimeter and RCON release
 
 Status: updated in 0.2.2; awaiting Build 42 dedicated-server/client validation.
+Version 0.3.0 adds [PostgreSQL event activation](postgresql-event-control.md):
+the scheduled event removes the entire perimeter; the manual RCON behavior
+documented here still removes the six exits.
 Related foundation: [Login placement and map visibility](lobby-and-map-visibility.md).
 Source investigation: [World-control APIs](../reports/2026-10-19-lobby-world-control-api-investigation.md).
 
 ## Behavior
 
-The dedicated server builds a non-climbable military/barbed-fence perimeter around the inclusive interior
+When `SandboxVars.ApocExtractionMapUtils.LobbyEnabled=true`, the dedicated server builds a non-climbable military/barbed-fence perimeter around the inclusive interior
 X=14260..14321, Y=11812..11892, Z=0. The supplied corners are normalized so their
 order does not matter. This encloses 62 by 81 tiles with 286 identical fence edge
 objects, including six single-tile removable exits. North/west edges belong to the square
@@ -34,8 +37,12 @@ configured Z. This applies to all players, regardless of faction or role, and
 continues after exit release. It covers native welding scrap actions and
 already-queued actions at completion, on both client and server. Target object
 positions are checked, not the player's position or ownership marker. Outside
-the protected footprint, native checks still apply. Pickup, placement, rotation,
-repair and inventory-item disassembly are not included in this restriction.
+the protected footprint, native checks still apply. The follow-up removal hotfix
+also blocks furniture/floor pickup, sledgehammer destruction and ground-material
+shoveling. Placement, rotation, repair and inventory-item disassembly remain
+available. [Construction protection](lobby-construction-protection.md) additionally
+blocks new builds and wall upgrades. Moving existing furniture remains available.
+These rules cover the configured Z only, not every building floor.
 See [the disassembly hotfix](../hotfixes/lobby-disassembly-protection.md) for
 verified action paths, tests and limitations. Authorized RCON fence removal
 continues to use native world removal without going through these player actions.
@@ -111,6 +118,19 @@ has no effect.
 
 ## Configuration and work budget
 
+The master sandbox setting `ApocExtractionMapUtils.LobbyEnabled` defaults to
+`false`. When absent or disabled, startup does not validate sprites, build a plan,
+read/write lobby ModData, generate tokens, load/subscribe the RCON relay, or
+subscribe to scheduled events. Tick/load callbacks return immediately and direct
+release calls refuse the request. Disassembly wrappers delegate to native behavior.
+Relocation additionally requires `RelocateOnLogin=true`. Only map reveal is on
+by default; zombie money drops have a separate disabled-by-default switch.
+
+Restart the server and reconnect clients after changing the master switch.
+Disabling stops control; it does not delete saved fences, reset their native
+flags, consume existing token files, or reset the saved release state. Remove
+existing assets deliberately before retiring a previously active lobby.
+
 Edit `common/media/lua/shared/ApocExtractionMapUtils_LobbySettings.lua` in the core
 mod and restart clients/server with identical configuration. The existing server
 `ApocExtractionMapUtils_LobbyConfig.lua` now forwards to the shared settings so
@@ -119,7 +139,6 @@ own configuration. These bounds remain independent of sandbox login coordinates.
 
 | Configuration | Default | Meaning |
 | --- | --- | --- |
-| Enabled | true | Enables perimeter initialization/maintenance. |
 | X1/Y1, X2/Y2, Z | Supplied bounds, Z=0 | Inclusive interior tiles. |
 | ExitCount | 6 | Clamped to 0..6, selected once per saved layout. Replaces DoorCount. |
 | MaxEdgesPerTick | 4 | Hard count cap; configurable from 1 to 16. |

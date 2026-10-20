@@ -4,7 +4,6 @@
 -- remove an old perimeter; remove old assets deliberately before moving it.
 ApocExtractionMapUtils = ApocExtractionMapUtils or {}
 ApocExtractionMapUtils.LobbyConfig = {
-    Enabled = true,
     X1 = 14260, Y1 = 11892,
     X2 = 14321, Y2 = 11812,
     Z = 0,
