@@ -1,5 +1,7 @@
 {
     "Sandbox_ApocExtractionMapUtils": "ApocalipseBR - Extraction Map Utils",
+    "Sandbox_ApocExtractionMapUtils_debugLog": "Enable debug logs",
+    "Sandbox_ApocExtractionMapUtils_debugLog_tooltip": "Write ExtractionMapUtils Lua diagnostics to client and server logs, including NPC discovery, right-click matching and dialogue requests. Disabled by default. Enable on the server and reconnect clients before troubleshooting.",
     "Sandbox_ApocExtractionMapUtils_ForceMapReveal": "Force map and minimap reveal",
     "Sandbox_ApocExtractionMapUtils_ForceMapReveal_tooltip": "Reveal the world map and minimap regardless of base map settings. Multiplayer reveal is also written on the server. Minimap zoom and visibility follow normal game controls. Disabling this option does not erase already revealed areas.",
     "Sandbox_ApocExtractionMapUtils_RelocateOnLogin": "Relocate to lobby on every login",

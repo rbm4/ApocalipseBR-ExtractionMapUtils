@@ -5,7 +5,7 @@ local Utils = ApocExtractionMapUtils
 if Utils.Reveal then return Utils.Reveal end
 local Reveal = {}
 Utils.Reveal = Reveal
-print("[ApocExtractionMapUtils] Known-map reveal loaded; native minimap rendering.")
+ApocExtractionMapUtils.debugLog("[ApocExtractionMapUtils] Known-map reveal loaded; native minimap rendering.")
 
 local sessions = {}
 local spawnOffsets = { 3000, 10000, 30000, 90000 }
@@ -21,7 +21,7 @@ function Reveal.localReveal()
         end)
     end)
     if not ok and not reportedFailure then
-        print("[ApocExtractionMapUtils] Local known-map reveal unavailable; scheduled passes will retry.")
+        ApocExtractionMapUtils.debugLog("[ApocExtractionMapUtils] Local known-map reveal unavailable; scheduled passes will retry.")
     end
     reportedFailure = not ok
     return ok

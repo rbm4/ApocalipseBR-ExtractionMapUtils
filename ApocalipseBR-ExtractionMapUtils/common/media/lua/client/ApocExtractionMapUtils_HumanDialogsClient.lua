@@ -6,9 +6,12 @@ require "TimedActions/ISTimedActionQueue"
 local D = ApocExtractionMapUtils.HumanDialogs
 if D.clientLoaded then return end
 D.clientLoaded = true
-local C = { states = {}, roster = {}, sequence = 0, refreshAt = {} }
+local C = { states = {}, roster = {}, sequence = 0, refreshAt = {}, listPendingAt = {} }
 D.client = C
+D.log("client", "loaded")
 local function send(player, command, data)
+    D.log("client", "send", { command = "Human" .. command, player = player:getOnlineID(),
+        id = data.id, option = data.option, request = data.request, sequence = data.sequence })
     sendClientCommand(player, D.MODULE, "Human" .. command, data)
 end
 local function notify(player, key)
@@ -18,6 +21,7 @@ function C.close(player)
     local index = player:getPlayerNum()
     local state = C.states[index]
     if not state then return end
+    D.log("client", "close", { player = player:getOnlineID(), id = state.id, opened = state.opened == true })
     C.states[index] = nil
     if state.panel then state.panel:removeFromUIManager() end
     if state.token then send(player, "Close", { id = state.id, token = state.token }) end
@@ -79,6 +83,7 @@ function C.walk(player, state)
             locations[#locations + 1], locations[#locations + 2], locations[#locations + 3] = x + 0.5, y + 0.5, state.z
         end
     end
+    D.log("client", "walk", { id = state.id, destinations = #locations / 3 })
     if #locations == 0 then C.close(player); notify(player); return end
     local walk = ApocHumanWalkAction:pathToNearest(player, locations)
     walk.dialogue = state
@@ -100,17 +105,27 @@ function C.select(player, state, option)
 end
 local function onServerCommand(module, command, args)
     if module ~= D.MODULE or type(args) ~= "table" or type(command) ~= "string" then return end
+    if command:sub(1, 5) ~= "Human" then return end
+    D.log("client", "receive", { command = command, recipient = args.recipient, id = args.id,
+        error = args.error, request = args.request, sequence = args.sequence })
     for index = 0, getNumActivePlayers() - 1 do
         local player = getSpecificPlayer(index)
         if player and args.recipient == player:getOnlineID() then
             if command == "HumanList" then
                 local roster = {}
-                for _, actor in ipairs(args.actors or {}) do roster[actor.id] = actor end
+                for _, actor in ipairs(args.actors or {}) do
+                    roster[actor.id] = actor
+                    D.log("client", "roster_actor", { id = actor.id, key = actor.key, name = actor.name,
+                        options = #(actor.options or {}) })
+                end
                 C.roster[index] = roster
+                C.listPendingAt[index] = nil
+                D.log("client", "roster_updated", { player = player:getOnlineID(), actors = #(args.actors or {}) })
                 return
             end
             local state = C.states[index]
             if not state or state.id ~= args.id or command == "HumanReserved" and state.request ~= args.request then
+                D.log("client", "reply_ignored", { reason = "no_matching_session", command = command, id = args.id })
                 if command == "HumanReserved" then send(player, "Close", { id = args.id, token = args.token }) end
                 return
             end
@@ -129,30 +144,51 @@ local function onServerCommand(module, command, args)
                     state.panel = ApocHumanDialogPanel:new(player, state.name, args.options or {}, args.greetingKey,
                         function(option) C.select(player, state, option) end, function() C.close(player) end)
                     state.panel:initialise(); state.panel:addToUIManager()
+                    D.log("client", "panel_opened", { id = state.id, options = #(args.options or {}) })
                 elseif command == "HumanSelected" then
                     state.sequence, state.pending, state.nextChoice = args.sequence, false, getTimestampMs() + 600
                     state.deadline = getTimestampMs() + 65000
                     if state.panel then state.panel:setMessage(args.responseKey); state.panel:setPending(false) end
                 elseif command == "HumanClosed" then C.close(player) end
+            else
+                D.log("client", "reply_ignored", { reason = "token_mismatch", command = command, id = args.id })
             end
             return
         end
     end
+    D.log("client", "reply_ignored", { reason = "recipient_mismatch", command = command, recipient = args.recipient })
 end
 Events.OnServerCommand.Add(onServerCommand)
 
 local function menu(playerIndex, context, worldobjects, test)
     local player = getSpecificPlayer(playerIndex)
-    if not player or player:isDead() then return end
+    if not player or player:isDead() then
+        if not test then D.log("client", "menu_skipped", { reason = "no_live_player", index = playerIndex }) end
+        return
+    end
     local clicked = ISWorldObjectContextMenu.fetchVars and ISWorldObjectContextMenu.fetchVars.clickedPlayer
+    local source = "fetch.clickedPlayer"
     -- Prefer an explicit character hit; native fetch may also resolve a nearby player.
     for _, object in ipairs(worldobjects) do
-        if instanceof(object, "IsoPlayer") then clicked = object; break end
+        if instanceof(object, "IsoPlayer") then clicked = object; source = "worldobjects"; break end
     end
-    if not clicked then return end
+    if not clicked then
+        if not test then D.log("client", "menu_skipped", { reason = "no_clicked_player", worldobjects = #worldobjects,
+            rosterReceived = C.roster[playerIndex] ~= nil }) end
+        return
+    end
     local actor = (C.roster[playerIndex] or {})[clicked:getOnlineID()]
-    if not actor or not actor.options or #actor.options == 0 then return end
+    if not test then
+        D.log("client", "menu_target", { id = clicked:getOnlineID(), source = source,
+            rosterReceived = C.roster[playerIndex] ~= nil, registered = actor ~= nil,
+            options = actor and #(actor.options or {}) or 0 })
+    end
+    if not actor or not actor.options or #actor.options == 0 then
+        if not test then D.log("client", "menu_skipped", { reason = not actor and "target_not_in_roster" or "no_options" }) end
+        return
+    end
     if test then return ISWorldObjectContextMenu.setTest() end
+    D.log("client", "menu_added", { id = actor.id, key = actor.key, name = actor.name, options = #actor.options })
     local root = context:addOption(getText("IGUI_ApocExtractionMapUtils_DialogTalk", actor.name), nil, nil)
     local submenu = ISContextMenu:getNew(context)
     context:addSubMenu(root, submenu)
@@ -167,9 +203,15 @@ Events.OnTick.Add(function()
         local player = getSpecificPlayer(index)
         if player then
             local state = C.states[index]
-            if state and (now >= state.deadline or player:isDead()) then C.close(player) end
+            if state and (now >= state.deadline or player:isDead()) then
+                D.log("client", "session_expired", { id = state.id, dead = player:isDead() })
+                C.close(player)
+            end
             if now >= (C.refreshAt[index] or 0) and not C.states[index] then
                 C.refreshAt[index] = now + 5000
+                if C.listPendingAt[index] then
+                    D.log("client", "list_waiting", { player = player:getOnlineID(), elapsedMs = now - C.listPendingAt[index] })
+                else C.listPendingAt[index] = now end
                 send(player, "List", {})
             end
         end

@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ApocalipseBR event definition v1",
+  "description": "Envelope published by the manager. Enter only the parameters member in the website JSON editor. Acceptance describes data, not installed gameplay capabilities.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "gameType", "ruleset", "durationMinutes", "parameters"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "gameType": {"$ref": "#/$defs/id"},
+    "ruleset": {"$ref": "#/$defs/id"},
+    "durationMinutes": {"type": "integer", "minimum": 1, "maximum": 10080},
+    "parameters": {"$ref": "#/$defs/parameters"}
+  },
+  "$defs": {
+    "id": {"type": "string", "minLength": 1, "maxLength": 80, "pattern": "^[A-Za-z0-9_.-]+$"},
+    "properties": {"type": "object", "description": "Type-specific data; bounded by transport/parser limits. No executable Lua, callbacks or commands."},
+    "ids": {"type": "array", "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "parameters": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {"const": 1},
+        "regions": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/region"}},
+        "objectives": {"type": "array", "maxItems": 128, "items": {"$ref": "#/$defs/objective"}},
+        "entities": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/entity"}},
+        "properties": {"$ref": "#/$defs/properties"}
+      }
+    },
+    "bounds": {
+      "type": "object", "additionalProperties": false,
+      "required": ["minX", "minY", "maxX", "maxY", "minZ", "maxZ"],
+      "properties": {
+        "minX": {"type": "integer", "minimum": -1000000, "maximum": 1000000},
+        "minY": {"type": "integer", "minimum": -1000000, "maximum": 1000000},
+        "maxX": {"type": "integer", "minimum": -1000000, "maximum": 1000000},
+        "maxY": {"type": "integer", "minimum": -1000000, "maximum": 1000000},
+        "minZ": {"type": "integer", "minimum": -32, "maximum": 31},
+        "maxZ": {"type": "integer", "minimum": -32, "maximum": 31}
+      }
+    },
+    "position": {
+      "type": "object", "additionalProperties": false, "required": ["x", "y", "z"],
+      "properties": {
+        "x": {"type": "number", "minimum": -1000000, "maximum": 1000000},
+        "y": {"type": "number", "minimum": -1000000, "maximum": 1000000},
+        "z": {"type": "integer", "minimum": -32, "maximum": 31}
+      }
+    },
+    "population": {
+      "type": "object", "additionalProperties": false, "required": ["minAlive", "maxAlive"],
+      "properties": {
+        "minAlive": {"type": "integer", "minimum": 0, "maximum": 5000},
+        "maxAlive": {"type": "integer", "minimum": 0, "maximum": 5000},
+        "minPlayerDistance": {"type": "integer", "minimum": 10, "maximum": 1000},
+        "refillCooldownSeconds": {"type": "integer", "minimum": 5, "maximum": 86400},
+        "properties": {"$ref": "#/$defs/properties"}
+      }
+    },
+    "region": {
+      "type": "object", "additionalProperties": false, "required": ["id"],
+      "oneOf": [
+        {"properties": {"regionId": {}}, "required": ["regionId"]},
+        {"properties": {"bounds": {}}, "required": ["bounds"]}
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "regionId": {"$ref": "#/$defs/id"},
+        "bounds": {"$ref": "#/$defs/bounds"},
+        "pvp": {"type": "string", "enum": ["inherit", "enabled", "disabled"]},
+        "tags": {"$ref": "#/$defs/ids"},
+        "population": {"$ref": "#/$defs/population"},
+        "properties": {"$ref": "#/$defs/properties"}
+      }
+    },
+    "objective": {
+      "type": "object", "additionalProperties": false, "required": ["id", "type", "scope"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "type": {"$ref": "#/$defs/id"},
+        "scope": {"type": "string", "enum": ["player", "team", "event"]},
+        "titleKey": {"$ref": "#/$defs/id"},
+        "target": {"type": "integer", "minimum": 1, "maximum": 1000000},
+        "required": {"type": "boolean"},
+        "regionIds": {"$ref": "#/$defs/ids"},
+        "entityIds": {"$ref": "#/$defs/ids"},
+        "dependsOn": {"$ref": "#/$defs/ids"},
+        "properties": {"$ref": "#/$defs/properties"}
+      }
+    },
+    "entity": {
+      "type": "object", "additionalProperties": false, "required": ["id", "type"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "type": {"$ref": "#/$defs/id"},
+        "regionId": {"$ref": "#/$defs/id"},
+        "position": {"$ref": "#/$defs/position"},
+        "tags": {"$ref": "#/$defs/ids"},
+        "properties": {"$ref": "#/$defs/properties"}
+      }
+    }
+  }
+}

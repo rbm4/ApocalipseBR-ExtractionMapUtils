@@ -5,7 +5,7 @@ local function onGameStart()
         or ApocExtractionMapUtils.getOptions().RelocateOnLogin ~= true then return end
     local x, y, z = ApocExtractionMapUtils.getLobbyPosition()
     if not x then
-        print("[ApocExtractionMapUtils] Login relocation skipped: configure LobbyX and LobbyY in sandbox settings.")
+        ApocExtractionMapUtils.debugLog("[ApocExtractionMapUtils] Login relocation skipped: configure LobbyX and LobbyY in sandbox settings.")
         return
     end
 
@@ -21,7 +21,7 @@ local function onGameStart()
             player:setForceX(x + 0.5)
             player:setForceY(y + 0.5)
             player:setLastZ(z)
-            print("[ApocExtractionMapUtils] Login lobby position: " .. x .. "," .. y .. "," .. z)
+            ApocExtractionMapUtils.debugLog("[ApocExtractionMapUtils] Login lobby position: " .. x .. "," .. y .. "," .. z)
         end
     end
 end

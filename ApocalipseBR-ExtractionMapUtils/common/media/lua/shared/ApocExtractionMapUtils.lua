@@ -6,6 +6,16 @@ function Utils.getOptions()
     return (SandboxVars and SandboxVars.ApocExtractionMapUtils) or {}
 end
 
+-- Read at emission time: SandboxVars may not exist during Lua autoload.
+function Utils.debugLogEnabled()
+    return Utils.getOptions().debugLog == true
+end
+
+function Utils.debugLog(message)
+    if not Utils.debugLogEnabled() then return end
+    print(tostring(message):gsub("[%c]", " "):sub(1, 2048))
+end
+
 function Utils.forceMapReveal()
     return Utils.getOptions().ForceMapReveal ~= false
 end

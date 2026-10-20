@@ -22,6 +22,10 @@ Durable gameplay specifications and current behavior belong in `features/`.
   blocks player construction and upgrades, including overlapping B42 entities.
 - [PostgreSQL event activation](features/postgresql-event-control.md): backend
   contract, guide schedule announcements and scheduled whole-perimeter removal.
+- [Event definition schema](features/event-definition-schema.md): versioned regions,
+  objectives and entity data, JSON validation and server Lua metadata intake.
+- [Event runtime scaffold](features/event-runtime-scaffold.md): ordered preview
+  modules, region lookup and release-confirmed console activation diagnostics.
 - [Zombie money drops](features/zombie-money-drops.md): server-confirmed player
   kills add 1–10 money items to the corpse inventory.
 
@@ -39,6 +43,8 @@ Targeted corrections and compatibility workarounds belong in `hotfixes/`.
 - [Lobby disassembly protection](hotfixes/lobby-disassembly-protection.md): blocks
   welding scrap, dismantling, furniture/floor pickup, sledgehammer destruction
   and ground-material shoveling throughout lobby squares on client and server.
+- [Lobby construction startup](hotfixes/lobby-construction-load-order.md): loads
+  building guards after B42 registers the server Lua dependencies.
 
 ## Reports
 

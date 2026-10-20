@@ -104,6 +104,55 @@ The server-only `ApocBRHumanAPI` bridge is installed on the first simulation tic
 The mod waits for its close event before subscribing. No database, RCON call,
 economy change, new dependency, or production deployment is involved.
 
+## Debugging missing menus
+
+Set `ApocExtractionMapUtils.debugLog = true` in the server sandbox configuration
+(**Enable debug logs** on the mod's sandbox page). The default is false. Deploy
+updated Lua to server and clients, restart the server and reconnect clients.
+This controls all core-mod Lua logs, including callback failures, lobby, map,
+event-definition and event-preview diagnostics. Java patch and other mods' logs
+have their own controls. Gameplay, requests and validation run with either value.
+
+Search client `console.txt` and dedicated-server console output for
+`[ApocExtractionMapUtils][HumanDialogs]`. Each line includes `client`, `server`
+or `registry`; online IDs connect the server actor, client roster and menu target.
+Ricardao's display name may change; his registration key remains `guide`.
+
+Expected discovery/menu sequence:
+
+1. Client `send command=HumanList` every five seconds when idle.
+2. Server `bridge_status status=ready` (with API version when available),
+   `receive command=HumanList`, then `discovered_actor` with `key=guide`,
+   `registered=true`, and `options=3` for the starter profile.
+3. Server `roster_ready actors=1` and `send command=HumanList`.
+4. Client `receive command=HumanList`, `roster_actor` with the same ID, and
+   `roster_updated actors=1`.
+5. A normal right-click logs `menu_target` with that ID, the picking source
+   (`worldobjects` or `fetch.clickedPlayer`), roster status and option count,
+   then `menu_added`. Menu test probes intentionally do not log.
+
+`bridge_status status=missing` means the dialogue bridge is unavailable, even
+if the older bot presentation code can spawn a visible guide. An actor with
+`registered=false` lacks a matching Lua profile. An empty roster can also mean
+no actors on the same floor within the Java discovery radius of 32 tiles.
+`list_waiting` reports elapsed milliseconds without a matching roster reply;
+check the server receive/send lines to locate the missing boundary. A
+`HumanRejected` reply with `error=unavailable` also identifies unavailable discovery.
+
+`menu_skipped reason=no_clicked_player` means picking returned no character.
+`reason=target_not_in_roster` means the picked online ID is absent from the
+received roster; inspect `rosterReceived` and compare `menu_target` with
+`roster_actor`. `reason=no_options` identifies an empty advertised option list.
+
+Choosing an option logs `HumanBegin`, server `reserved`, client `walk`,
+`HumanArrive`, server `arrival_validated`, client `panel_opened`, and server
+`selected`. Follow-up selections, rejects, ignored session/sequence requests,
+timeouts and closure are logged too. Logs omit session tokens and dialogue
+text. Scalar fields are bounded and control characters sanitized; output is
+capped at 2048 characters per line. Bridge readiness logs on state changes;
+periodic discovery remains at its existing five-second interval. Turn debug
+logging off after collecting a reproduction.
+
 ## Code and verification
 
 Core Lua files under `ApocalipseBR-ExtractionMapUtils/common/media/lua/`:
@@ -128,12 +177,15 @@ Run from this repository:
 npm exec --yes --package=fengari-node-cli -- fengari tests/human-dialogue.lua
 python tests/guide-translations.py
 python tests/human-dialogue-labels.py
+npm exec --yes --package=fengari-node-cli -- fengari tests/debug-logging.lua
 ```
 
-The dialogue harness passes 43 assertions covering registration, authenticated
+The dialogue harness passes 57 assertions covering registration, authenticated
 routing, initial/follow-up reactions, invalid options/tokens, replay rejection,
 callback isolation, recipient filtering, context-menu probes, path/talk ordering,
-queue cancellation and panel close. Engine/UI boundaries are mocked. The panel's
+queue cancellation and panel close, default-off logging, roster wait diagnostics,
+bridge readiness, picking sources, silent menu probes and lifecycle tracing.
+The shared logging harness passes 5 gate/bounds/preview assertions. Engine/UI boundaries are mocked. The panel's
 Lua syntax and translation JSON/UTF-8 are checked separately. Java production
 lease tests and game-JAR dry compilation are recorded in the patch guide.
 

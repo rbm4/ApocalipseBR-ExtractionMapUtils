@@ -11,7 +11,11 @@ native behavior and return values are preserved.
 
 ## Behavior and ownership
 
-`shared/ApocExtractionMapUtils_LobbyConstruction.lua` owns construction guards.
+`server/ApocExtractionMapUtils_LobbyConstruction.lua` owns construction guards.
+B42 loads server Lua on dedicated servers, clients and in single-player. The
+module must run in that pass because building cursors live in server Lua and
+their require path is unavailable during shared loading. See the
+[startup hotfix](../hotfixes/lobby-construction-load-order.md).
 `LobbyProtection.lua` exposes `isProtectedPosition(x,y,z)` alongside its square
 helper so unloaded/missing squares cannot evade coordinate checks.
 
@@ -75,6 +79,8 @@ All passed on 2026-10-20. The construction harness also runs the removal harness
 Tests mock engine boundaries and cover client/server/SP installation, early and
 completion denial, upgrades, multi-tile/layer overlap, missing squares, preserved
 cancellation/returns, duplicate loading and permitted outside/disabled behavior.
+The startup regression makes server building modules unavailable in the shared
+pass and verifies installation in the server pass in all three modes.
 
 No live game test was run. Install matching files on clients/server and restart.
 Try walls, floors, stairs, double doors, furniture construction and wall upgrades

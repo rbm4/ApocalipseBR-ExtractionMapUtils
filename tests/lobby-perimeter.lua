@@ -327,6 +327,11 @@ assert(#reload.handlers.OnTick == 1 and #reload.handlers.LoadGridsquare == 1 and
 -- relay/token file, and leaves all edges absent through repair/reload/restart.
 local event = fixture()
 local due, acknowledge, acknowledgements = false, false, 0
+local runtimeConfirmations = 0
+ApocExtractionMapUtils.EventRuntime = { confirmRelease = function(id, revision)
+    assert(id == "scheduled-event" and revision == 3)
+    runtimeConfirmations = runtimeConfirmations + 1
+end }
 ApocBREventControl = {
     getEventId = function() return "scheduled-event" end,
     getRevision = function() return 3 end,
@@ -341,9 +346,11 @@ assert(not callback("scheduled-event", 3) and not event.store.removedAll)
 due = true
 assert(not callback("forged-event", 3) and not callback("scheduled-event", 4))
 assert(not callback("scheduled-event", 3) and event.store.removedAll, "failed acknowledgement must permit safe retry")
+assert(runtimeConfirmations == 0, "runtime cannot activate before successful acknowledgement")
 assert(event.removes == 0, "activation only queues work")
 acknowledge = true
 assert(callback("scheduled-event", 3) and acknowledgements == 2)
+assert(runtimeConfirmations == 1, "successful acknowledgement notifies runtime")
 event.pump(100)
 assert(#event.objects() == 0 and event.removes == 286 and event.adds == 286)
 event.clock = 60000; event.pump(100)

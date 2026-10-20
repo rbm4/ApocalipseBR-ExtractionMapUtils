@@ -1,0 +1,43 @@
+-- Generated from contracts/examples/event-definition-v1.json.
+return [====[{
+  "schemaVersion": 1,
+  "gameType": "extraction",
+  "ruleset": "operation.default",
+  "durationMinutes": 60,
+  "parameters": {
+    "schemaVersion": 1,
+    "properties": {"friendlyFire": false, "extractionMinutes": 10},
+    "regions": [
+      {
+        "id": "docks",
+        "regionId": "event_docks",
+        "pvp": "disabled",
+        "tags": ["objective_area", "reinforcements"],
+        "population": {"minAlive": 30, "maxAlive": 45, "minPlayerDistance": 45, "refillCooldownSeconds": 30}
+      },
+      {
+        "id": "territory",
+        "bounds": {"minX": 100, "minY": 100, "maxX": 120, "maxY": 120, "minZ": 0, "maxZ": 0},
+        "pvp": "enabled",
+        "tags": ["capture_zone"],
+        "properties": {"captureRadius": 10}
+      }
+    ],
+    "entities": [
+      {"id": "supply_cache", "type": "loot_container", "regionId": "docks", "properties": {"lootTable": "medical_supplies"}},
+      {"id": "survivor", "type": "rescue_npc", "regionId": "docks", "properties": {"template": "civilian"}},
+      {"id": "commander", "type": "boss", "regionId": "docks", "tags": ["elite"], "properties": {"outfit": "Army", "healthMultiplier": 5}}
+    ],
+    "objectives": [
+      {"id": "clear", "type": "kill_zombies", "scope": "player", "regionIds": ["docks"], "target": 100},
+      {
+        "id": "supplies", "type": "collect_items", "scope": "player", "regionIds": ["docks"],
+        "entityIds": ["supply_cache"], "properties": {"items": [{"itemType": "Base.Bandage", "count": 5}], "consumeOnTurnIn": true}
+      },
+      {"id": "rescue", "type": "rescue", "scope": "team", "regionIds": ["docks"], "entityIds": ["survivor"], "dependsOn": ["clear"]},
+      {"id": "capture", "type": "hold_territory", "scope": "team", "regionIds": ["territory"], "properties": {"holdSeconds": 120, "contestedPauses": true}},
+      {"id": "boss", "type": "defeat_boss", "scope": "event", "entityIds": ["commander"], "required": false}
+    ]
+  }
+}
+]====]

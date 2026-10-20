@@ -4,12 +4,15 @@ local D = ApocExtractionMapUtils.HumanDialogs
 if D.serverLoaded then return end
 D.serverLoaded = true
 local sessions, throttles = {}, {}
+D.log("server", "loaded")
 
 local function integer(value)
     return type(value) == "number" and value == math.floor(value) and value >= 0 and value <= 2147483647
 end
 local function send(player, command, args)
     args.recipient = player:getOnlineID()
+    D.log("server", "send", { command = "Human" .. command, recipient = args.recipient,
+        id = args.id, error = args.error, request = args.request, sequence = args.sequence })
     sendServerCommand(player, D.MODULE, "Human" .. command, args)
 end
 local function publicOptions(definition)
@@ -20,33 +23,46 @@ local function publicOptions(definition)
     return result
 end
 local function reject(player, args, reason)
+    D.log("server", "rejected", { player = player:getOnlineID(), id = args.id, reason = reason })
     send(player, "Rejected", { request = args.request, id = args.id, token = args.token, error = reason })
 end
 local function onCommand(module, command, player, args)
     if module ~= D.MODULE or type(command) ~= "string" or command:sub(1, 5) ~= "Human" then return end
     if not player or type(args) ~= "table" then return end
+    D.log("server", "receive", { command = command, player = player:getOnlineID(),
+        id = args.id, option = args.option, request = args.request, sequence = args.sequence })
     if not ApocBRHumanAPI then reject(player, args, "unavailable"); return end
     local now, playerId = getTimestampMs(), player:getOnlineID()
     local limit = throttles[playerId]
     if not limit or limit.player ~= player then limit = { player = player }; throttles[playerId] = limit end
     if command == "HumanList" or command == "HumanBegin" then
-        if now < (limit[command] or 0) then return end
+        if now < (limit[command] or 0) then
+            D.log("server", "request_ignored", { command = command, reason = "throttled", player = playerId })
+            return
+        end
         limit[command] = now + (command == "HumanList" and 1000 or 250)
     end
     if command == "HumanList" then
         local actors = {}
         for _, actor in ipairs(ApocBRHumanAPI.list(player)) do
             local definition = D.definitions[actor.key]
+            D.log("server", "discovered_actor", { id = actor.id, key = actor.key, name = actor.name,
+                registered = definition ~= nil, options = definition and #definition.options or 0 })
             if definition then
                 actor.options = publicOptions(definition)
                 actors[#actors + 1] = actor
             end
         end
+        D.log("server", "roster_ready", { player = playerId, actors = #actors })
         send(player, "List", { actors = actors }); return
     end
-    if not integer(args.id) then return end
+    if not integer(args.id) then
+        D.log("server", "request_ignored", { command = command, reason = "invalid_id" }); return
+    end
     if command == "HumanBegin" then
-        if not integer(args.request) then return end
+        if not integer(args.request) then
+            D.log("server", "request_ignored", { command = command, reason = "invalid_request" }); return
+        end
         local definition
         for _, actor in ipairs(ApocBRHumanAPI.list(player)) do
             if actor.id == args.id then definition = D.definitions[actor.key]; break end
@@ -57,19 +73,25 @@ local function onCommand(module, command, player, args)
         sessions[player] = { player = player, id = result.id, token = result.token,
             request = args.request, definition = definition, selected = args.option, key = result.key, sequence = 0 }
         result.request = args.request
+        D.log("server", "reserved", { player = playerId, id = result.id, key = result.key })
         send(player, "Reserved", result)
         D.emit("reserved", player, result)
         return
     end
     local session = sessions[player]
-    if not session or session.player ~= player or session.id ~= args.id or session.token ~= args.token then return end
+    if not session or session.player ~= player or session.id ~= args.id or session.token ~= args.token then
+        D.log("server", "request_ignored", { command = command, id = args.id, reason = "session_mismatch" }); return
+    end
     if command == "HumanClose" then ApocBRHumanAPI.finish(player, args.id, args.token); return end
     if command == "HumanArrive" then
-        if session.opened then return end
+        if session.opened then
+            D.log("server", "request_ignored", { command = command, id = args.id, reason = "already_opened" }); return
+        end
         if not ApocBRHumanAPI.arrive(player, args.id, args.token) then
             reject(player, args, "unavailable"); ApocBRHumanAPI.finish(player, args.id, args.token); return
         end
         session.opened = true
+        D.log("server", "arrival_validated", { player = playerId, id = args.id, key = session.key })
         send(player, "Opened", { id = args.id, token = args.token, options = publicOptions(session.definition),
             greetingKey = session.definition.greetingKey })
         D.emit("opened", player, { key = session.key, id = args.id, token = args.token })
@@ -79,9 +101,11 @@ local function onCommand(module, command, player, args)
     end
     if command == "HumanSelect" then
         if not session.opened or not integer(args.sequence) or args.sequence ~= session.sequence + 1
-            or (session.nextChoice and now < session.nextChoice) then return end
+            or (session.nextChoice and now < session.nextChoice) then
+            D.log("server", "request_ignored", { command = command, id = args.id, reason = "selection_order_or_cooldown" }); return
+        end
         local option = session.definition.byId[args.option]
-        if not option then return end
+        if not option then D.log("server", "request_ignored", { command = command, reason = "unknown_option" }); return end
         local response = getText(option.responseKey)
         if not ApocBRHumanAPI.react(player, args.id, args.token, response, option.emote) then
             reject(player, args, "unavailable"); ApocBRHumanAPI.finish(player, args.id, args.token); return
@@ -91,9 +115,11 @@ local function onCommand(module, command, player, args)
             option = option.id, responseKey = option.responseKey, sequence = session.sequence }
         if option.onSelect then
             local ok = pcall(option.onSelect, player, data)
-            if not ok then print("[ApocExtractionMapUtils] NPC option callback failed: " .. option.id) end
+            if not ok then ApocExtractionMapUtils.debugLog("[ApocExtractionMapUtils] NPC option callback failed: " .. option.id) end
         end
         D.emit("selected", player, data)
+        D.log("server", "selected", { player = playerId, id = args.id, key = session.key,
+            option = option.id, sequence = session.sequence })
         send(player, "Selected", data)
     end
 end
@@ -101,12 +127,22 @@ Events.OnClientCommand.Add(onCommand)
 
 -- The Java API and custom events become available on the first server simulation tick.
 local bound, cleanupAt = false, 0
+local lastBridgeStatus
 Events.OnTick.Add(function()
+    if ApocExtractionMapUtils.debugLogEnabled() then
+        local status = ApocBRHumanAPI and "ready" or "missing"
+        if status ~= lastBridgeStatus then
+            D.log("server", "bridge_status", { status = status, version = ApocBRHumanAPI and ApocBRHumanAPI.version })
+            lastBridgeStatus = status
+        end
+    else lastBridgeStatus = nil end
     if not bound and ApocBRHumanAPI and Events.OnApocBRHumanDialogueClosed then
         bound = true
+        D.log("server", "close_hook_bound")
         Events.OnApocBRHumanDialogueClosed.Add(function(player, data)
             local session = sessions[player]
             if session and session.player == player and session.token == data.token then
+                D.log("server", "closed", { player = player:getOnlineID(), id = data.id, reason = data.reason })
                 sessions[player] = nil
                 send(player, "Closed", data)
                 D.emit("closed", player, data)

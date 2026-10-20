@@ -2,6 +2,12 @@
 package.path = "ApocalipseBR-ExtractionMapUtils/common/media/lua/shared/?.lua;"
     .. "ApocalipseBR-ExtractionMapUtils/common/media/lua/client/?.lua;" .. package.path
 local checks = 0
+local originalPrint, logs = print, {}
+print = function(message) logs[#logs + 1] = message end
+local function logged(text)
+    for _, line in ipairs(logs) do if line:find(text, 1, true) then return true end end
+    return false
+end
 local function check(value, message) checks = checks + 1; assert(value, message) end
 local function event()
     local e = { callbacks = {} }
@@ -32,6 +38,10 @@ local commands, reacted, beginCalls = Events.OnClientCommand, {}, 0
 local function command(name, data) commands.fire(D.MODULE, "Human" .. name, player, data or {}) end
 command("List")
 check(sent[#sent].command == "HumanRejected", "missing patch fails closed")
+check(#logs == 0, "module load and missing bridge stay silent with debugLog absent")
+SandboxVars = { ApocExtractionMapUtils = { debugLog = true } }
+Events.OnTick.fire()
+check(logged("bridge_status status=missing"), "debug identifies a missing server patch bridge")
 local actor = { id = 1024, key = "guide", name = "NPC", x = 100, y = 200, z = 0 }
 local allowArrival = false
 ApocBRHumanAPI = {
@@ -44,6 +54,8 @@ ApocBRHumanAPI = {
 Events.OnTick.fire()
 command("List")
 check(sent[#sent].command == "HumanList" and #sent[#sent].data.actors[1].options == 3, "discover only registered NPC profiles")
+check(logged("bridge_status status=ready") and logged("discovered_actor") and logged("roster_ready"),
+    "server discovery records bridge readiness and registered actors")
 check(sent[#sent].data.recipient == 3 and sent[#sent].data.actors[1].options[1].onSelect == nil, "public metadata excludes callbacks")
 local selected, opened, closed, callbacks = 0, 0, 0, 0
 D.on("selected", function(p, data) selected = selected + 1 end)
@@ -138,15 +150,34 @@ local clientFile = "ApocalipseBR-ExtractionMapUtils/common/media/lua/client/Apoc
 dofile(clientFile); dofile(clientFile)
 check(#Events.OnServerCommand.callbacks == 1, "client hooks install once")
 local C = D.client
+check(logged("[client] loaded"), "client Lua reports loading when debug is enabled")
+Events.OnTick.fire()
+check(sent[#sent].command == "HumanList" and logged("[client] send command=HumanList"), "roster poll is logged")
+now = now + 5000
+Events.OnTick.fire()
+check(logged("list_waiting"), "missing roster replies have an elapsed-wait diagnostic")
+Events.OnPreFillWorldObjectContextMenu.fire(0, context, {}, false)
+check(logged("reason=no_clicked_player"), "empty character picking is diagnosed")
+Events.OnPreFillWorldObjectContextMenu.fire(0, context, { npc }, false)
+check(logged("reason=target_not_in_roster"), "NPC picked before discovery is diagnosed")
 local function reply(name, args) args.recipient = args.recipient or 3; Events.OnServerCommand.fire(D.MODULE, "Human" .. name, args) end
 actor.options = { { id = "hello", textKey = "hello-label" }, { id = "help", textKey = "help-label" } }
 reply("List", { actors = { actor }, recipient = 99 })
 check(C.roster[0] == nil, "ignore another split-screen recipient")
 reply("List", { actors = { actor } })
+check(C.listPendingAt[0] == nil and logged("roster_actor") and logged("roster_updated"), "matching roster response clears pending poll")
+local beforeProbe = #logs
 Events.OnPreFillWorldObjectContextMenu.fire(0, context, { npc }, true)
+check(#logs == beforeProbe, "menu test probes do not spam debug output")
 check(#context.options == 0 and not C.states[0], "test menu probe has no commands or reservations")
 Events.OnPreFillWorldObjectContextMenu.fire(0, context, { npc }, false)
 check(#context.options == 1 and #context.options[1].submenu.options == 2, "specific registered NPC exposes its choices")
+check(logged("menu_target") and logged("source=worldobjects") and logged("menu_added"), "character hit and menu creation are logged")
+context.options = {}
+ISWorldObjectContextMenu.fetchVars.clickedPlayer = npc
+Events.OnPreFillWorldObjectContextMenu.fire(0, context, {}, false)
+check(#context.options == 1 and logged("source=fetch.clickedPlayer"), "native fetch fallback is logged")
+ISWorldObjectContextMenu.fetchVars.clickedPlayer = nil
 context.options = {}
 Events.OnPreFillWorldObjectContextMenu.fire(0, context, { { class = "IsoPlayer", getOnlineID = function() return 9 end } }, false)
 check(#context.options == 0, "ordinary players do not get NPC menus")
@@ -182,4 +213,14 @@ queue[#queue]:forceCancel()
 check(not C.states[0] and sent[#sent].command == "HumanClose", "clearing a queued action releases the reservation")
 check(loadfile("ApocalipseBR-ExtractionMapUtils/common/media/lua/client/ApocExtractionMapUtils_HumanDialogPanel.lua") ~= nil,
     "dialogue panel parses as Lua")
+check(logged("reserved") and logged("arrival_validated") and logged("selected") and logged("closed")
+    and logged("walk") and logged("panel_opened") and logged("reply_ignored"), "dialogue lifecycle and ignored replies are diagnosed")
+SandboxVars.ApocExtractionMapUtils.debugLog = false
+local disabledAt = #logs
+D.emit("selected", player, {})
+Events.OnPreFillWorldObjectContextMenu.fire(0, context, { npc }, false)
+now = now + 5000
+Events.OnTick.fire()
+check(#logs == disabledAt, "disabling debugLog suppresses callback failures, menu and periodic diagnostics")
+print = originalPrint
 print("Passed " .. checks .. " NPC dialogue registration, server routing and client flow assertions.")

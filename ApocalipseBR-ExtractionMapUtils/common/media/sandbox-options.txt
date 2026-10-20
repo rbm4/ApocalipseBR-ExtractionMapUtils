@@ -1,5 +1,13 @@
 VERSION = 1,
 
+option ApocExtractionMapUtils.debugLog
+{
+    type = boolean,
+    default = false,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_debugLog,
+}
+
 option ApocExtractionMapUtils.ForceMapReveal
 {
     type = boolean,

@@ -15,7 +15,7 @@ local state, config, signature, token, tokenFile
 local nextScan, nextExitCheck = 0, 0
 local started = false
 
-local function log(message) print("[ApocExtractionLobby] " .. message) end
+local function log(message) ApocExtractionMapUtils.debugLog("[ApocExtractionLobby] " .. message) end
 local function now() return getTimestampMs() end
 local function squareKey(x, y) return x .. ":" .. y end
 local function edgeKey(edge) return squareKey(edge.x, edge.y) .. (edge.north and ":N" or ":W") end
@@ -214,7 +214,12 @@ function Lobby.releaseForEvent(eventId, revision)
     state.eventId, state.eventRevision = eventId, revision
     -- This acknowledges desired-state acceptance, not completion of unloaded
     -- world edits. Repeating after a crash/save gap safely reapplies removal.
-    return ApocBREventControl.acknowledgeRelease(eventId, revision)
+    local accepted = ApocBREventControl.acknowledgeRelease(eventId, revision)
+    if accepted and Utils.EventRuntime then
+        local ok = pcall(Utils.EventRuntime.confirmRelease, eventId, revision)
+        if not ok then log("Event runtime preview failed after release acknowledgement") end
+    end
+    return accepted
 end
 
 function Lobby.releaseExits(payload)

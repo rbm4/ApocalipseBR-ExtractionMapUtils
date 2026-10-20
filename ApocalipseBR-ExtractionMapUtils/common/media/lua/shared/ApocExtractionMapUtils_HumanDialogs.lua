@@ -5,6 +5,18 @@ local D = ApocExtractionMapUtils.HumanDialogs or { definitions = {}, hooks = {} 
 ApocExtractionMapUtils.HumanDialogs = D
 D.MODULE = "ApocExtractionMapUtils"
 
+-- Scalar metadata only; never dump command payloads or callback contents.
+function D.log(side, event, fields)
+    if not ApocExtractionMapUtils.debugLogEnabled() then return end
+    local parts = {}
+    for key, value in pairs(fields or {}) do
+        parts[#parts + 1] = key .. "=" .. tostring(value):gsub("[%c]", " "):sub(1, 160)
+    end
+    table.sort(parts)
+    ApocExtractionMapUtils.debugLog("[ApocExtractionMapUtils][HumanDialogs][" .. side .. "] "
+        .. event .. (#parts > 0 and " " .. table.concat(parts, " ") or ""))
+end
+
 function D.register(npcKey, definition)
     assert(type(npcKey) == "string" and #npcKey > 0 and #npcKey <= 128, "Invalid NPC key")
     assert(type(definition) == "table" and type(definition.options) == "table"
@@ -22,6 +34,7 @@ function D.register(npcKey, definition)
         copy.options[#copy.options + 1], copy.byId[saved.id] = saved, saved
     end
     D.definitions[npcKey] = copy
+    D.log("registry", "registered", { key = npcKey, options = #copy.options })
 end
 
 function D.on(event, callback)
@@ -34,7 +47,7 @@ end
 function D.emit(event, player, data)
     for _, callback in ipairs(D.hooks[event] or {}) do
         local ok = pcall(callback, player, data)
-        if not ok then print("[ApocExtractionMapUtils] NPC dialogue hook failed: " .. event) end
+        if not ok then ApocExtractionMapUtils.debugLog("[ApocExtractionMapUtils] NPC dialogue hook failed: " .. event) end
     end
 end
 

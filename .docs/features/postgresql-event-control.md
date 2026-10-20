@@ -16,7 +16,7 @@ Z:/git/Github/apocalipsebr-zomboid-patches/42.21.0/LOBBY-EVENT-CONTROL.sql
 The game registers a `player_rel.lobby_event_control` row per configured
 server/world. The backend publishes a named event, UUID, increasing revision,
 real activation timestamp and scheduled/cancelled state. A background worker
-reads one row every two seconds by default and posts validated immutable data
+reads one row every 30 seconds by default and posts validated immutable data
 to the server thread. Lua and the guide read cached data without SQL.
 
 ## Enablement and behavior
@@ -114,3 +114,27 @@ the patch repository. Tests mock engine/file/JDBC boundaries; no live event or
 migration has been executed. Restart server/clients after installing, then test
 the backend write, guide announcement, empty-server deadline, receipt and
 late-loaded perimeter on the actual dedicated server.
+
+
+## Metadata-capable engine bridge
+
+The 42.21.0 v2 event patch adds an optional third argument:
+`OnApocBRLobbyEventDue(eventId, revision, context)`. Existing perimeter code
+continues to accept its first two arguments unchanged. Apply manager runtime
+migration V14 before updating the manager/game patch. The website's operation
+parameters now reach `context.metadataJson` inside a JSON envelope containing
+`schemaVersion`, `gameType`, `ruleset`, `durationMinutes` and `parameters`.
+`context.isReplay` identifies prior-release restoration; an old receipt without
+its matching desired definition has no metadata. Objective consumers must save
+accepted definitions and progress rather than infer a new round from a replay.
+`ApocBREventControl.getEventContext(id, revision)` also provides a fresh matching
+cached table without SQL. The mod now parses these definitions through the
+[event definition schema](event-definition-schema.md), retaining validated server
+Lua data without activating objective gameplay handlers.
+
+Game schedule polling defaults to 30000 ms and freshness to 90000 ms; existing
+JVM overrides take precedence. Already-cached deadlines use the normal server
+loop, while new edits/cancellations and receipt writes wait for the next poll.
+The manager sync default remains 10 seconds. The full API and rollout details
+are in the patch's `42.21.0/LOBBY-EVENT-CONTROL.md`. No Extraction Lua changed
+for this additive bridge enhancement.

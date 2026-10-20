@@ -9,10 +9,18 @@ including when values were unavailable during initial module loading.
 
 | Setting | Default | Scope |
 | --- | --- | --- |
+| `debugLog` | `false` | All core-mod Lua logs; includes NPC dialogue discovery, picking and request tracing. |
 | `ForceMapReveal` | `true` | Existing client/server map reveal and map availability. |
 | `LobbyEnabled` | `false` | Perimeter initialization/maintenance, disassembly protection, manual and scheduled release, and permission to relocate on login. |
 | `RelocateOnLogin` | `false` | Login relocation, also requiring `LobbyEnabled=true` and valid lobby coordinates. |
 | `ZombieMoneyDrops` | `false` | Server-confirmed zombie money rewards; independent of the lobby. |
+
+Debug logging requires the literal boolean `true`; missing sandbox values during
+Lua autoload remain silent. The helper reads the setting at each emission.
+It covers existing lobby, login, map/cartography, dialogue callback errors and
+event intake/preview messages. It does not control engine errors, Java patch
+logs or other mods. See [NPC dialogue debugging](npc-dialogue.md#debugging-missing-menus)
+for the client/server trace sequence and log locations.
 
 Missing values behave like these defaults. Enabling the lobby alone does not
 relocate players or award money. Existing explicit `RelocateOnLogin=true` values
@@ -60,3 +68,10 @@ or inventory mutation. Enabled-feature regression coverage remains in place.
 JSON parsing, sandbox translation keys, UTF-8 without BOM and `git diff --check`
 are also verified. Engine boundaries are mocked; dedicated-server startup,
 client sandbox synchronization and existing-save behavior still need live tests.
+
+Debug logging verification: `tests/debug-logging.lua` passes 5 assertions for
+missing/false/nonboolean settings, runtime toggling, single-line bounds and
+preview serialization suppression. `tests/human-dialogue.lua` passes 57 assertions
+including diagnostics while retaining the original dialogue flow checks.
+`python tests/human-dialogue-labels.py` verifies sandbox labels, default-off
+configuration and the shared print gate. Engine boundaries remain mocked.

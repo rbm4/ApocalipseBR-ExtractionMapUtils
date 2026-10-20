@@ -50,7 +50,7 @@ function Cartography.apply(mapUI)
     end
     pending[mapUI] = #waiting > 0 and { style = style, layers = waiting } or nil
     if count > 0 and not logged then
-        print("[ApocExtractionMapUtils] Chernarus road rendering workaround active (Lua textured polygons).")
+        ApocExtractionMapUtils.debugLog("[ApocExtractionMapUtils] Chernarus road rendering workaround active (Lua textured polygons).")
         logged = true
     end
 end

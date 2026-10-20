@@ -1,3 +1,6 @@
+-- B42 registers require paths one Lua directory at a time. Building cursors
+-- live in server Lua, so install here rather than during the shared pass.
+-- GameLoadingState also loads this directory on clients and in single-player.
 require "ApocExtractionMapUtils_LobbyProtection"
 require "ActionManager"
 require "BuildingObjects/ISBuildingObject"

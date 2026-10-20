@@ -27,6 +27,8 @@ for _, realm in ipairs({ "client", "server", "singleplayer" }) do
     function isClient() return realm == "client" end
     SandboxVars = { ApocExtractionMapUtils = { LobbyEnabled = true } }
     P.constructionLoaded = nil
+    ISBuildingObject, ISBuildIsoEntity, ISBuildAction = nil, nil, nil
+    local phase = "shared"
     local calls = {}
     local function native(name)
         return function(...)
@@ -49,10 +51,26 @@ for _, realm in ipairs({ "client", "server", "singleplayer" }) do
             ISBuildAction = { isValid = native("actionValid"), start = native("start"), perform = native("perform") }
         end,
     }
-    for name, loader in pairs(modules) do package.loaded[name] = nil; package.preload[name] = loader end
-    dofile(media .. "shared/ApocExtractionMapUtils_LobbyConstruction.lua")
+    for name, loader in pairs(modules) do
+        package.loaded[name] = nil
+        package.preload[name] = function()
+            if name == "BuildingObjects/ISBuildingObject" or name == "BuildingObjects/ISBuildIsoEntity" then
+                assert(phase == "server", "server building modules unavailable during shared/client loading")
+            end
+            return loader()
+        end
+    end
+    -- Reproduce B42's startup boundary: a construction file in shared must not
+    -- try to load the server building classes before their path is registered.
+    local sharedFile = media .. "shared/ApocExtractionMapUtils_LobbyConstruction.lua"
+    local sharedChunk = loadfile(sharedFile)
+    if sharedChunk then sharedChunk() end
+    assert(not P.constructionLoaded, "construction guards must wait for the server Lua pass")
+    assert(ISBuildingObject == nil and ISBuildIsoEntity == nil)
+    phase = "server"
+    dofile(media .. "server/ApocExtractionMapUtils_LobbyConstruction.lua")
     local wrapped = Actions.build
-    dofile(media .. "shared/ApocExtractionMapUtils_LobbyConstruction.lua")
+    dofile(media .. "server/ApocExtractionMapUtils_LobbyConstruction.lua")
     assert(Actions.build == wrapped, "duplicate load must not stack wrappers")
 
     assert(ISBuildingObject.tryBuild({}, 105,205,0) == nil)
