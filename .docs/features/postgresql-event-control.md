@@ -36,10 +36,14 @@ After the backend migration, enable the normal PostgreSQL connector and add:
 ```
 
 Use `apocbr.guide.enabled=true` for the existing guide actor. The 42.21.0 patch
-says `Olá!` as it waves, then sends a separate message announcing the next
+says a localized greeting (`Hello!` in English, `Olá!` in Brazilian Portuguese)
+as it waves, then sends a separate message announcing the next
 operation's name and countdown. If an operation is confirmed active, the
 follow-up also reports its estimated remaining time. These new speech keys use
-PT-BR fallback text in shared `Translate/EN/IG_UI.json` for dedicated servers.
+English fallback text in shared `Translate/EN/IG_UI.json`, with Brazilian
+Portuguese translations in `Translate/PTBR/IG_UI.json`. Dedicated-server
+speech uses the server's selected language. See the
+[translation correction](../hotfixes/english-and-brazilian-portuguese-labels.md).
 The countdown uses real seconds, independent of game time and display timezone.
 
 Apply manager runtime migration **V13** before installing the updated Java patch.

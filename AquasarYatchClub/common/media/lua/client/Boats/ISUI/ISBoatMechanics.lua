@@ -16,7 +16,6 @@ ISBoatMechanics = ISCollapsableWindow:derive("ISBoatMechanics");
 ISBoatMechanics.alphaOverlay = 1;
 ISBoatMechanics.alphaOverlayInc = true;
 ISBoatMechanics.tooltip = nil;
-ISVehicleMechanics.cheat = false;
 
 local FONT_HGT_SMALL = getTextManager():getFontHeight(UIFont.Small)
 local FONT_HGT_MEDIUM = getTextManager():getFontHeight(UIFont.Medium)
@@ -232,14 +231,14 @@ function ISBoatMechanics:doPartContextMenu(part, x,y)
             if part:getTable("uninstall") then
                 option = self.context:addOption(getText("IGUI_Uninstall"), playerObj, ISBoatPartMenu.onUninstallPart, part)
                 self:doMenuTooltip(part, option, "uninstall");
-                if not ISVehicleMechanics.cheat and not part:getVehicle():canUninstallPart(playerObj, part) then
+                if not part:getVehicle():canUninstallPart(playerObj, part) then
                     option.notAvailable = true;
                 end
             end
         else
             if part:getTable("install") then
                 option = self.context:addOption(getText("IGUI_Install"), playerObj, nil)
-                if not ISVehicleMechanics.cheat and not part:getVehicle():canInstallPart(playerObj, part) then
+                if not part:getVehicle():canInstallPart(playerObj, part) then
                     option.notAvailable = true;
                     self:doMenuTooltip(part, option, "install", nil);
                 else
@@ -351,7 +350,7 @@ function ISBoatMechanics:doPartContextMenu(part, x,y)
                     end
                 end
                 option = self.context:addOption(getText("IGUI_RenameBoat"), playerObj, nil)
-                if not ISVehicleMechanics.cheat and not haveAllItems then
+                if not haveAllItems then
                     self:doMenuTooltip(part, option, "install", nil);
                     option.notAvailable = true;
                 else
@@ -409,39 +408,6 @@ function ISBoatMechanics:doPartContextMenu(part, x,y)
         end
     end
 --]]
-    if ISVehicleMechanics.cheat or playerObj:getAccessLevel() ~= "None" then
-        if self.vehicle:getPartById("Engine") then
-            option = self.context:addOption("CHEAT: Get Key", playerObj, ISBoatMechanics.onCheatGetKey, self.vehicle)
-            if self.vehicle:isHotwired() then
-                self.context:addOption("CHEAT: Remove Hotwire", playerObj, ISBoatMechanics.onCheatHotwire, self.vehicle, false, false)
-                --[[
-                if self.vehicle:isHotwiredBroken() then
-                    self.context:addOption("CHEAT: Fix Broken Hotwire", playerObj, ISBoatMechanics.onCheatHotwire, self.vehicle, true, false)
-                else
-                    self.context:addOption("CHEAT: Break Hotwire", playerObj, ISBoatMechanics.onCheatHotwire, self.vehicle, true, true)
-                end
-                --]]
-            else
-                self.context:addOption("CHEAT: Hotwire", playerObj, ISBoatMechanics.onCheatHotwire, self.vehicle, true, false)
-            end
-        end
-        option = self.context:addOption("CHEAT: Repair Part", playerObj, ISBoatMechanics.onCheatRepairPart, part)
-        option = self.context:addOption("CHEAT: Repair Vehicle", playerObj, ISBoatMechanics.onCheatRepair, self.vehicle)
-        option = self.context:addOption("CHEAT: Set Rust", playerObj, ISBoatMechanics.onCheatSetRust, self.vehicle)
-        option = self.context:addOption("CHEAT: Set Part Condition", playerObj, ISBoatMechanics.onCheatSetCondition, part)
-        if part:isContainer() and part:getContainerContentType() then
-            option = self.context:addOption("CHEAT: Set Content Amount", playerObj, ISBoatMechanics.onCheatSetContentAmount, part)
-        end
-        option = self.context:addOption("CHEAT: Remove Vehicle", playerObj, ISBoatMechanics.onCheatRemove, self.vehicle)
-    end
-    if getDebug() then
-        if ISVehicleMechanics.cheat then
-            self.context:addOption("DBG: ISVehicleMechanics.cheat=false", playerObj, ISBoatMechanics.onCheatToggle)
-        else
-            self.context:addOption("DBG: ISVehicleMechanics.cheat=true", playerObj, ISBoatMechanics.onCheatToggle)
-        end
-    end
-    
     if self.context.numOptions == 1 then self.context:setVisible(false) end
     
     if JoypadState.players[self.playerNum+1] and self.context:getIsVisible() then
@@ -548,103 +514,6 @@ end
         -- ISTimedActionQueue.add(ISConfigHeadlight:new(playerObj, part, dir, time))
     -- end
 -- end
-
-function ISBoatMechanics.onCheatGetKey(playerObj, vehicle)
-    sendClientCommand(playerObj, "vehicle", "getKey", { vehicle = vehicle:getId() })
-end
-
-function ISBoatMechanics.onCheatHotwire(playerObj, vehicle, hotwired, broken)
-    sendClientCommand(playerObj, "vehicle", "cheatHotwire", { vehicle = vehicle:getId(), hotwired = hotwired, broken = broken })
-end
-
-function ISBoatMechanics.onCheatRepair(playerObj, vehicle)
-    sendClientCommand(playerObj, "vehicle", "repair", { vehicle = vehicle:getId() })
-end
-
-function ISBoatMechanics.onCheatSetRustAux(target, button, playerObj, vehicle)
-    if button.internal ~= "OK" then return end
-    local text = button.parent.entry:getText()
-    local rust = tonumber(text)
-    if not rust then return end
-    rust = math.max(rust, 0.0)
-    rust = math.min(rust, 1.0)
-    sendClientCommand(playerObj, "vehicle", "setRust", { vehicle = vehicle:getId(), rust = rust })
-end
-
-function ISBoatMechanics.onCheatSetRust(playerObj, vehicle)
-    local modal = ISTextBox:new(0, 0, 280, 180, "Rust (0-1):", tostring(vehicle:getRust()),
-        nil, ISBoatMechanics.onCheatSetRustAux, playerObj:getPlayerNum(), playerObj, vehicle)
-    modal:initialise()
-    modal:addToUIManager()
-end
-
-function ISBoatMechanics.onCheatRepairPart(playerObj, part)
-    sendClientCommand(playerObj, "vehicle", "repairPart", { vehicle = part:getVehicle():getId(), part = part:getId() })
-end
-
-function ISBoatMechanics.onCheatSetConditionAux(target, button, playerObj, part)
-    if button.internal ~= "OK" then return end
-    local text = button.parent.entry:getText()
-    local condition = tonumber(text)
-    if not condition then return end
-    condition = math.max(condition, 0)
-    condition = math.min(condition, 100)
-    local vehicle = part:getVehicle()
-    sendClientCommand(playerObj, "vehicle", "setPartCondition", { vehicle = vehicle:getId(), part = part:getId(), condition = condition })
-end
-
-function ISBoatMechanics.onCheatSetCondition(playerObj, part)
-    local modal = ISTextBox:new(0, 0, 280, 180, "Condition (0-100):", tostring(part:getCondition()),
-        nil, ISBoatMechanics.onCheatSetConditionAux, playerObj:getPlayerNum(), playerObj, part)
-    modal:initialise()
-    modal:addToUIManager()
-end
-
-function ISBoatMechanics.onCheatSetContentAmountAux(target, button, playerObj, part)
-    if button.internal ~= "OK" then return end
-    local text = button.parent.entry:getText()
-    local amount = tonumber(text)
-    if not amount then return end
-    local vehicle = part:getVehicle()
-    if isClient() then
-        sendClientCommand(playerObj, "vehicle", "setContainerContentAmount", { vehicle = vehicle:getId(), part = part:getId(), amount = amount })
-    else
-        part:setContainerContentAmount(amount)
-    end
-end
-
-function ISBoatMechanics.onCheatSetContentAmount(playerObj, part)
-    local modal = ISTextBox:new(0, 0, 280, 180, "Content Amount:", tostring(part:getContainerContentAmount()),
-        nil, ISBoatMechanics.onCheatSetContentAmountAux, playerObj:getPlayerNum(), playerObj, part)
-    modal:initialise()
-    modal:addToUIManager()
-end
-
-function ISBoatMechanics.onCheatRemoveAux(dummy, button, playerObj, vehicle)
-    if button.internal == "NO" then return end
-    if isClient() then
-        sendClientCommand(playerObj, "vehicle", "remove", { vehicle = vehicle:getId() })
-    else
-        vehicle:permanentlyRemove()
-    end
-end
-
-function ISBoatMechanics.onCheatRemove(playerObj, vehicle)
-    local playerNum = playerObj:getPlayerNum()
-    local modal = ISModalDialog:new(0, 0, 350, 150, getText("Remove this vehicle from the world?"),
-        true, nil, ISBoatMechanics.onCheatRemoveAux, playerNum, playerObj, vehicle)
-    modal:initialise()
-    modal.prevFocus = getPlayerMechanicsUI(playerNum)
-    modal.moveWithMouse = true
-    modal:addToUIManager()
-    if JoypadState.players[playerNum+1] then
-        setJoypadFocus(playerNum, modal)
-    end
-end
-
-function ISBoatMechanics.onCheatToggle(playerObj)
-    ISVehicleMechanics.cheat = not ISVehicleMechanics.cheat
-end
 
 function ISBoatMechanics:doMenuTooltip(part, option, lua, name)
     local vehicle = part:getVehicle();
@@ -971,43 +840,11 @@ function ISBoatMechanics:onMouseDown(x, y)
 end
 
 function ISBoatMechanics:onRightMouseUp(x, y)
-    local playerObj = getSpecificPlayer(self.playerNum)
     local part = self:getMouseOverPart(x, y)
     self.context = nil
     if part then
         self:selectPart(part)
         self:doPartContextMenu(part, x, y)
-    elseif ISVehicleMechanics.cheat or playerObj:getAccessLevel() ~= "None" then
-        if UIManager.getSpeedControls():getCurrentGameSpeed() == 0 then return; end
-        self.context = ISContextMenu.get(self.playerNum, x + self:getAbsoluteX(), y + self:getAbsoluteY())
-        if self.vehicle:getScript() and self.vehicle:getScript():getWheelCount() > 0 then
-            if self.vehicle:getPartById("Engine") then
-                self.context:addOption("CHEAT: Get Key", playerObj, ISBoatMechanics.onCheatGetKey, self.vehicle)
-                if self.vehicle:isHotwired() then
-                    self.context:addOption("CHEAT: Remove Hotwire", playerObj, ISBoatMechanics.onCheatHotwire, self.vehicle, false, false)
-                    --[[
-                    if self.vehicle:isHotwiredBroken() then
-                        self.context:addOption("CHEAT: Fix Broken Hotwire", playerObj, ISBoatMechanics.onCheatHotwire, self.vehicle, true, false)
-                    else
-                        self.context:addOption("CHEAT: Break Hotwire", playerObj, ISBoatMechanics.onCheatHotwire, self.vehicle, true, true)
-                    end
-                    --]]
-                else
-                    self.context:addOption("CHEAT: Hotwire", playerObj, ISBoatMechanics.onCheatHotwire, self.vehicle, true, false)
-                end
-            end
-            self.context:addOption("CHEAT: Repair Vehicle", playerObj, ISBoatMechanics.onCheatRepair, self.vehicle)
-            self.context:addOption("CHEAT: Set Rust", playerObj, ISBoatMechanics.onCheatSetRust, self.vehicle)
-        end
-        self.context:addOption("CHEAT: Remove Vehicle", playerObj, ISBoatMechanics.onCheatRemove, self.vehicle)
-    end
-    if not part and getDebug() then
-        if not self.context then self.context = ISContextMenu.get(self.playerNum, x + self:getAbsoluteX(), y + self:getAbsoluteY()) end
-        if ISVehicleMechanics.cheat then
-            self.context:addOption("DBG: ISVehicleMechanics.cheat=false", playerObj, ISBoatMechanics.onCheatToggle)
-        else
-            self.context:addOption("DBG: ISVehicleMechanics.cheat=true", playerObj, ISBoatMechanics.onCheatToggle)
-        end
     end
 end
 

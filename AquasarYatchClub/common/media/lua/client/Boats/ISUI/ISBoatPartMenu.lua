@@ -34,7 +34,7 @@ end
 
 function ISBoatPartMenu.predicateCanGivePetrol(item)-- our item can store fuel and is not empty
     local container = item and item:getFluidContainer()
-    return container and container:contains(Fluid.Petrol) and container:getAmount() >= 0.099F
+    return container and container:contains(Fluid.Petrol) and container:getAmount() >= 0.099
 end
 
 function ISBoatPartMenu.getGasCanNotEmpty(playerObj)
@@ -93,17 +93,15 @@ function ISBoatPartMenu.equipRequiredItems(playerObj, part, tbl)
 end
 
 function ISBoatPartMenu.onInstallPart(playerObj, part, item)
-    if not ISVehicleMechanics.cheat then
-        -- if playerObj:getVehicle() then
-            -- ISVehicleMenu.onExit(playerObj)
-        -- end
-        ISBoatPartMenu.toPlayerInventory(playerObj, item)
-        local tbl = part:getTable("install")
-        ISBoatPartMenu.transferRequiredItems(playerObj, part, tbl)
-        local area = tbl.area or part:getArea()
-        -- ISTimedActionQueue.add(ISPathFindAction:pathToVehicleArea(playerObj, part:getVehicle(), area))
-        ISBoatPartMenu.equipRequiredItems(playerObj, part, tbl)
-    end
+    -- if playerObj:getVehicle() then
+        -- ISVehicleMenu.onExit(playerObj)
+    -- end
+    ISBoatPartMenu.toPlayerInventory(playerObj, item)
+    local tbl = part:getTable("install")
+    ISBoatPartMenu.transferRequiredItems(playerObj, part, tbl)
+    local area = tbl.area or part:getArea()
+    -- ISTimedActionQueue.add(ISPathFindAction:pathToVehicleArea(playerObj, part:getVehicle(), area))
+    ISBoatPartMenu.equipRequiredItems(playerObj, part, tbl)
     
     -- Open the engine cover if needed
     -- TODO: pop hood inside vehicle?
@@ -127,16 +125,14 @@ function ISBoatPartMenu.onInstallPart(playerObj, part, item)
 end
 
 function ISBoatPartMenu.onUninstallPart(playerObj, part)
-    if not ISVehicleMechanics.cheat then
-        -- if playerObj:getVehicle() then
-            -- ISVehicleMenu.onExit(playerObj)
-        -- end
-        local tbl = part:getTable("uninstall")
-        ISBoatPartMenu.transferRequiredItems(playerObj, part, tbl)
-        local area = tbl.area or part:getArea()
-        -- ISTimedActionQueue.add(ISPathFindAction:pathToVehicleArea(playerObj, part:getVehicle(), area))
-        ISBoatPartMenu.equipRequiredItems(playerObj, part, tbl)
-    end
+    -- if playerObj:getVehicle() then
+        -- ISVehicleMenu.onExit(playerObj)
+    -- end
+    local tbl = part:getTable("uninstall")
+    ISBoatPartMenu.transferRequiredItems(playerObj, part, tbl)
+    local area = tbl.area or part:getArea()
+    -- ISTimedActionQueue.add(ISPathFindAction:pathToVehicleArea(playerObj, part:getVehicle(), area))
+    ISBoatPartMenu.equipRequiredItems(playerObj, part, tbl)
     -- Open the engine cover if needed
     -- TODO: pop hood inside vehicle?
     local engineCover = nil;
@@ -199,10 +195,6 @@ function ISBoatPartMenu.onTakeGasoline(playerObj, part)
         end
         ISTimedActionQueue.add(ISTakeGasolineFromBoat:new(playerObj, part, item))
     end
-end
-
-function ISBoatPartMenu.onDebugFill(playerObj, part)
-    part:setContainerContentAmount(part:getContainerCapacity())
 end
 
 function ISBoatPartMenu.onInflateTire(playerObj, part)
@@ -297,14 +289,12 @@ function ISBoatPartMenu.onSmashWindow(playerObj, part, open)
 end
 
 function ISBoatPartMenu.onRenameBoat(playerObj, part, item)
-    if not ISVehicleMechanics.cheat then
-        -- ISBoatPartMenu.toPlayerInventory(playerObj, item)
-        local tbl = part:getTable("install")
-        ISBoatPartMenu.transferRequiredItems(playerObj, part, tbl)
-        -- local area = tbl.area or part:getArea()
-        -- ISTimedActionQueue.add(ISPathFindAction:pathToVehicleArea(playerObj, part:getVehicle(), area))
-        ISBoatPartMenu.equipRequiredItems(playerObj, part, tbl)
-    end
+    -- ISBoatPartMenu.toPlayerInventory(playerObj, item)
+    local tbl = part:getTable("install")
+    ISBoatPartMenu.transferRequiredItems(playerObj, part, tbl)
+    -- local area = tbl.area or part:getArea()
+    -- ISTimedActionQueue.add(ISPathFindAction:pathToVehicleArea(playerObj, part:getVehicle(), area))
+    ISBoatPartMenu.equipRequiredItems(playerObj, part, tbl)
     
     -- Open the engine cover if needed
     -- TODO: pop hood inside vehicle?

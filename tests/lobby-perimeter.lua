@@ -125,6 +125,7 @@ local function fixture(options)
     end
     dofile(media .. "server/ApocExtractionMapUtils_Lobby.lua")
     if options.client then assert(not f.command and #f.handlers.OnTick == 0); return f end
+    dofile("ApocalipseBR-ExtractionMapUtils/common/media/lua/server/ApocExtractionMapUtils_LoginServer.lua")
     f.lobby = ApocExtractionMapUtils.Lobby
     if options.configure then options.configure(ApocExtractionMapUtils.LobbyConfig) end
     function f.start() f.handlers.OnServerStarted[1]() end
@@ -132,6 +133,18 @@ local function fixture(options)
     function f.pump(n) for _ = 1, n do f.tick() end end
     function f.load(square) f.handlers.LoadGridsquare[1](square) end
     function f.token() for _, value in pairs(f.files) do return value end end
+    function f.loginState(args)
+        local reply
+        local player = { isDead = function() return false end }
+        function sendServerCommand(target, module, command, data)
+            assert(target == player and module == "ApocExtractionMapUtils" and command == "LoginLobbyState")
+            reply = data
+        end
+        for _, handler in ipairs(f.handlers.OnClientCommand) do
+            handler("ApocExtractionMapUtils", "LoginLobbyState", player, args or {})
+        end
+        return assert(reply).closed
+    end
     function f.objects()
         local result = {}
         for _, square in pairs(f.squares) do for _, object in ipairs(square.objects) do result[#result + 1] = object end end
@@ -141,6 +154,15 @@ local function fixture(options)
 end
 
 fixture({ client = true })
+local login = fixture()
+assert(not login.loginState(), "uninitialized lobby must not authorize relocation")
+login.start()
+assert(login.loginState(), "closed lobby must authorize relocation")
+assert(login.lobby.releaseExits(login.token()))
+assert(not login.loginState({ closed = true, released = false }), "manual release overrides forged client state")
+local loginReload = fixture({ store = login.store })
+loginReload.start()
+assert(not loginReload.loginState(), "manual release must survive restart")
 for _, options in ipairs({ { sandbox = {} }, { sandbox = { LobbyEnabled = false } }, { noSandbox = true } }) do
     local disabled = fixture(options)
     local subscribed = false
@@ -346,6 +368,7 @@ assert(not callback("scheduled-event", 3) and not event.store.removedAll)
 due = true
 assert(not callback("forged-event", 3) and not callback("scheduled-event", 4))
 assert(not callback("scheduled-event", 3) and event.store.removedAll, "failed acknowledgement must permit safe retry")
+assert(not event.loginState(), "scheduled release must disable login relocation immediately")
 assert(runtimeConfirmations == 0, "runtime cannot activate before successful acknowledgement")
 assert(event.removes == 0, "activation only queues work")
 acknowledge = true
@@ -358,6 +381,7 @@ assert(#event.objects() == 0 and event.adds == 286, "full release must suppress 
 local releasedState = event.store
 local eventReload = fixture({ store = releasedState })
 eventReload.start(); eventReload.pump(100)
+assert(not eventReload.loginState(), "active operation must preserve login positions after restart")
 assert(eventReload.adds == 0 and releasedState.eventId == "scheduled-event")
 local unloadedEvent = { unloaded = true }
 local empty = fixture(unloadedEvent)

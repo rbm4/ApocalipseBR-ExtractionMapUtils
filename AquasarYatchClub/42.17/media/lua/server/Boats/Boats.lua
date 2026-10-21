@@ -34,13 +34,11 @@ function Boats.Update.Propeller(boat, part, elapsedMinutes)
 end
 
 function Boats.InstallTest.Propeller(boat, part, playerObj)
-    if ISVehicleMechanics.cheat then return true; end
     if boat:isEngineRunning() then return false end
     return CommonTemplates.InstallTest.PartNotInCabin(boat, part, playerObj)
 end
 
 function Boats.UninstallTest.Propeller(boat, part, playerObj)
-    if ISVehicleMechanics.cheat then return true; end
     if boat:isEngineRunning() then return false end
     return CommonTemplates.UninstallTest.PartNotInCabin(boat, part, playerObj)
 end

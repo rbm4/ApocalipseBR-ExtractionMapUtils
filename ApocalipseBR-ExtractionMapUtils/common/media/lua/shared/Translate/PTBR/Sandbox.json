@@ -1,0 +1,19 @@
+{
+    "Sandbox_ApocExtractionMapUtils": "ApocalipseBR - Utilitários do mapa de extração",
+    "Sandbox_ApocExtractionMapUtils_debugLog": "Ativar logs de depuração",
+    "Sandbox_ApocExtractionMapUtils_debugLog_tooltip": "Registrar diagnósticos Lua do ExtractionMapUtils nos logs do cliente e do servidor, incluindo descoberta de NPCs, identificação ao clicar com o botão direito e solicitações de diálogo. Desativado por padrão. Ative no servidor e reconecte os clientes antes de investigar problemas.",
+    "Sandbox_ApocExtractionMapUtils_ForceMapReveal": "Forçar revelação do mapa e do minimapa",
+    "Sandbox_ApocExtractionMapUtils_ForceMapReveal_tooltip": "Revelar o mapa-múndi e o minimapa independentemente das configurações básicas do mapa. No multijogador, a revelação também é registrada no servidor. O zoom e a visibilidade do minimapa seguem os controles normais do jogo. Desativar esta opção não apaga áreas já reveladas.",
+    "Sandbox_ApocExtractionMapUtils_RelocateOnLogin": "Mover para o lobby a cada entrada no jogo",
+    "Sandbox_ApocExtractionMapUtils_RelocateOnLogin_tooltip": "Requer a opção Ativar lobby. Posicionar personagens novos e existentes no lobby configurado ao entrar no jogo. Configure X e Y primeiro. Os jogadores podem sair do lobby normalmente após a chegada.",
+    "Sandbox_ApocExtractionMapUtils_LobbyEnabled": "Ativar lobby",
+    "Sandbox_ApocExtractionMapUtils_LobbyEnabled_tooltip": "Ativar a construção de cercas militares, a proteção contra desmontagem no lobby, os comandos de liberação e a remoção programada do perímetro. A transferência ao entrar no jogo também exige sua própria configuração. Reinicie o servidor e reconecte os clientes após alterações. Desativar interrompe o controle do lobby, mas não remove cercas já salvas no mundo.",
+    "Sandbox_ApocExtractionMapUtils_ZombieMoneyDrops": "Dinheiro nos corpos de zumbis",
+    "Sandbox_ApocExtractionMapUtils_ZombieMoneyDrops_tooltip": "Adicionar de 1 a 10 itens Base.Money aos corpos de zumbis mortos por jogadores conectados, após confirmação do servidor. Independe da configuração do lobby. Desativado por padrão.",
+    "Sandbox_ApocExtractionMapUtils_LobbyX": "Coordenada X do lobby",
+    "Sandbox_ApocExtractionMapUtils_LobbyX_tooltip": "Coordenada X do quadrado no mundo. O valor -1 deixa o lobby sem configuração e impede a transferência ao entrar no jogo.",
+    "Sandbox_ApocExtractionMapUtils_LobbyY": "Coordenada Y do lobby",
+    "Sandbox_ApocExtractionMapUtils_LobbyY_tooltip": "Coordenada Y do quadrado no mundo. O valor -1 deixa o lobby sem configuração e impede a transferência ao entrar no jogo.",
+    "Sandbox_ApocExtractionMapUtils_LobbyZ": "Andar do lobby (Z)",
+    "Sandbox_ApocExtractionMapUtils_LobbyZ_tooltip": "Coordenada do andar no mundo. O valor 0 corresponde ao térreo. Escolha um quadrado com piso válido nessa altura."
+}

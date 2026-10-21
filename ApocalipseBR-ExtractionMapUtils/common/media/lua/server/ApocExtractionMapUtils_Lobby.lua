@@ -309,6 +309,10 @@ function Lobby.onTick()
 end
 
 Lobby.openDoors = Lobby.releaseExits -- compatibility for existing server integrations
+-- Queried by ExtractionMapUtils' server-side Lua login command.
+function Lobby.isClosed()
+    return Utils.lobbyEnabled() and started and state.released == false and state.removedAll ~= true
+end
 Events.OnServerStarted.Add(Lobby.onStarted)
 Events.LoadGridsquare.Add(Lobby.onSquareLoaded)
 Events.OnTick.Add(Lobby.onTick)

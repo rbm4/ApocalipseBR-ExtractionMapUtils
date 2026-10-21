@@ -25,7 +25,7 @@ Open **ApocalipseBR - Extraction Map Utils** in sandbox settings.
 | --- | --- | --- |
 | Force map and minimap reveal | On | Enable both maps, reveal map knowledge on client/server, and bypass light requirements. Minimap visibility follows normal controls. |
 | Enable lobby | Off | Enable fence construction, maintenance, disassembly protection, RCON release and scheduled perimeter removal. |
-| Relocate to lobby on every login | Off | Requires Enable lobby. Place players at the lobby each time they enter a game, including existing characters reconnecting. |
+| Relocate to lobby on every login | Off | Requires Enable lobby. Place players in a closed lobby; after release, rescue out-of-map/open-water logins and preserve valid positions. |
 | Zombie money drops | Off | Add 1-10 money items to eligible zombie corpses. Independent of Enable lobby. |
 | Lobby X | -1 | World tile X. Set to a nonnegative coordinate to configure. |
 | Lobby Y | -1 | World tile Y. Set to a nonnegative coordinate to configure. |
@@ -51,7 +51,7 @@ Restart/reconnect after changing settings. Relocation runs once at game entry, n
 
 ## Implementation
 
-- `OnGameStart` relocates local players using server-provided sandbox settings. The local B42 `IngameState.enter` fires this before `GameClient.sendPlayerConnect`. That connection packet contains no coordinates: `GameServer.receivePlayerConnect` loads the server-side character from the database, and the client reports its lobby position in subsequent movement updates. This is ordinary mod client behavior, not server enforcement against modified clients.
+- ExtractionMapUtils' Lua `OnCreatePlayer`/`OnGameStart` hooks schedule a server position/state request per local player for the next tick, after B42 sends `GameClient.sendPlayerConnect`. A closed lobby relocates everyone; after release, out-of-map or open-water logins still reset to the lobby. The optional 42.21.0 Java login bridge also resets known cross-server logins, even on safe land, and initiates movement with the native server teleport packet. Valid land, floors over water and in-bounds boat passengers stay in place. Bounds come from the current world metagrid. Missing geometry/replies retry once per second, up to 15 requests, then preserve position. Single player checks the local world. See the [login position rescue hotfix](.docs/hotfixes/invalid-login-position-rescue.md). Placement requires multiplayer movement/anti-cheat validation.
 - Version 0.1.3 adopts the client/server known-map strategy inspected in FullMapReveal 1.1.0 (Workshop item 3796627078). This is an independent implementation in our mod; FullMapReveal is not a dependency. Test with that other mod disabled so the two implementations do not duplicate writes.
 - Reveal only calls `setKnownInSquares`. It does not mark the world visited, change `HideUnvisited`/`BlurUnvisited`, replace minimap initialization, alter bounds, or reset zoom. Original game code owns minimap loading, fog, saved visibility and interaction. Map/light availability overrides remain for the original sandbox requirement. Version 0.1.4 separately adjusts Chernarus road styling as described below.
 - Both sides derive real world bounds from the metagrid (256-square cells) and write blocks of at most 8192 squares per side. No client-supplied coordinates are accepted by the server.

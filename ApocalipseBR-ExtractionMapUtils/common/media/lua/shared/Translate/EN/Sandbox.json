@@ -3,17 +3,17 @@
     "Sandbox_ApocExtractionMapUtils_debugLog": "Enable debug logs",
     "Sandbox_ApocExtractionMapUtils_debugLog_tooltip": "Write ExtractionMapUtils Lua diagnostics to client and server logs, including NPC discovery, right-click matching and dialogue requests. Disabled by default. Enable on the server and reconnect clients before troubleshooting.",
     "Sandbox_ApocExtractionMapUtils_ForceMapReveal": "Force map and minimap reveal",
-    "Sandbox_ApocExtractionMapUtils_ForceMapReveal_tooltip": "Reveal the world map and minimap regardless of base map settings. Multiplayer reveal is also written on the server. Minimap zoom and visibility follow normal game controls. Disabling this option does not erase already revealed areas.",
+    "Sandbox_ApocExtractionMapUtils_ForceMapReveal_tooltip": "Reveal the world map and minimap regardless of the base map settings. In multiplayer, revealed areas are also recorded on the server. Minimap zoom and visibility follow normal game controls. Disabling this option does not erase areas already revealed.",
     "Sandbox_ApocExtractionMapUtils_RelocateOnLogin": "Relocate to lobby on every login",
-    "Sandbox_ApocExtractionMapUtils_RelocateOnLogin_tooltip": "Requires Enable lobby. Place new and returning characters at the configured lobby when entering the game. Configure both X and Y first. Players can leave the lobby normally after arrival.",
+    "Sandbox_ApocExtractionMapUtils_RelocateOnLogin_tooltip": "Requires the Enable lobby option. Place new and returning characters at the configured lobby when they enter the game. Configure both X and Y first. Players can leave the lobby normally after arrival.",
     "Sandbox_ApocExtractionMapUtils_LobbyEnabled": "Enable lobby",
-    "Sandbox_ApocExtractionMapUtils_LobbyEnabled_tooltip": "Enable military fence construction, lobby disassembly protection, release commands and scheduled perimeter removal. Login relocation also requires its own setting. Restart the server and reconnect clients after changes. Disabling stops lobby control but does not remove fences already saved in the world.",
+    "Sandbox_ApocExtractionMapUtils_LobbyEnabled_tooltip": "Enable military fence construction, protection against disassembly in the lobby, release commands and scheduled perimeter removal. Relocation on login also requires its own setting. Restart the server and reconnect clients after changes. Disabling this option stops lobby control but does not remove fences already saved in the world.",
     "Sandbox_ApocExtractionMapUtils_ZombieMoneyDrops": "Zombie money drops",
     "Sandbox_ApocExtractionMapUtils_ZombieMoneyDrops_tooltip": "Add 1 to 10 Base.Money items to zombie corpses after server-confirmed kills by connected players. Independent of the lobby setting. Disabled by default.",
     "Sandbox_ApocExtractionMapUtils_LobbyX": "Lobby X",
-    "Sandbox_ApocExtractionMapUtils_LobbyX_tooltip": "World tile X coordinate. -1 leaves the lobby unconfigured and skips login relocation.",
+    "Sandbox_ApocExtractionMapUtils_LobbyX_tooltip": "X coordinate of the world tile. A value of -1 leaves the lobby unconfigured and skips relocation on login.",
     "Sandbox_ApocExtractionMapUtils_LobbyY": "Lobby Y",
-    "Sandbox_ApocExtractionMapUtils_LobbyY_tooltip": "World tile Y coordinate. -1 leaves the lobby unconfigured and skips login relocation.",
+    "Sandbox_ApocExtractionMapUtils_LobbyY_tooltip": "Y coordinate of the world tile. A value of -1 leaves the lobby unconfigured and skips relocation on login.",
     "Sandbox_ApocExtractionMapUtils_LobbyZ": "Lobby Z",
-    "Sandbox_ApocExtractionMapUtils_LobbyZ_tooltip": "World floor coordinate. 0 is ground level. Choose a tile with a valid floor at this height."
+    "Sandbox_ApocExtractionMapUtils_LobbyZ_tooltip": "Floor coordinate in the world. A value of 0 is ground level. Choose a tile with a valid floor at this height."
 }

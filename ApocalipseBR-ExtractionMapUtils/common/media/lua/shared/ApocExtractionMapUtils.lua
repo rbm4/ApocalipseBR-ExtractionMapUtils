@@ -55,3 +55,29 @@ function Utils.getLobbyPosition()
     if x < 0 or y < 0 or z < -32 or z > 31 then return nil end
     return math.floor(x), math.floor(y), math.floor(z)
 end
+
+-- nil means geometry is not loaded yet, never proof of an invalid spawn.
+-- Multiplayer callers must pass the server's player, not client coordinates.
+function Utils.loginPositionNeedsReset(player)
+    local world = getWorld()
+    local grid = world and world:getMetaGrid()
+    if not grid or grid:getMaxX() < grid:getMinX() or grid:getMaxY() < grid:getMinY() then return nil end
+    local x, y, z = math.floor(player:getX()), math.floor(player:getY()), math.floor(player:getZ())
+    if not grid:isValidSquare(x, y) then return true end
+    -- A passenger reconnecting offshore is valid; being outside the map is not.
+    if player:getVehicle() then return false end
+    local square = getCell():getGridSquare(x, y, z)
+    if not square or not square:getFloor() then return nil end
+    local water = square:isWaterSquare()
+    local objects = square:getObjects()
+    for i = 0, objects:size() - 1 do
+        local props = objects:get(i):getProperties()
+        if props then
+            local objectWater = props:has(IsoFlagType.water) or props:get("FloorMaterial") == "Water"
+            -- Match the bundled boats' treatment of bridges/floors over water.
+            if props:has(IsoFlagType.solidfloor) and not objectWater then return false end
+            if objectWater then water = true end
+        end
+    end
+    return water
+end

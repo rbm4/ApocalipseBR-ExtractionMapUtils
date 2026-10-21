@@ -4,9 +4,12 @@ require "ApocExtractionMapUtils_HumanDialogPanel"
 require "Vehicles/TimedActions/ISPathFindAction"
 require "TimedActions/ISTimedActionQueue"
 local D = ApocExtractionMapUtils.HumanDialogs
+local G = require "ApocExtractionMapUtils_HumanDialogueGraph"
+local W = require "ApocExtractionMapUtils_HumanDialogueWire"
 if D.clientLoaded then return end
 D.clientLoaded = true
-local C = { states = {}, roster = {}, sequence = 0, refreshAt = {}, listPendingAt = {} }
+local C = { states = {}, roster = {}, sequence = 0, requestedFor = {}, requestedID = {},
+    revisions = {}, listPendingAt = {}, listWarned = {}, incomingRoster = {} }
 D.client = C
 D.log("client", "loaded")
 local function send(player, command, data)
@@ -95,13 +98,16 @@ function C.begin(player, actor, option)
     C.sequence = C.sequence + 1
     local state = { id = actor.id, name = actor.name, request = C.sequence, deadline = getTimestampMs() + 35000 }
     C.states[player:getPlayerNum()] = state
-    send(player, "Begin", { id = actor.id, option = option.id, request = state.request })
+    send(player, "Begin", { id = actor.id, option = option.id, request = state.request,
+        node = actor.dialogue and actor.dialogue.entryNode,
+        dialogueRevision = actor.dialogue and actor.dialogue.revision })
 end
 function C.select(player, state, option)
     if not valid(player, state) or state.pending or getTimestampMs() < (state.nextChoice or 0) then return end
     state.pending = true
     state.panel:setPending(true)
-    send(player, "Select", { id = state.id, token = state.token, option = option, sequence = state.sequence + 1 })
+    send(player, "Select", { id = state.id, token = state.token, option = option, sequence = state.sequence + 1,
+        node = state.node, dialogueRevision = state.dialogueRevision })
 end
 local function onServerCommand(module, command, args)
     if module ~= D.MODULE or type(args) ~= "table" or type(command) ~= "string" then return end
@@ -112,15 +118,26 @@ local function onServerCommand(module, command, args)
         local player = getSpecificPlayer(index)
         if player and args.recipient == player:getOnlineID() then
             if command == "HumanList" then
+                local revision = args.revision or 0
+                if C.revisions[index] and revision < C.revisions[index] then
+                    D.log("client", "reply_ignored", { reason = "stale_roster", revision = revision }); return
+                end
+                if C.incomingRoster[index] and C.incomingRoster[index].revision > revision then return end
+                local actors
+                C.incomingRoster[index], actors = W.receive(C.incomingRoster[index], args)
+                if not actors then return end
                 local roster = {}
-                for _, actor in ipairs(args.actors or {}) do
+                for _, actor in ipairs(actors) do
                     roster[actor.id] = actor
                     D.log("client", "roster_actor", { id = actor.id, key = actor.key, name = actor.name,
                         options = #(actor.options or {}) })
                 end
                 C.roster[index] = roster
+                C.revisions[index] = revision
                 C.listPendingAt[index] = nil
-                D.log("client", "roster_updated", { player = player:getOnlineID(), actors = #(args.actors or {}) })
+                C.listWarned[index] = nil
+                D.log("client", "roster_updated", { player = player:getOnlineID(), actors = #actors,
+                    revision = revision })
                 return
             end
             local state = C.states[index]
@@ -136,19 +153,55 @@ local function onServerCommand(module, command, args)
             elseif command == "HumanRejected" then
                 if args.token and args.token ~= state.token or args.request and args.request ~= state.request then return end
                 C.close(player)
-                notify(player, args.error == "busy" and "IGUI_ApocExtractionMapUtils_DialogBusy" or nil)
+                if args.message then player:Say(args.message)
+                else notify(player, args.error == "busy" and "IGUI_ApocExtractionMapUtils_DialogBusy" or nil) end
             elseif args.token == state.token then
+                if args.sequence and args.sequence <= (state.sequence or 0) then return end
+                if args.contentFrame then
+                    state.contentFrames = state.contentFrames or {}
+                    local slot = command .. ":" .. tostring(args.sequence or 0)
+                    local actors
+                    state.contentFrames[slot], actors = W.receive(state.contentFrames[slot], args.contentFrame)
+                    if not actors then return end
+                    local graph = actors[1].dialogue
+                    args.dialogue, args.options = graph, graph.nodes[graph.entryNode].options
+                    args.node, args.dialogueRevision = graph.entryNode, graph.revision
+                    args.nodeTexts, args.fallbackLocale = graph.nodes[graph.entryNode].texts, graph.fallbackLocale
+                    args.nodeText = graph.nodes[graph.entryNode].text
+                    args.labels = graph.labels
+                    local actor = (C.roster[index] or {})[state.id]
+                    if actor and graph.rootNode then
+                        local menuGraph = {}
+                        for key, value in pairs(graph) do menuGraph[key] = value end
+                        menuGraph.entryNode = graph.rootNode
+                        C.roster[index][state.id] = { id = actor.id, key = actor.key, name = actor.name,
+                            dialogue = menuGraph, options = graph.nodes[graph.rootNode].options }
+                    end
+                end
                 if command == "HumanOpened" then
                     if state.panel then return end
                     state.opened, state.sequence, state.deadline = true, 0, getTimestampMs() + 65000
                     state.panel = ApocHumanDialogPanel:new(player, state.name, args.options or {}, args.greetingKey,
-                        function(option) C.select(player, state, option) end, function() C.close(player) end)
+                        function(option) C.select(player, state, option) end, function() C.close(player) end, args.labels)
                     state.panel:initialise(); state.panel:addToUIManager()
+                    state.node, state.dialogueRevision = args.node, args.dialogueRevision
+                    if args.nodeTexts then state.panel:setNode(args.options, args.nodeTexts, args.fallbackLocale) end
+                    if args.nodeText then state.panel:setResolvedNode(args.options, args.nodeText) end
+                    if args.greetingText then state.panel:setResponse(args.greetingText) end
                     D.log("client", "panel_opened", { id = state.id, options = #(args.options or {}) })
                 elseif command == "HumanSelected" then
                     state.sequence, state.pending, state.nextChoice = args.sequence, false, getTimestampMs() + 600
                     state.deadline = getTimestampMs() + 65000
-                    if state.panel then state.panel:setMessage(args.responseKey); state.panel:setPending(false) end
+                    state.node, state.dialogueRevision = args.node, args.dialogueRevision
+                    if state.panel then
+                        if args.nodeTexts then state.panel:setNode(args.options, args.nodeTexts, args.fallbackLocale) end
+                        if args.nodeText then state.panel:setResolvedNode(args.options, args.nodeText) end
+                        if args.response ~= nil then state.panel:setResponse(args.response)
+                        elseif args.responseTexts then
+                            state.panel:setResponse(G.text(args.responseTexts, G.locale(), args.fallbackLocale).response)
+                        else state.panel:setMessage(args.responseKey) end
+                        state.panel:setPending(false)
+                    end
                 elseif command == "HumanClosed" then C.close(player) end
             else
                 D.log("client", "reply_ignored", { reason = "token_mismatch", command = command, id = args.id })
@@ -189,14 +242,29 @@ local function menu(playerIndex, context, worldobjects, test)
     end
     if test then return ISWorldObjectContextMenu.setTest() end
     D.log("client", "menu_added", { id = actor.id, key = actor.key, name = actor.name, options = #actor.options })
-    local root = context:addOption(getText("IGUI_ApocExtractionMapUtils_DialogTalk", actor.name), nil, nil)
+    local labels = actor.dialogue and actor.dialogue.labels
+    local title = labels and labels.talk and labels.talk:gsub("%%1", function() return actor.name end)
+        or getText("IGUI_ApocExtractionMapUtils_DialogTalk", actor.name)
+    local root = context:addOption(title, nil, nil)
     local submenu = ISContextMenu:getNew(context)
     context:addSubMenu(root, submenu)
     for _, option in ipairs(actor.options) do
-        submenu:addOption(getText(option.textKey), player, C.begin, actor, option)
+        submenu:addOption(G.label(option, actor.dialogue and actor.dialogue.fallbackLocale), player, C.begin, actor, option)
     end
 end
 Events.OnPreFillWorldObjectContextMenu.Add(menu)
+-- Called by ExtractionMapUtils' Lua login hook after an online ID exists.
+function C.requestRoster(player)
+    local index = player:getPlayerNum()
+    if player:isDead() or player:getOnlineID() < 0 then return false end
+    if C.requestedFor[index] == player and C.requestedID[index] == player:getOnlineID() then return false end
+    if C.states[index] then C.close(player) end
+    C.requestedFor[index], C.requestedID[index] = player, player:getOnlineID()
+    C.roster[index], C.revisions[index], C.incomingRoster[index] = nil, nil, nil
+    C.listPendingAt[index], C.listWarned[index] = getTimestampMs(), nil
+    send(player, "List", { protocol = 2 })
+    return true
+end
 Events.OnTick.Add(function()
     local now = getTimestampMs()
     for index = 0, getNumActivePlayers() - 1 do
@@ -207,13 +275,15 @@ Events.OnTick.Add(function()
                 D.log("client", "session_expired", { id = state.id, dead = player:isDead() })
                 C.close(player)
             end
-            if now >= (C.refreshAt[index] or 0) and not C.states[index] then
-                C.refreshAt[index] = now + 5000
-                if C.listPendingAt[index] then
-                    D.log("client", "list_waiting", { player = player:getOnlineID(), elapsedMs = now - C.listPendingAt[index] })
-                else C.listPendingAt[index] = now end
-                send(player, "List", {})
+            if C.listPendingAt[index] and not C.listWarned[index] and now - C.listPendingAt[index] >= 10000 then
+                C.listWarned[index] = true
+                D.log("client", "list_waiting", { player = player:getOnlineID(), elapsedMs = now - C.listPendingAt[index] })
             end
+        else
+            C.requestedFor[index], C.requestedID[index] = nil, nil
+            C.roster[index], C.revisions[index] = nil, nil
+            C.incomingRoster[index] = nil
+            C.listPendingAt[index], C.listWarned[index] = nil, nil
         end
     end
 end)

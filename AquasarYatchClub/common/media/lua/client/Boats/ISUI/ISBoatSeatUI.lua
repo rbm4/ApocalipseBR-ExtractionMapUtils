@@ -358,6 +358,46 @@ function ISBoatSeatUI:isSeatInstalled(seat)
     return self.vehicle:isSeatInstalled(seat)
 end
 
+-- Boarding uses the radial menu's boat reach, rather than each seat's shore position.
+function ISBoatSeatUI:enterFromOutside(seat)
+    local boat = self.vehicle
+    local character = self.character
+    if not boat or not AquaConfig.isBoat(boat) or character:getVehicle() then return false end
+    if type(seat) ~= "number" or seat % 1 ~= 0 or seat < 0 or seat >= boat:getMaxPassengers() then return false end
+    local passenger = boat:getScript():getPassenger(seat)
+    if not passenger or boat:getPartById("InCabin" .. passenger:getId()) then return false end
+    if not boat:getPassengerPosition(seat, "outside") or not boat:getPassengerPosition(seat, "inside") then return false end
+    if not boat:isSeatInstalled(seat) or boat:isSeatOccupied(seat) then return false end
+    -- Recheck at selection time so an old seat window cannot board a distant boat.
+    if ISBoatMenu.getBoatToInteractWith(character) ~= boat then return false end
+
+    ISTimedActionQueue.clear(character)
+    if not boat:enter(seat, character) then return false end
+
+    local playerNum = character:getPlayerNum()
+    getCell():setDrag(nil, playerNum)
+    local context = getPlayerContextMenu(playerNum)
+    if context and context:isAnyVisible() then context:hideAndChildren() end
+    if character:isAiming() then character:nullifyAiming() end
+    boat:playPassengerSound(seat, "enter")
+    boat:setCharacterPosition(character, seat, "inside")
+    boat:transmitCharacterPosition(seat, "inside")
+    boat:playPassengerAnim(seat, "idle")
+    character:triggerMusicIntensityEvent("VehicleEnter")
+
+    local primary = character:getPrimaryHandItem()
+    local secondary = character:getSecondaryHandItem()
+    if (primary and primary:hasTag(ItemTag.HEAVY_ITEM)) or (secondary and secondary:hasTag(ItemTag.HEAVY_ITEM)) then
+        if isClient() then
+            sendClientCommand(character, 'player', 'onDropHeavyItem', { id = character:getOnlineID() })
+        else
+            forceDropHeavyItems(character)
+        end
+    end
+    triggerEvent("OnEnterVehicle", character)
+    return true
+end
+
 function ISBoatSeatUI:useSeat(seat)
     if not self:isSeatInstalled(seat) then return end
     if self.vehicle:getCharacter(seat) then return end
@@ -391,10 +431,8 @@ function ISBoatSeatUI:useSeat(seat)
             end
         end
     else
-        if (not isCabin or playerHaveAccesToCabin) then
-            ISTimedActionQueue.add(ISEnterVehicle:new(self.character, self.vehicle, seat))
-        else
-            self.character:Say(getText("IGUI_PlayerText_CabinIsLocked"))
+        if not self:enterFromOutside(seat) then
+            self.character:Say(getText("IGUI_PlayerText_BoatSeatBlock"))
         end
     end
 end

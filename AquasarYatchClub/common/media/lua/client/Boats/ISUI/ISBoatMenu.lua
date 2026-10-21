@@ -1490,7 +1490,6 @@ function ISBoatMenu.onMechanic(playerObj, boat)
     end
 
     local engineHood = nil;
-    local cheat = getCore():getDebug() and getDebugOptions():getBoolean("Cheat.boat.MechanicsAnywhere")
     -- if ISVehicleMechanics.cheat or (isClient() and isAdmin()) or cheat then
         -- ISTimedActionQueue.add(ISOpenMechanicsUIAction:new(playerObj, boat))
         -- return;

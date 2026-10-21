@@ -35,6 +35,7 @@ function D.register(npcKey, definition)
     end
     D.definitions[npcKey] = copy
     D.log("registry", "registered", { key = npcKey, options = #copy.options })
+    if D.pushRoster then D.pushRoster() end
 end
 
 function D.on(event, callback)

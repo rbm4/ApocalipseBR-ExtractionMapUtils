@@ -3,15 +3,20 @@
 local media = "ApocalipseBR-ExtractionMapUtils/common/media/lua/"
 package.path = media .. "shared/?.lua;" .. media .. "client/?.lua;" .. package.path
 SandboxVars = { ApocExtractionMapUtils = {} }
+function isClient() return false end
+local lobbyState = { released = false }
+ModData = { get = function(name) assert(name == "ApocExtractionLobby"); return lobbyState end }
 
 local callbacks, tickCallbacks, createCallbacks = {}, {}, {}
 Events = {
     OnGameStart = { Add = function(callback) callbacks[#callbacks + 1] = callback end },
     OnTick = { Add = function(callback) tickCallbacks[#tickCallbacks + 1] = callback end },
     OnCreatePlayer = { Add = function(callback) createCallbacks[#createCallbacks + 1] = callback end },
+    OnServerCommand = { Add = function() end },
 }
 local player = { moves = 0 }
 function player:isDead() return self.dead == true end
+function player:getOnlineID() return 1 end
 function player:teleportTo(x, y, z)
     self.moves = self.moves + 1
     self.x, self.y, self.z = x, y, z
@@ -21,8 +26,18 @@ function player:setForceY(y) self.y = y end
 function player:setLastZ(z) self.lastZ = z end
 function getNumActivePlayers() return 1 end
 function getSpecificPlayer(index) assert(index == 0); return player end
+-- Open-lobby login geometry: a valid in-bounds passenger preserves position.
+function player:getX() return self.x end
+function player:getY() return self.y end
+function player:getZ() return self.z end
+function player:getVehicle() return {} end
+function getWorld() return { getMetaGrid = function() return {
+    getMinX = function() return 0 end, getMinY = function() return 0 end,
+    getMaxX = function() return 10 end, getMaxY = function() return 10 end,
+    isValidSquare = function() return true end,
+} end } end
 
-dofile(media .. "client/ApocExtractionMapUtils_Login.lua")
+dofile("ApocalipseBR-ExtractionMapUtils/common/media/lua/client/ApocExtractionMapUtils_Login.lua")
 assert(#callbacks == 1)
 callbacks[1]()
 assert(player.moves == 0, "unconfigured lobby must preserve the saved spawn")
@@ -62,6 +77,15 @@ assert(player.moves == 2, "dead players must not relocate")
 player.dead = false
 callbacks[1]()
 assert(player.moves == 3 and player.z == -1, "basement floors are supported")
+lobbyState.released = true
+callbacks[1]()
+assert(player.moves == 3, "released lobby must preserve the saved position")
+lobbyState.released, lobbyState.removedAll = false, true
+callbacks[1]()
+assert(player.moves == 3, "removed perimeter must not relocate")
+lobbyState = nil
+callbacks[1]()
+assert(player.moves == 3, "unknown lobby state must preserve the saved position")
 
 -- Match the reference mod: known flags only, with no minimap API mutations.
 local now, multiplayer = 0, true

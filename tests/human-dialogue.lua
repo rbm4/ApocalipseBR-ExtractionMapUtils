@@ -16,7 +16,8 @@ local function event()
     return e
 end
 Events = { OnClientCommand = event(), OnTick = event(), OnServerCommand = event(),
-    OnPreFillWorldObjectContextMenu = event(), OnApocBRHumanDialogueClosed = event() }
+    OnPreFillWorldObjectContextMenu = event(), OnApocBRHumanDialogueClosed = event(),
+    OnApocBRHumanRosterChanged = event(), OnCreatePlayer = event(), OnGameStart = event() }
 local server, now, sent, playerX = true, 10000, {}, 101
 function isServer() return server end
 function isClient() return not server end
@@ -42,7 +43,7 @@ local function command(name, data)
     commands.fire(D.MODULE, "Human" .. name, player, data)
 end
 command("List")
-check(#sent > 0 and sent[#sent].command == "HumanRejected", "payload-free discovery reaches missing-patch rejection")
+check(#sent == 0, "payload-free discovery waits server-side for roster bridge readiness")
 check(#logs == 0, "module load and missing bridge stay silent with debugLog absent")
 SandboxVars = { ApocExtractionMapUtils = { debugLog = true } }
 Events.OnTick.fire()
@@ -51,12 +52,15 @@ local actor = { id = 1024, key = "guide", name = "NPC", x = 100, y = 200, z = 0 
 local allowArrival = false
 ApocBRHumanAPI = {
     list = function() return { actor } end,
+    roster = function() return { actor } end,
     begin = function() beginCalls = beginCalls + 1; return { id = 1024, key = "guide", name = "NPC", x = 100, y = 200, z = 0, token = 8 } end,
     arrive = function() return allowArrival end,
     react = function(p, id, token, text, emote) reacted[#reacted + 1] = { text = text, emote = emote }; return true end,
     finish = function() Events.OnApocBRHumanDialogueClosed.fire(player, { id = 1024, token = 8 }); return true end,
 }
 Events.OnTick.fire()
+check(#sent > 0 and sent[#sent].command == "HumanList", "bridge readiness delivers the deferred initial request")
+now = now + 1000
 command("List")
 check(sent[#sent].command == "HumanList" and #sent[#sent].data.actors[1].options == 3, "discover only registered NPC profiles")
 check(logged("argsType=nil command=HumanList"), "native payload-free discovery reaches server receive logging")
@@ -143,6 +147,9 @@ function ApocHumanDialogPanel:new(p, name, options, greeting, select, close)
     function panel:removeFromUIManager() self.visible = false end
     function panel:setMessage(key) self.message = key end
     function panel:setPending(value) self.pending = value end
+    function panel:setNode(options, texts, fallback) self.options, self.nodeTexts = options, texts end
+    function panel:setResolvedNode(options, text) self.options, self.nodeText = options, text end
+    function panel:setResponse(text) self.message = text end
     return panel
 end
 for _, module in ipairs({ "ApocExtractionMapUtils_HumanDialogPanel", "Vehicles/TimedActions/ISPathFindAction",
@@ -164,12 +171,24 @@ local clientFile = "ApocalipseBR-ExtractionMapUtils/common/media/lua/client/Apoc
 dofile(clientFile); dofile(clientFile)
 check(#Events.OnServerCommand.callbacks == 1, "client hooks install once")
 local C = D.client
+dofile("ApocalipseBR-ExtractionMapUtils/common/media/lua/client/ApocExtractionMapUtils_Login.lua")
 check(logged("[client] loaded"), "client Lua reports loading when debug is enabled")
+local savedOnlineID = player.getOnlineID
+player.getOnlineID = function() return -1 end
+Events.OnCreatePlayer.fire(0,player)
+Events.OnTick.fire()
+check(#sent == 0, "bootstrap waits for an assigned online ID")
+player.getOnlineID = savedOnlineID
 Events.OnTick.fire()
 check(sent[#sent].command == "HumanList" and logged("[client] send command=HumanList"), "roster poll is logged")
-now = now + 5000
+local initialRequests = #sent
+now = now + 10000
 Events.OnTick.fire()
-check(logged("list_waiting"), "missing roster replies have an elapsed-wait diagnostic")
+check(logged("list_waiting") and #sent == initialRequests, "missing initial reply warns without sending another request")
+local warnedAt = #logs
+now = now + 10000
+Events.OnTick.fire()
+check(#logs == warnedAt and #sent == initialRequests, "initial roster wait does not poll or repeat warnings")
 Events.OnPreFillWorldObjectContextMenu.fire(0, context, {}, false)
 check(logged("reason=no_clicked_player"), "empty character picking is diagnosed")
 Events.OnPreFillWorldObjectContextMenu.fire(0, context, { npc }, false)
@@ -178,8 +197,18 @@ local function reply(name, args) args.recipient = args.recipient or 3; Events.On
 actor.options = { { id = "hello", textKey = "hello-label" }, { id = "help", textKey = "help-label" } }
 reply("List", { actors = { actor }, recipient = 99 })
 check(C.roster[0] == nil, "ignore another split-screen recipient")
-reply("List", { actors = { actor } })
+reply("List", { actors = { actor }, revision = 1 })
 check(C.listPendingAt[0] == nil and logged("roster_actor") and logged("roster_updated"), "matching roster response clears pending poll")
+local idleRequests = #sent
+for i = 1, 10 do now = now + 60000; Events.OnTick.fire() end
+check(#sent == idleRequests, "ten idle minutes produce no additional client roster requests")
+reply("List", { actors = {}, revision = 2 })
+check(next(C.roster[0]) == nil, "server push can clear the entire roster")
+now = now + 60000; Events.OnTick.fire()
+check(#sent == idleRequests, "empty roster is a complete snapshot and never triggers polling")
+reply("List", { actors = { actor }, revision = 3 })
+reply("List", { actors = {}, revision = 2 })
+check(C.roster[0][1024] == actor and C.revisions[0] == 3, "unsolicited newer push replaces roster; stale snapshots ignored")
 local beforeProbe = #logs
 Events.OnPreFillWorldObjectContextMenu.fire(0, context, { npc }, true)
 check(#logs == beforeProbe, "menu test probes do not spam debug output")
@@ -236,5 +265,55 @@ Events.OnPreFillWorldObjectContextMenu.fire(0, context, { npc }, false)
 now = now + 5000
 Events.OnTick.fire()
 check(#logs == disabledAt, "disabling debugLog suppresses callback failures, menu and periodic diagnostics")
+-- Database payloads supply actual localized text and server-owned cursors.
+local W = require "ApocExtractionMapUtils_HumanDialogueWire"
+local rootOptions = {{id="ask",nextNode="more",texts={EN={title="Database topic",description="Details"}}}}
+local moreOptions = {{id="back",nextNode="root",texts={EN={title="Go back"}}}}
+local graph = {schema=1,id="guide",revision=9,entryNode="root",rootNode="root",fallbackLocale="EN",nodes={
+    root={id="root",texts={EN={title="Welcome",description="Database greeting"}},options=rootOptions},
+    more={id="more",texts={EN={title="More",description="More detail"}},options=moreOptions}}}
+local dbActor={id=1024,key="guide",name="NPC",dialogue=graph,options=rootOptions}
+reply("List",{actors={dbActor},revision=4})
+context.options={}
+Events.OnPreFillWorldObjectContextMenu.fire(0,context,{npc},false)
+check(context.options[1].submenu.options[1].label=="Database topic","menu uses localized database title without getText key")
+C.begin(player,dbActor,rootOptions[1]);state=C.states[0]
+check(sent[#sent].data.node=="root" and sent[#sent].data.dialogueRevision==9,"begin includes cached graph cursor and revision")
+check(sent[#sent].data.locale==nil,"client never submits its local language")
+reply("Reserved",{id=1024,request=state.request,token=20,x=100,y=200,z=0})
+reply("Opened",{id=1024,token=20,contentFrame=W.pack({{id=1024,dialogue=graph}},0)[1]})
+check(state.node=="root" and state.panel.nodeTexts.EN.description=="Database greeting","panel receives node title and description")
+local advanced={};for key,value in pairs(graph) do advanced[key]=value end;advanced.entryNode="more"
+reply("Selected",{id=1024,token=20,sequence=1,responseTexts={EN={response="Database reply"}},
+    contentFrame=W.pack({{id=1024,dialogue=advanced}},1)[1]})
+check(state.node=="more" and state.panel.options[1].id=="back" and state.panel.message=="Database reply",
+    "server advancement replaces choices and displays database response")
+check(C.roster[0][1024].dialogue.entryNode=="root","future context menu retains root cursor after session advancement")
+reply("Selected",{id=1024,token=20,sequence=1,responseKey="stale"})
+check(state.panel.message=="Database reply","duplicate selected response cannot overwrite newer state")
+now=now+700;state.panel.select("back")
+check(sent[#sent].data.node=="more" and sent[#sent].data.dialogueRevision==9,"follow-up request uses advanced node")
+C.close(player)
+local beforeRespawn = #sent
+-- English client receives only the server-selected PTBR presentation.
+local resolved={schema=2,id="guide",revision=10,entryNode="root",rootNode="root",locale="PTBR",nodes={
+    root={id="root",text={title="Servidor",description="Texto PTBR"},options={{id="ask",title="Perguntar",description="Detalhes"}}}}}
+local ptActor={id=1024,key="guide",name="NPC",dialogue=resolved,options=resolved.nodes.root.options}
+reply("List",{actors={ptActor},revision=5})
+C.begin(player,ptActor,ptActor.options[1]);state=C.states[0]
+reply("Reserved",{id=1024,request=state.request,token=21,x=100,y=200,z=0})
+reply("Opened",{id=1024,token=21,contentFrame=W.pack({{id=1024,dialogue=resolved}},0)[1]})
+check(state.panel.nodeText.title=="Servidor" and state.panel.options[1].title=="Perguntar","resolved server node and labels bypass client localization")
+reply("Selected",{id=1024,token=21,sequence=1,response="Resposta PTBR",contentFrame=W.pack({{id=1024,dialogue=resolved}},1)[1]})
+check(state.panel.message=="Resposta PTBR","resolved response bypasses client translation")
+C.close(player)
+beforeRespawn=#sent
+player = setmetatable({}, { __index = player })
+Events.OnCreatePlayer.fire(0,player)
+Events.OnTick.fire()
+check(#sent == beforeRespawn + 1 and sent[#sent].command == "HumanList" and C.roster[0] == nil,
+    "replacement local character gets one new subscription and clears old roster")
+Events.OnTick.fire()
+check(#sent == beforeRespawn + 1, "replacement character does not repeat bootstrap")
 print = originalPrint
 print("Passed " .. checks .. " NPC dialogue registration, server routing and client flow assertions.")

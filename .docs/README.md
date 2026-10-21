@@ -10,7 +10,11 @@ integration. Repository conventions live in [AGENTS.md](../AGENTS.md).
 Durable gameplay specifications and current behavior belong in `features/`.
 
 - [NPC dialogue](features/npc-dialogue.md): per-NPC right-click options, timed-action
-  walk-up, server-owned reactions and dialogue registration hooks.
+  walk-up, server-owned reactions, cached roster subscriptions/push updates and
+  dialogue registration hooks.
+- [Database dialogue graphs and Lua login](features/npc-dialogue-graphs.md):
+  startup content caching, ExtractionMapUtils-owned login requests, server-resolved PTBR dialogue,
+  secret choices, account facts and bounded multipart transport.
 
 - [Sandbox feature switches](features/sandbox-feature-switches.md): map reveal
   is on by default; lobby, relocation and zombie money drops require opt-in.
@@ -37,6 +41,21 @@ documents when designed. Mark proposals as planned until implemented.
 ## Hotfixes
 
 Targeted corrections and compatibility workarounds belong in `hotfixes/`.
+
+- [Boat radial seat boarding](hotfixes/boat-radial-seat-boarding.md): board an
+  exterior seat immediately using radial-menu reach, preserving cabin access rules.
+
+- [Boat cheat menu removal](hotfixes/boat-cheat-menu-removal.md): remove boat
+  mechanics cheats, their callbacks, and debug boat spawning in both mod copies.
+
+- [Invalid login position rescue](hotfixes/invalid-login-position-rescue.md): reset
+  out-of-map and open-water logins during operations while preserving safe reconnects.
+
+- [Closed-lobby login relocation](hotfixes/closed-lobby-login-relocation.md):
+  preserve saved positions after manual release or scheduled operation activation.
+
+- [English and Brazilian Portuguese labels](hotfixes/english-and-brazilian-portuguese-labels.md):
+  correct English fallback text and add complete PTBR UI and sandbox translations.
 
 - [NPC dialogue discovery payload](hotfixes/npc-dialogue-empty-discovery-payload.md):
   accept native payload-free roster requests instead of silently dropping them.
