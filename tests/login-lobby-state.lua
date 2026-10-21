@@ -80,4 +80,28 @@ handlers.OnGameStart(); handlers.OnTick()
 reply({ reset = true, serverTeleported = true, playerNum = 0 })
 reply({ closed = true, serverTeleported = true, playerNum = 1 })
 assert(first.moves == 3 and second.moves == 1, "native server teleport acknowledgement must not trigger a second client teleport")
+-- Login hooks may precede usable sandbox settings and connection registration.
+local online = -1
+function first:getOnlineID() return online end
+function second:getOnlineID() return online end
+SandboxVars.ApocExtractionMapUtils.LobbyEnabled = false
+handlers.OnGameStart()
+before = sent
+handlers.OnTick()
+SandboxVars.ApocExtractionMapUtils.LobbyEnabled = true
+online = 1
+handlers.OnTick()
+assert(sent == before + 2, "early disabled/missing settings must not permanently discard login before online readiness")
+reply({ reset = true, serverTeleported = true, playerNum = 0 })
+reply({ reset = true, serverTeleported = true, playerNum = 1 })
+online = -1
+SandboxVars.ApocExtractionMapUtils.LobbyEnabled = false
+handlers.OnCreatePlayer(0, first)
+before = sent
+handlers.OnTick()
+SandboxVars.ApocExtractionMapUtils.LobbyEnabled = true
+online = 1
+handlers.OnTick()
+assert(sent == before + 1, "OnCreatePlayer must also defer settings until online readiness")
+reply({ reset = true, serverTeleported = true, playerNum = 0 })
 print("PASS: deferred, one-shot login decisions; invalid-position rescue, safe reconnects and bounded streaming retries")

@@ -37,7 +37,12 @@ local function onGameStart()
         local player = getSpecificPlayer(playerNum)
         if player and not player:isDead() then
             pendingNPC[playerNum] = player
-            if enabled() then pending[playerNum] = { player = player, attempts = 0 } end
+            -- Hooks can run before replicated settings/online registration.
+            -- Queue first; evaluate the options once this player can send.
+            pending[playerNum] = { player = player, attempts = 0 }
+            Utils.debugLog("[ApocExtractionMapUtils][Login][client] queued; protocol=2; source=OnGameStart; playerNum="
+                .. tostring(playerNum) .. "; lobbyEnabled=" .. tostring(Utils.lobbyEnabled())
+                .. "; relocateOnLogin=" .. tostring(Utils.getOptions().RelocateOnLogin))
             if enabled() and not isClient() then
                 local reset = localDecision(player)
                 if reset ~= nil then
@@ -58,20 +63,27 @@ Events.OnTick.Add(function()
         elseif not isClient() then pendingNPC[index] = nil end
     end
     for playerNum, entry in pairs(pending) do
-        if not enabled() or getSpecificPlayer(playerNum) ~= entry.player or entry.player:isDead() then
+        if getSpecificPlayer(playerNum) ~= entry.player or entry.player:isDead() then
             pending[playerNum] = nil
         elseif isClient() and entry.player:getOnlineID() < 0 then
             -- OnCreatePlayer can precede connection registration. Wait without
             -- spending the bounded geometry retry budget.
+        elseif not enabled() then
+            Utils.debugLog("[ApocExtractionMapUtils][Login][client] skipped; reason=settings_disabled; playerNum="
+                .. tostring(playerNum) .. "; lobbyEnabled=" .. tostring(Utils.lobbyEnabled())
+                .. "; relocateOnLogin=" .. tostring(Utils.getOptions().RelocateOnLogin))
+            pending[playerNum] = nil
         elseif not entry.nextTry or getTimestampMs() >= entry.nextTry then
             if entry.attempts >= MAX_ATTEMPTS then
                 Utils.debugLog("[ApocExtractionMapUtils][Login] retries_exhausted; playerNum=" .. tostring(playerNum))
-                pending[playerNum] = nil -- Unknown geometry preserves the saved position.
+                pending[playerNum] = nil -- Unknown history/geometry preserves the saved position.
             else
                 entry.attempts = entry.attempts + 1
                 entry.nextTry = getTimestampMs() + RETRY_MS
                 if isClient() then
                     -- OnGameStart precedes sendPlayerConnect; request on the next tick.
+                    Utils.debugLog("[ApocExtractionMapUtils][Login][client] request; playerNum=" .. tostring(playerNum)
+                        .. "; onlineID=" .. tostring(entry.player:getOnlineID()) .. "; attempt=" .. tostring(entry.attempts))
                     sendClientCommand(entry.player, "ApocExtractionMapUtils", "LoginLobbyState", { playerNum = playerNum })
                 else
                     local reset = localDecision(entry.player)
@@ -91,6 +103,9 @@ Events.OnServerCommand.Add(function(module, command, args)
     local entry = pending[playerNum]
     if not entry or entry.attempts == 0 then return end
     if getSpecificPlayer(playerNum) ~= entry.player then pending[playerNum] = nil; return end
+    Utils.debugLog("[ApocExtractionMapUtils][Login][client] response; playerNum=" .. tostring(playerNum)
+        .. "; retry=" .. tostring(args.retry == true) .. "; reset=" .. tostring(args.reset == true)
+        .. "; closed=" .. tostring(args.closed == true) .. "; serverTeleported=" .. tostring(args.serverTeleported == true))
     if args.retry == true and args.closed ~= true and args.reset ~= true then return end
     pending[playerNum] = nil
     if args.serverTeleported ~= true and (args.closed == true or args.reset == true) then relocate(entry.player) end
@@ -100,5 +115,5 @@ Events.OnGameStart.Add(onGameStart)
 Events.OnCreatePlayer.Add(function(index, player)
     if not player then return end
     pendingNPC[index] = player
-    if enabled() then pending[index] = { player = player, attempts = 0 } end
+    pending[index] = { player = player, attempts = 0 }
 end)

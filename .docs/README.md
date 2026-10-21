@@ -9,6 +9,9 @@ integration. Repository conventions live in [AGENTS.md](../AGENTS.md).
 
 Durable gameplay specifications and current behavior belong in `features/`.
 
+- [Successful-login history](features/successful-login-history.md): independent
+  connection auditing and cached previous-server decisions for lobby relocation.
+
 - [NPC dialogue](features/npc-dialogue.md): per-NPC right-click options, timed-action
   walk-up, server-owned reactions, cached roster subscriptions/push updates and
   dialogue registration hooks.
@@ -41,6 +44,9 @@ documents when designed. Mark proposals as planned until implemented.
 ## Hotfixes
 
 Targeted corrections and compatibility workarounds belong in `hotfixes/`.
+
+- [Login options before online readiness](hotfixes/login-options-before-online-readiness.md):
+  retain pending login checks until connection readiness and trace each relocation stage.
 
 - [Boat radial seat boarding](hotfixes/boat-radial-seat-boarding.md): board an
   exterior seat immediately using radial-menu reach, preserving cabin access rules.

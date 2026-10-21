@@ -31,13 +31,13 @@ requests decisions and applies the existing teleport only to the affected local
 player. Single player uses the same predicate locally.
 
 The optional Build 42.21.0 `ApocBRPlayerLogin` Java bridge also resets a known
-cross-server login regardless of valid terrain or operation state. It compares
-an immutable server-side login context captured from PostgreSQL reconstruction.
-The dedicated `ApocBR.LastConnectedServerId.v1` character mod-data marker is
-updated to `apocbr.postgres.serverId` and persisted by the normal relational
-worker. Unknown/legacy markers use the geometry fallback; a crash before the
-next successful checkpoint may cause a repeat reset. Every participating server
-must carry the Java patch to record its connections.
+cross-server login regardless of valid terrain or operation state. It now compares
+an immutable previous-server result from the independent successful-login audit.
+The old `ApocBR.LastConnectedServerId.v1` mod-data marker is no longer read or
+written. Pending history results retry; a ready result with no previous occurrence
+uses the geometry fallback. Every participating server must carry the Java patch
+and enable PostgreSQL, including servers loading players from SQLite. See
+[successful-login history](../features/successful-login-history.md).
 
 With the bridge present, server Lua calls its one-shot `teleportToLobby` using
 the configured destination. It uses vanilla `GameServer.sendTeleport` including

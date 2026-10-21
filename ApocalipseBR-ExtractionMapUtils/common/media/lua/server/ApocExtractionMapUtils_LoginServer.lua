@@ -4,6 +4,7 @@ local Utils = ApocExtractionMapUtils
 Events.OnClientCommand.Add(function(module, command, player, args)
     if module ~= "ApocExtractionMapUtils" or command ~= "LoginLobbyState"
         or not player or player:isDead() then return end
+    Utils.debugLog("[ApocExtractionMapUtils][Login][server] request; protocol=2; player=" .. tostring(player:getOnlineID()))
     local closed = Utils.Lobby.isClosed()
     local reset = false
     local x, y, z = Utils.getLobbyPosition()
@@ -24,6 +25,8 @@ Events.OnClientCommand.Add(function(module, command, player, args)
     local serverTeleported = false
     if x and (closed or reset == true) and ApocBRPlayerLogin then
         serverTeleported = ApocBRPlayerLogin.teleportToLobby(player, x + 0.5, y + 0.5, z) == true
+        Utils.debugLog("[ApocExtractionMapUtils][Login][server] teleport; accepted=" .. tostring(serverTeleported)
+            .. "; destination=" .. tostring(x + 0.5) .. "," .. tostring(y + 0.5) .. "," .. tostring(z))
         if not serverTeleported then
             sendServerCommand(player, module, command, { retry = true,
                 playerNum = type(args) == "table" and args.playerNum or 0 })

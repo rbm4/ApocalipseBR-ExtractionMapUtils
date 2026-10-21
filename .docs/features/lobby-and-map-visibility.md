@@ -24,9 +24,11 @@ and reveal hooks.
   in-bounds vehicle passengers preserve their positions during an operation.
   These are map bounds, not lobby bounds or event objective/region boundaries.
   With the optional 42.21.0 `ApocBRPlayerLogin` Java bridge, known cross-server
-  logins reset even on valid land. The previous ID is captured from the character's
-  PostgreSQL-backed marker before stamping the current server; normal persistence
-  makes that stamp durable. Unknown markers retain the geometry fallback.
+  logins reset even on valid land. The previous ID comes from the independent
+  successful-login audit table. Pending audit results retry; first audited logins
+  have unknown origin and retain the geometry fallback. Recording runs on every
+  participating patched server even when lobby relocation is disabled. See
+  [successful-login history](successful-login-history.md).
   ExtractionMapUtils' Lua `OnCreatePlayer`/`OnGameStart` hooks request a
   decision per local player after connection readiness. The server uses its own player coordinates, world bounds and
   terrain, ignoring client position/state claims. Unloaded geometry or absent

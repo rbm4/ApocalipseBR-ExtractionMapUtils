@@ -25,7 +25,8 @@ and lobby rules. `server/ApocExtractionMapUtils_LoginServer.lua` handles login
 commands and the last-server check. The dialogue tick handles expiry/diagnostics;
 the login module initiates subscriptions. Install ExtractionMapUtils on clients
 and server. The Regions Moodle plugin has no role or dependency in this flow.
-No Java player-login callback is installed.
+NPC discovery remains Lua-owned; the engine's separate successful-login audit
+runs at accepted connection time.
 
 The NPC SQL worker reads published dialogue bindings, node/choice translations
 and earned account flags with its startup snapshot **before actors activate**.
@@ -41,10 +42,12 @@ ready; the client does not poll NPC discovery. Lobby relocation uses the mod's
 separate `LoginLobbyState` request and existing bounded geometry retries.
 
 ExtractionMapUtils' server Lua decides closed-lobby/invalid-position/server-change
-relocation. Optional `ApocBRPlayerLogin` getters capture the server player's
-saved marker on first Lua request and its teleport helper uses the native packet.
-`ServerPlayerDB` has no login-origin callback. See the patch repository's
-`PLAYER-LOGIN-ORIGIN.md` for marker trust and persistence limits.
+relocation. Optional `ApocBRPlayerLogin` getters read the cached previous server
+from independent successful-login history; the handler retries until that result
+is ready. Its teleport helper uses the native packet. `GameServer` records accepted
+connections for both SQLite and PostgreSQL players. `ServerPlayerDB` reconstruction
+does not record logins. See [successful-login history](successful-login-history.md)
+and the patch repository's `PLAYER-LOGIN-ORIGIN.md`.
 
 ## Content and progression
 
