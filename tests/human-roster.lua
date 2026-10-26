@@ -29,7 +29,9 @@ end
 request(p)
 check(#messages == 0, "initial request retained while bridge is unavailable")
 local actors = { { id = 1024, key = "guide", name = "Guide", x = 100, y = 200, z = 0 } }
+local bridgeVersion = 1
 ApocBRHumanAPI = {
+    rosterRevision = function() return bridgeVersion end,
     roster = function() scans = scans + 1; return actors end,
     list = function() return {} end,
     begin = function() error("out-of-range actor must not reserve") end,
@@ -58,6 +60,38 @@ D.register("unknown", { options = { { id = "hello", textKey = "hello", responseK
 Events.OnTick.fire()
 check(scans == 3 and #messages[#messages].data.actors == 2, "dialogue registration updates already connected clients")
 local oldSnapshot = messages[#messages].data
+actors[1]={id=2048,key="guide",name="Guide",incarnation="second-life"}
+bridgeVersion=bridgeVersion+1
+sentAt=#messages;Events.OnTick.fire()
+check(#messages==sentAt+2 and messages[#messages].data.actors[1].id==2048,"generation detects respawn and updates every subscriber without relying on Lua event delivery")
+check(messages[#messages].data.actors[1].incarnation=="second-life","incarnation reaches standalone dialogue snapshots")
+sentAt=#messages;local scansBefore=scans
+check(D.refreshRoster(p),"trusted code can queue one targeted personalized refresh")
+Events.OnTick.fire()
+check(#messages==sentAt+1 and messages[#messages].player==p and scans==scansBefore,"targeted refresh leaves other subscribers and global cache untouched")
+local W=require "ApocExtractionMapUtils_HumanDialogueWire";local pack=W.pack;local fail=true
+W.pack=function(...) if fail then fail=false;error("simulated framing failure") end return pack(...) end
+sentAt=#messages;D.refreshRoster(p);Events.OnTick.fire()
+check(#messages==sentAt,"failed framing does not claim roster delivery")
+now=now+1000;Events.OnTick.fire();W.pack=pack
+check(#messages==sentAt+1,"failed subscriber delivery remains pending and retries without another lifecycle event")
+local networkSend=sendServerCommand;local failSend=true
+function sendServerCommand(target,...)
+    if target==p and failSend then failSend=false;error("simulated network send failure") end
+    return networkSend(target,...)
+end
+sentAt=#messages;D.pushRoster();Events.OnTick.fire()
+check(#messages==sentAt+1 and messages[#messages].player==q,"one failing subscriber cannot block lifecycle updates for other clients")
+now=now+1000;Events.OnTick.fire();sendServerCommand=networkSend
+check(#messages==sentAt+2 and messages[#messages].player==p,"failed native send retries the complete roster for that subscriber")
+local actorScan=ApocBRHumanAPI.roster;local race=true
+ApocBRHumanAPI.roster=function()
+    local result=actorScan();if race then race=false;bridgeVersion=bridgeVersion+1 end;return result
+end
+sentAt=#messages;D.pushRoster();Events.OnTick.fire()
+check(#messages==sentAt,"lifecycle change during snapshot construction is discarded instead of published under an old revision")
+Events.OnTick.fire();ApocBRHumanAPI.roster=actorScan
+check(#messages==sentAt+2,"next tick rebuilds and publishes the stable generation after a snapshot race")
 actors = {}
 Events.OnApocBRHumanRosterChanged.fire(); Events.OnTick.fire()
 check(#messages[#messages].data.actors == 0 and messages[#messages].data.revision > oldSnapshot.revision,

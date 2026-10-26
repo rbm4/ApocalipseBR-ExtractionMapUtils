@@ -45,6 +45,9 @@ documents when designed. Mark proposals as planned until implemented.
 
 Targeted corrections and compatibility workarounds belong in `hotfixes/`.
 
+- [NPC dialogue after respawn](hotfixes/npc-dialogue-respawn-roster.md): refresh
+  stable-key/native-ID bindings, close old sessions and recover incomplete rosters.
+
 - [Login options before online readiness](hotfixes/login-options-before-online-readiness.md):
   retain pending login checks until connection readiness and trace each relocation stage.
 

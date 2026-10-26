@@ -8,8 +8,9 @@ local G = require "ApocExtractionMapUtils_HumanDialogueGraph"
 local W = require "ApocExtractionMapUtils_HumanDialogueWire"
 if D.clientLoaded then return end
 D.clientLoaded = true
-local C = { states = {}, roster = {}, sequence = 0, requestedFor = {}, requestedID = {},
-    revisions = {}, listPendingAt = {}, listWarned = {}, incomingRoster = {} }
+local C = { states = {}, roster = {}, byKey = {}, sequence = 0, requestedFor = {}, requestedID = {},
+    revisions = {}, listPendingAt = {}, listWarned = {}, incomingRoster = {},
+    repairCounts = {}, nextRepairAt = {}, incomingAt = {} }
 D.client = C
 D.log("client", "loaded")
 local function send(player, command, data)
@@ -19,6 +20,22 @@ local function send(player, command, data)
 end
 local function notify(player, key)
     player:Say(getText(key or "IGUI_ApocExtractionMapUtils_DialogUnavailable"))
+end
+local function sameBinding(a, b)
+    return a and b and a.id == b.id and (not a.key or not b.key or a.key == b.key)
+        and (not a.incarnation or not b.incarnation or a.incarnation == b.incarnation)
+end
+-- Bounded recovery for startup, incomplete frames and stale native references.
+-- Successful idle subscriptions never poll or resend the roster.
+function C.resync(player, reason)
+    local index, now = player:getPlayerNum(), getTimestampMs()
+    if player:isDead() or player:getOnlineID() < 0 or now < (C.nextRepairAt[index] or 0)
+        or (C.repairCounts[index] or 0) >= 3 then return false end
+    C.repairCounts[index] = (C.repairCounts[index] or 0) + 1
+    C.nextRepairAt[index], C.listPendingAt[index], C.listWarned[index] = now + 2000, now, nil
+    D.log("client", "roster_resync", { reason = reason, attempt = C.repairCounts[index] })
+    send(player, "List", { protocol = 2 })
+    return true
 end
 function C.close(player)
     local index = player:getPlayerNum()
@@ -31,6 +48,7 @@ function C.close(player)
 end
 local function valid(player, state)
     return C.states[player:getPlayerNum()] == state and not player:isDead()
+        and sameBinding(state, (C.roster[player:getPlayerNum()] or {})[state.id])
         and getPlayerByOnlineID(state.id) ~= nil
 end
 
@@ -95,8 +113,16 @@ function C.walk(player, state)
 end
 function C.begin(player, actor, option)
     if C.states[player:getPlayerNum()] then return end
+    local index = player:getPlayerNum()
+    local current = actor.key and (C.byKey[index] or {})[actor.key] or (C.roster[index] or {})[actor.id]
+    if not current then C.resync(player, "stale_menu"); return end
+    local available
+    for _, candidate in ipairs(current.options or {}) do if candidate.id == option.id then available = candidate; break end end
+    if not available then notify(player); return end
+    actor, option = current, available
     C.sequence = C.sequence + 1
-    local state = { id = actor.id, name = actor.name, request = C.sequence, deadline = getTimestampMs() + 35000 }
+    local state = { id = actor.id, key = actor.key, incarnation = actor.incarnation, name = actor.name,
+        request = C.sequence, deadline = getTimestampMs() + 35000 }
     C.states[player:getPlayerNum()] = state
     send(player, "Begin", { id = actor.id, option = option.id, request = state.request,
         node = actor.dialogue and actor.dialogue.entryNode,
@@ -119,23 +145,33 @@ local function onServerCommand(module, command, args)
         if player and args.recipient == player:getOnlineID() then
             if command == "HumanList" then
                 local revision = args.revision or 0
-                if C.revisions[index] and revision < C.revisions[index] then
+                if C.revisions[index] and revision <= C.revisions[index] then
                     D.log("client", "reply_ignored", { reason = "stale_roster", revision = revision }); return
                 end
                 if C.incomingRoster[index] and C.incomingRoster[index].revision > revision then return end
                 local actors
+                if not C.incomingRoster[index] or C.incomingRoster[index].revision ~= revision then C.incomingAt[index] = getTimestampMs() end
                 C.incomingRoster[index], actors = W.receive(C.incomingRoster[index], args)
                 if not actors then return end
-                local roster = {}
+                local roster, byKey = {}, {}
                 for _, actor in ipairs(actors) do
                     roster[actor.id] = actor
+                    if actor.key then byKey[actor.key] = actor end
                     D.log("client", "roster_actor", { id = actor.id, key = actor.key, name = actor.name,
                         options = #(actor.options or {}) })
                 end
                 C.roster[index] = roster
+                C.byKey[index] = byKey
+                local active = C.states[index]
+                local binding = active and (active.key and byKey[active.key] or roster[active.id])
+                if active and not sameBinding(active, binding) then
+                    D.log("client", "binding_changed", { key = active.key, oldId = active.id, newId = binding and binding.id })
+                    C.close(player)
+                end
                 C.revisions[index] = revision
                 C.listPendingAt[index] = nil
                 C.listWarned[index] = nil
+                C.incomingAt[index], C.repairCounts[index] = nil, 0
                 D.log("client", "roster_updated", { player = player:getOnlineID(), actors = #actors,
                     revision = revision })
                 return
@@ -174,8 +210,9 @@ local function onServerCommand(module, command, args)
                         local menuGraph = {}
                         for key, value in pairs(graph) do menuGraph[key] = value end
                         menuGraph.entryNode = graph.rootNode
-                        C.roster[index][state.id] = { id = actor.id, key = actor.key, name = actor.name,
+                        C.roster[index][state.id] = { id = actor.id, key = actor.key, incarnation = actor.incarnation, name = actor.name,
                             dialogue = menuGraph, options = graph.nodes[graph.rootNode].options }
+                        if actor.key then C.byKey[index][actor.key] = C.roster[index][state.id] end
                     end
                 end
                 if command == "HumanOpened" then
@@ -237,6 +274,7 @@ local function menu(playerIndex, context, worldobjects, test)
             options = actor and #(actor.options or {}) or 0 })
     end
     if not actor or not actor.options or #actor.options == 0 then
+        if not actor and not test and clicked:getOnlineID() >= 1024 then C.resync(player, "unknown_npc_binding") end
         if not test then D.log("client", "menu_skipped", { reason = not actor and "target_not_in_roster" or "no_options" }) end
         return
     end
@@ -260,9 +298,9 @@ function C.requestRoster(player)
     if C.requestedFor[index] == player and C.requestedID[index] == player:getOnlineID() then return false end
     if C.states[index] then C.close(player) end
     C.requestedFor[index], C.requestedID[index] = player, player:getOnlineID()
-    C.roster[index], C.revisions[index], C.incomingRoster[index] = nil, nil, nil
-    C.listPendingAt[index], C.listWarned[index] = getTimestampMs(), nil
-    send(player, "List", { protocol = 2 })
+    C.roster[index], C.byKey[index], C.revisions[index], C.incomingRoster[index] = nil, nil, nil, nil
+    C.incomingAt[index], C.repairCounts[index], C.nextRepairAt[index] = nil, 0, 0
+    C.resync(player, "login")
     return true
 end
 Events.OnTick.Add(function()
@@ -278,11 +316,17 @@ Events.OnTick.Add(function()
             if C.listPendingAt[index] and not C.listWarned[index] and now - C.listPendingAt[index] >= 10000 then
                 C.listWarned[index] = true
                 D.log("client", "list_waiting", { player = player:getOnlineID(), elapsedMs = now - C.listPendingAt[index] })
+                C.resync(player, "reply_timeout")
+            end
+            if C.incomingAt[index] and now - C.incomingAt[index] >= 10000 then
+                C.incomingRoster[index], C.incomingAt[index] = nil, nil
+                C.resync(player, "frame_timeout")
             end
         else
             C.requestedFor[index], C.requestedID[index] = nil, nil
-            C.roster[index], C.revisions[index] = nil, nil
+            C.roster[index], C.byKey[index], C.revisions[index] = nil, nil, nil
             C.incomingRoster[index] = nil
+            C.incomingAt[index], C.repairCounts[index], C.nextRepairAt[index] = nil, nil, nil
             C.listPendingAt[index], C.listWarned[index] = nil, nil
         end
     end

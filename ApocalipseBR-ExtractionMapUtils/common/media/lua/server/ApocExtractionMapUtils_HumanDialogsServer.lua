@@ -10,6 +10,10 @@ local subscribers, rosterCache, rosterRevision, rosterDirty = {}, nil, 0, true
 local database, databaseReady = false, true
 local rosterDefinitions = {}
 local deliveryRevision = 0
+local bridgeRevision, cachedBridgeRevision
+local function currentBridgeRevision()
+    return ApocBRHumanAPI and ApocBRHumanAPI.rosterRevision and ApocBRHumanAPI.rosterRevision() or nil
+end
 D.log("server", "loaded")
 local function serverText(key)
     return ApocBRHumanAPI and ApocBRHumanAPI.text and ApocBRHumanAPI.text(key) or getText(key)
@@ -70,9 +74,20 @@ end
 function D.pushRoster()
     rosterCache, rosterDirty = nil, true
 end
+-- Trusted server integration: queue one personalized snapshot for one character.
+-- Does not grant choices or change any database dialogue definitions.
+function D.refreshRoster(player)
+    if not player or getPlayerByOnlineID(player:getOnlineID()) ~= player then return false end
+    local id = player:getOnlineID()
+    local subscriber = subscribers[id]
+    if not subscriber or subscriber.player ~= player then subscriber = { player = player }; subscribers[id] = subscriber end
+    subscriber.pending, subscriber.nextSendAt = true, 0
+    return true
+end
 local function roster()
     if not ApocBRHumanAPI or not ApocBRHumanAPI.roster then return nil end
     if rosterCache then return rosterCache end
+    local before = currentBridgeRevision()
     if ApocBRHumanAPI.dialogues then
         local catalog = ApocBRHumanAPI.dialogues()
         database, databaseReady = catalog.database == true, catalog.ready == true
@@ -85,14 +100,16 @@ local function roster()
         D.log("server", "discovered_actor", { id = actor.id, key = actor.key, name = actor.name,
             registered = definition ~= nil })
         if database and ApocBRHumanAPI.dialogueRoster then
-            actors[#actors + 1] = { id = actor.id, key = actor.key, name = actor.name }
+            actors[#actors + 1] = { id = actor.id, key = actor.key, name = actor.name, incarnation = actor.incarnation }
         elseif definition then
             rosterDefinitions[actor.id] = definition
-            actors[#actors + 1] = { id = actor.id, key = actor.key, name = actor.name,
+            actors[#actors + 1] = { id = actor.id, key = actor.key, name = actor.name, incarnation = actor.incarnation,
                 options = publicOptions(definition, definition.entryNode, {}),
                 dialogue = G.public(definition, definition.entryNode, {}) }
         end
     end
+    if before ~= currentBridgeRevision() then return nil end
+    cachedBridgeRevision = before
     rosterCache, rosterRevision = actors, rosterRevision + 1
     return actors
 end
@@ -107,11 +124,12 @@ local function sendRoster(subscriber, actors)
         local definition = rosterDefinitions[actor.id]
         if definition and definition.graph then
             local flags = flagsFor(subscriber.player, actor.key, {}, actor.id, definition)
-            personalized[#personalized + 1] = { id = actor.id, key = actor.key, name = actor.name,
+            personalized[#personalized + 1] = { id = actor.id, key = actor.key, name = actor.name, incarnation = actor.incarnation,
                 options = publicOptions(definition, definition.entryNode, flags),
                 dialogue = G.public(definition, definition.entryNode, flags) }
         else personalized[#personalized + 1] = actor end
     end end
+    if cachedBridgeRevision ~= currentBridgeRevision() then D.pushRoster(); return false end
     local ok, frames = pcall(W.pack, personalized, deliveryRevision + 1)
     if not ok then
         D.log("server", "roster_rejected", { reason = "payload_limit" }); return
@@ -119,9 +137,15 @@ local function sendRoster(subscriber, actors)
     deliveryRevision = deliveryRevision + 1
     for _, frame in ipairs(frames) do
         frame.catalogRevision = rosterRevision
-        send(subscriber.player, "List", frame)
+        local sent = pcall(send, subscriber.player, "List", frame)
+        if not sent then
+            D.log("server", "roster_rejected", { reason = "send_failed", revision = deliveryRevision })
+            return false
+        end
     end
     subscriber.revision = rosterRevision
+    subscriber.pending = false
+    return true
 end
 local function reject(player, args, reason)
     D.log("server", "rejected", { player = player:getOnlineID(), id = args.id, reason = reason })
@@ -209,6 +233,7 @@ local function onCommand(module, command, player, args)
         if not subscriber or subscriber.player ~= player then
             subscriber = { player = player }; subscribers[playerId] = subscriber
         end
+        subscriber.pending = true
         local actors = roster()
         if actors then sendRoster(subscriber, actors)
         else
@@ -349,14 +374,29 @@ Events.OnTick.Add(function()
         rosterAPI = ApocBRHumanAPI
         D.pushRoster()
     end
+    local revision = currentBridgeRevision()
+    if revision ~= bridgeRevision then
+        bridgeRevision = revision
+        D.log("server", "bridge_roster_changed", { revision = revision })
+        D.pushRoster()
+    end
     if rosterDirty then
         local actors = roster()
         if actors then
             rosterDirty = false
             for id, subscriber in pairs(subscribers) do
                 if getPlayerByOnlineID(id) ~= subscriber.player then subscribers[id] = nil
-                elseif subscriber.revision ~= rosterRevision then sendRoster(subscriber, actors) end
+                elseif subscriber.revision ~= rosterRevision then subscriber.pending, subscriber.nextSendAt = true, 0 end
             end
+        end
+    end
+    local deliveryNow = getTimestampMs()
+    for id, subscriber in pairs(subscribers) do
+        if getPlayerByOnlineID(id) ~= subscriber.player then subscribers[id] = nil
+        elseif subscriber.pending and deliveryNow >= (subscriber.nextSendAt or 0) then
+            subscriber.nextSendAt = deliveryNow + 1000
+            local actors = roster()
+            if actors then sendRoster(subscriber, actors) end
         end
     end
     if not bound and ApocBRHumanAPI and Events.OnApocBRHumanDialogueClosed then

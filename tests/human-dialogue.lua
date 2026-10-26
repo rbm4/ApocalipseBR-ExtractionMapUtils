@@ -184,11 +184,13 @@ check(sent[#sent].command == "HumanList" and logged("[client] send command=Human
 local initialRequests = #sent
 now = now + 10000
 Events.OnTick.fire()
-check(logged("list_waiting") and #sent == initialRequests, "missing initial reply warns without sending another request")
-local warnedAt = #logs
+check(logged("list_waiting") and #sent == initialRequests + 1, "missing initial reply triggers one bounded recovery request")
 now = now + 10000
 Events.OnTick.fire()
-check(#logs == warnedAt and #sent == initialRequests, "initial roster wait does not poll or repeat warnings")
+check(#sent == initialRequests + 2, "initial discovery permits at most three attempts")
+now = now + 10000; Events.OnTick.fire(); local warnedAt = #logs
+now = now + 10000; Events.OnTick.fire()
+check(#logs == warnedAt and #sent == initialRequests + 2, "failed discovery stops retrying and warning after its budget")
 Events.OnPreFillWorldObjectContextMenu.fire(0, context, {}, false)
 check(logged("reason=no_clicked_player"), "empty character picking is diagnosed")
 Events.OnPreFillWorldObjectContextMenu.fire(0, context, { npc }, false)
@@ -307,6 +309,38 @@ check(state.panel.nodeText.title=="Servidor" and state.panel.options[1].title=="
 reply("Selected",{id=1024,token=21,sequence=1,response="Resposta PTBR",contentFrame=W.pack({{id=1024,dialogue=resolved}},1)[1]})
 check(state.panel.message=="Resposta PTBR","resolved response bypasses client translation")
 C.close(player)
+beforeRespawn=#sent
+-- Actual client cache/session handling across death and a fresh native actor.
+ptActor.incarnation="old-life"
+reply("List",{actors={ptActor},revision=6})
+C.begin(player,ptActor,ptActor.options[1]);state=C.states[0]
+reply("Reserved",{id=1024,request=state.request,token=31,x=100,y=200,z=0})
+reply("Opened",{id=1024,token=31,options=ptActor.options})
+local oldPanel=state.panel
+reply("List",{actors={},revision=7})
+check(C.states[0]==nil and not oldPanel.visible and C.byKey[0].guide==nil,"death roster removes binding and closes the old conversation")
+check(not queue[#queue]:isValid(),"old-incarnation queued action becomes invalid after death")
+local newActor={id=2048,key="guide",incarnation="new-life",name="NPC",dialogue=resolved,options=resolved.nodes.root.options}
+local newNPC={getOnlineID=function() return 2048 end,getX=function() return 100 end,getY=function() return 200 end,getZ=function() return 0 end,class="IsoPlayer"}
+function getPlayerByOnlineID(id) if id==2048 then return newNPC elseif id==3 then return player end end
+reply("List",{actors={newActor},revision=8})
+check(C.roster[0][1024]==nil and C.byKey[0].guide.id==2048,"respawn replaces the native ID under its stable logical key")
+C.begin(player,ptActor,ptActor.options[1]);state=C.states[0]
+check(sent[#sent].command=="HumanBegin" and sent[#sent].data.id==2048,"old context-menu callback resolves the current binding before reserving")
+reply("Reserved",{id=2048,request=state.request,token=32,x=100,y=200,z=0})
+reply("Opened",{id=1024,token=31,options=ptActor.options})
+check(state.panel==nil,"late old-life conversation reply cannot reopen a panel")
+reply("Opened",{id=2048,token=32,options=newActor.options})
+check(state.panel.visible,"new incarnation can open dialogue without reconnecting")
+reply("List",{actors={ptActor},revision=7});reply("List",{actors={ptActor},revision=8})
+check(C.byKey[0].guide.id==2048,"older and duplicate roster deliveries cannot restore the old binding")
+newActor={id=2048,key="guide",incarnation="third-life",name="NPC",options=newActor.options}
+reply("List",{actors={newActor},revision=9})
+check(C.states[0]==nil,"incarnation change invalidates a session even if the native ID matches")
+reply("List",{protocol=2,revision=10,part=1,parts=2,records={{kind="actor",actor={id=3000,key="guide"}}}})
+local beforeRepair=#sent;now=now+10001;Events.OnTick.fire()
+check(C.incomingRoster[0]==nil and #sent==beforeRepair+1 and sent[#sent].command=="HumanList","incomplete multipart roster expires and requests bounded repair")
+check(C.byKey[0].guide.id==2048,"partial roster never replaces the complete live view")
 beforeRespawn=#sent
 player = setmetatable({}, { __index = player })
 Events.OnCreatePlayer.fire(0,player)

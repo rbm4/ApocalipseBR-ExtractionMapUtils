@@ -1,5 +1,10 @@
 # Cached PostgreSQL dialogue graphs and Lua login
 
+The [2026-10-26 respawn roster fix](../hotfixes/npc-dialogue-respawn-roster.md)
+adds incarnation-aware bindings, lifecycle generation detection and bounded
+delivery recovery. It requires matching server Java and server/client Lua updates,
+with no new migration or locked-dialogue behavior.
+
 Status: implemented for server 42.21.0; isolated database, engine-fixture and Lua
 checks pass. Dedicated-server/client visual and movement checks remain required.
 
@@ -38,7 +43,8 @@ No login, menu, selection or speech request queries PostgreSQL.
 The startup command remains `ApocExtractionMapUtils/HumanList`. Its response
 contains bot identities **and actual localized dialogue data**, not translation
 tags. The server retains an early subscriber until the Java/cache boundary is
-ready; the client does not poll NPC discovery. Lobby relocation uses the mod's
+ready; successful idle clients do not poll NPC discovery. Missing initial replies
+and incomplete/stale bindings have bounded recovery. Lobby relocation uses the mod's
 separate `LoginLobbyState` request and existing bounded geometry retries.
 
 ExtractionMapUtils' server Lua decides closed-lobby/invalid-position/server-change
