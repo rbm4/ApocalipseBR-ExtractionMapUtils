@@ -22,7 +22,7 @@ to the server thread. Lua and the guide read cached data without SQL.
 ## Enablement and behavior
 
 Set the mod sandbox option `ApocExtractionMapUtils.LobbyEnabled=true` (default
-`false`). Disabled lobby control neither subscribes to the event nor authorizes
+`true`). Disabled lobby control neither subscribes to the event nor authorizes
 Lua release calls. The JVM settings below independently control the patched
 engine's polling and guide announcements; the Lua sandbox switch does not change
 those Java features.
@@ -144,3 +144,24 @@ loop, while new edits/cancellations and receipt writes wait for the next poll.
 The manager sync default remains 10 seconds. The full API and rollout details
 are in the patch's `42.21.0/LOBBY-EVENT-CONTROL.md`. No Extraction Lua changed
 for this additive bridge enhancement.
+
+
+## Fence reconstruction between operations (2026-10-26)
+
+The updated 42.21.0 bridge exposes `getLobbyFenceState()`: `OPEN` for an
+active operation according to the same active-name/end estimate as the guide,
+`CLOSED` when a fresh manager agenda confirms none, and `UNKNOWN` while
+starting, disabled, stale, or awaiting publication after a new activation.
+A queued operation alone does not keep the perimeter released.
+The Lua mod reconciles saved release flags at startup and every configured
+`ExitCheckMilliseconds` (default two seconds), rebuilding all 286 edges through
+the existing bounded queue. Old release receipt replays cannot reopen a confirmed
+closed lobby. Active or unknown state preserves the current release behavior.
+Manual exit release is also reset at the next confirmed closed check when this
+automation is available; older/unpatched engines retain manual behavior.
+
+This uses existing manager data and requires both the updated server patch and
+mod, with no migration. The active end is an estimate, so reaching it recloses
+the lobby; this does not terminate objective runtime or implement an operation
+completion lifecycle. See the [hotfix](../hotfixes/lobby-fence-between-operations.md)
+for test results and live validation limits.

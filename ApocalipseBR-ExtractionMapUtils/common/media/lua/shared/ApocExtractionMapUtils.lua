@@ -46,7 +46,7 @@ end
 
 function Utils.getLobbyPosition()
     local options = Utils.getOptions()
-    if not Utils.lobbyEnabled() or options.RelocateOnLogin ~= true then return nil end
+    if not Utils.lobbyEnabled() or (options.RelocateOnLogin ~= true and options.RelocateOnRespawn ~= true) then return nil end
 
     local x = tonumber(options.LobbyX) or -1
     local y = tonumber(options.LobbyY) or -1

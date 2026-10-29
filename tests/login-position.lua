@@ -112,6 +112,28 @@ changed, accepted = true, false
 handler("ApocExtractionMapUtils", "LoginLobbyState", player, {})
 assert(response.retry and not response.reset and not response.closed,
     "native teleport not ready must retry without instructing client placement")
+-- Death respawns use an independent option before history/geometry/closed-lobby decisions.
+ApocBRPlayerLogin.isRespawn = function() return true end
+accepted = true
+local beforeRespawn = teleports
+local originalIsClosed = Utils.Lobby.isClosed
+Utils.Lobby.isClosed = function() return true end
+SandboxVars.ApocExtractionMapUtils.RelocateOnRespawn = false
+handler("ApocExtractionMapUtils", "LoginLobbyState", player, { respawn = false, changedServer = true })
+assert(not response.reset and not response.closed and response.respawn and teleports == beforeRespawn,
+    "disabled respawn must preserve the native spawn even when origin says changed server")
+SandboxVars.ApocExtractionMapUtils.RelocateOnLogin = false
+SandboxVars.ApocExtractionMapUtils.RelocateOnRespawn = true
+historyReady = false
+handler("ApocExtractionMapUtils", "LoginLobbyState", player, {})
+assert(response.reset and response.respawn and response.serverTeleported and teleports == beforeRespawn + 1,
+    "enabled respawn works independently of login relocation and pending audit")
+ApocBRPlayerLogin.isRespawn = function() return false end
+handler("ApocExtractionMapUtils", "LoginLobbyState", player, { respawn = true })
+assert(not response.reset and not response.closed and not response.respawn and teleports == beforeRespawn + 1,
+    "client cannot forge respawn classification to bypass the disabled login option")
+SandboxVars.ApocExtractionMapUtils.RelocateOnRespawn = false
+Utils.Lobby.isClosed = originalIsClosed
 ApocBRPlayerLogin = nil
 -- The single-player hook uses the same geometry rules after release.
 SandboxVars.ApocExtractionMapUtils.RelocateOnLogin = true

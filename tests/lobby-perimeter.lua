@@ -8,11 +8,11 @@ local function fixture(options)
     ApocExtractionMapUtils = nil
     ApocBREventControl = nil
     if options.noSandbox then SandboxVars = nil
-    else SandboxVars = { ApocExtractionMapUtils = options.sandbox or { LobbyEnabled = true } } end
+    else SandboxVars = { ApocExtractionMapUtils = options.sandbox or { LobbyEnabled = true, RelocateOnLogin = true, LobbyDoorCount = 0 } } end
     for _, name in ipairs({ "ApocExtractionMapUtils", "ApocExtractionMapUtils_LobbyConfig", "ApocExtractionMapUtils_LobbySettings", "ApocBRRCON" }) do
         package.loaded[name] = nil
     end
-    local f = { clock = 0, lookups = 0, adds = 0, removes = 0, squares = {}, store = options.store or {}, files = {}, handlers = {} }
+    local f = { clock = 0, lookups = 0, adds = 0, removes = 0, squares = options.squares or {}, store = options.store or {}, files = {}, handlers = {} }
     function isClient() return options.client == true end
     function getTimestampMs() return f.clock end
     function getServerName() return "test-server" end
@@ -28,7 +28,8 @@ local function fixture(options)
         fencing_01_90 = { collideW = true, CantClimb = true },
         fencing_01_80 = { collideN = true, TallHoppableN = true },
         fencing_01_82 = { collideW = true, TallHoppableW = true },
-        fixtures_doors_01_68 = {},
+        fixtures_doors_01_68 = {}, fixtures_doors_01_69 = {},
+        fixtures_doors_01_70 = {}, fixtures_doors_01_71 = {},
     }
     function getSprite(name)
         if options.missingSprite or not spriteFlags[name] then return nil end
@@ -83,7 +84,6 @@ local function fixture(options)
         return s
     end
     IsoThumpable = { new = function(_, square, closed, a, b, c)
-        assert(c == nil, "lobby must never create door/open-sprite objects")
         local o = { square = square, closed = closed, openSprite = c and a or nil,
             data = {}, open = false, door = false }
         if c then o.north = b else o.north = a end
@@ -91,7 +91,7 @@ local function fixture(options)
             o["set" .. field] = function(self, value) self[field] = value end
         end
         function o:getModData() return self.data end
-        function o:getSprite() return { getName = function() return self.closed end } end
+        function o:getSprite() return { getName = function() return self.open and self.openSprite or self.closed end } end
         function o:ToggleDoorSilent()
             assert(not self.inserted, "open state must be set before native add/network serialization")
             assert(self.openSprite)
@@ -135,7 +135,7 @@ local function fixture(options)
     function f.token() for _, value in pairs(f.files) do return value end end
     function f.loginState(args)
         local reply
-        local player = { isDead = function() return false end }
+        local player = { isDead = function() return false end, getOnlineID = function() return 1 end }
         function sendServerCommand(target, module, command, data)
             assert(target == player and module == "ApocExtractionMapUtils" and command == "LoginLobbyState")
             reply = data
@@ -391,6 +391,85 @@ assert(empty.lobby.releaseForEvent("no-clients-event", 1))
 unloadedEvent.unloaded = false
 empty.clock = 60000; empty.pump(100)
 assert(empty.adds == 0, "entire perimeter must remain absent when chunks load after activation")
+-- An old release receipt must not suppress fences between operations, even
+-- when the desired schedule already contains the next queued operation.
+for _, phase in ipairs({ "CLOSED", "OPEN", "UNKNOWN" }) do
+    local store = { signature = releasedState.signature, exitKeys = releasedState.exitKeys,
+        released = true, removedAll = true, eventId = "old-operation", eventRevision = 1 }
+    local cycle = fixture({ store = store })
+    local currentPhase, acks = phase, 0
+    ApocBREventControl = {
+        getLobbyFenceState = function() return currentPhase end,
+        getEventId = function() return "queued-operation" end,
+        getRevision = function() return 2 end,
+        isReleaseAuthorized = function(id) return id == "old-operation" end,
+        acknowledgeRelease = function() acks = acks + 1; return true end,
+    }
+    Events.OnApocBRLobbyEventDue = { Add = function() end }
+    cycle.start(); cycle.pump(100)
+    assert(#cycle.objects() == (phase == "CLOSED" and 286 or 0), "startup must reconcile saved release with active operation state")
+    assert(not cycle.randomCalls, "reclosing must retain saved exit positions")
+    if phase ~= "CLOSED" then
+        assert(not cycle.loginState(), "active/unknown operation preserves released state")
+        currentPhase = "CLOSED"
+        cycle.clock = 2000; cycle.pump(100)
+    end
+    assert(#cycle.objects() == 286 and cycle.loginState(), "idle or queued agenda must rebuild the entire closed perimeter")
+    assert(not store.removedAll and not store.released and store.eventId == nil and store.eventRevision == nil)
+    local newToken = assert(cycle.token())
+    assert(not cycle.lobby.releaseForEvent("old-operation", 1) and acks == 0,
+        "durable receipt replay must not reopen a closed lobby")
+    cycle.clock = 60000; cycle.pump(100)
+    assert(cycle.adds == 286 and cycle.token() == newToken, "steady closure must not rebuild assets or rotate tokens")
+    currentPhase = "OPEN"
+    assert(cycle.lobby.releaseForEvent("old-operation", 1))
+    cycle.pump(100)
+    assert(#cycle.objects() == 0 and not cycle.loginState(), "active operation can release again")
+end
+local rebuildOptions = { unloaded = true, store = { signature = releasedState.signature,
+    exitKeys = releasedState.exitKeys, released = true, removedAll = true } }
+local rebuild = fixture(rebuildOptions)
+ApocBREventControl = { getLobbyFenceState = function() return "CLOSED" end }
+rebuild.start(); rebuild.pump(100)
+assert(rebuild.adds == 0 and rebuild.loginState())
+rebuildOptions.unloaded = false
+rebuild.load(rebuild.square(14260, 11812, 0)); rebuild.pump(2)
+assert(rebuild.adds == 2, "reclosed perimeter must build as unloaded chunks arrive")
+-- Permanent lobbies have 0..3 usable doors without any event bridge.
+for count = 0, 3 do
+    local doors = fixture({ sandbox = { LobbyEnabled = true, LobbyDoorCount = count,
+        LobbyX1 = 100, LobbyY1 = 200, LobbyX2 = 110, LobbyY2 = 210, LobbyFenceZ = 2 } })
+    doors.start(); doors.pump(100)
+    local found = 0
+    for _, obj in ipairs(doors.objects()) do
+        assert(obj.square.z == 2 and obj.square.x >= 100 and obj.square.x <= 111)
+        if obj:isDoor() then
+            found = found + 1
+            -- Simulate a player's native door toggle after insertion.
+            obj.open = true
+        end
+    end
+    assert(found == count and #doors.objects() == 44, "sandbox door count and area must drive the perimeter")
+    doors.clock = 60000; doors.pump(100)
+    local open = 0
+    for _, obj in ipairs(doors.objects()) do if obj:isDoor() and obj:IsOpen() then open = open + 1 end end
+    assert(doors.adds == 44 and doors.removes == 0 and open == count,
+        "maintenance must preserve open usable doors without an operation")
+    local restartedDoors = fixture({ store = doors.store, squares = doors.squares, sandbox = { LobbyEnabled = true,
+        LobbyDoorCount = 3 - count, LobbyX1 = 100, LobbyY1 = 200, LobbyX2 = 110, LobbyY2 = 210, LobbyFenceZ = 2 } })
+    restartedDoors.start(); restartedDoors.pump(100)
+    found = 0
+    for _, obj in ipairs(restartedDoors.objects()) do if obj:isDoor() then found = found + 1 end end
+    assert(found == 3 - count and not restartedDoors.randomCalls, "door count changes must retain the saved exit plan")
+    assert(restartedDoors.command(restartedDoors.token())); restartedDoors.pump(100)
+    assert(#restartedDoors.objects() == 38, "manual release still removes the six exits including usable doors")
+end
+local noFence = fixture({ sandbox = { LobbyEnabled = true, LobbyFenceEnabled = false } })
+noFence.start(); noFence.pump(100)
+assert(noFence.adds == 0 and noFence.lookups == 0 and not noFence.loginState(), "disabled fence must not place objects or report confinement")
+local badDoors = fixture({ sandbox = { LobbyEnabled = true, LobbyDoorCount = 4 } })
+badDoors.start(); badDoors.pump(100)
+assert(badDoors.adds == 0 and badDoors.store.signature == nil, "invalid door counts must not mutate saved layout")
 if arg and arg[1] then
     -- Optional local integration against the actual required extension, without
     -- copying its dispatcher into this repository or mocking its grace/dedup API.

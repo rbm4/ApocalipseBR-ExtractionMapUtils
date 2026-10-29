@@ -12,7 +12,7 @@ if P.constructionLoaded then return end
 P.constructionLoaded = true
 
 function P.isProtectedBuild(item, x, y, z)
-    if not ApocExtractionMapUtils.lobbyEnabled() then return false end
+    if not ApocExtractionMapUtils.lobbyRuleEnabled("LobbyBlockConstruction") then return false end
     if P.isProtectedPosition(x, y, z) then return true end
     -- B42 entities (stairs, double doors, etc.) include offsets and Z layers.
     -- Inspect script tiles directly: getOccupiedTiles omits unloaded squares.
@@ -60,7 +60,8 @@ end
 
 local oldStageValid, oldStageComplete = ISMultiStageBuild.isValid, ISMultiStageBuild.complete
 local function protectedStage(action)
-    return action.item and P.isProtectedSquare(action.item:getSquare())
+    return ApocExtractionMapUtils.lobbyRuleEnabled("LobbyBlockUpgrades")
+        and action.item and P.isProtectedSquare(action.item:getSquare())
 end
 ISMultiStageBuild.isValid = function(self, ...)
     if protectedStage(self) then return false end

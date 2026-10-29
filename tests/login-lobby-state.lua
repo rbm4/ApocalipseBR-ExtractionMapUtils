@@ -7,7 +7,7 @@ local handlers, sent = {}, 0
 local now = 0
 function getTimestampMs() return now end
 Events = {}
-for _, name in ipairs({ "OnGameStart", "OnTick", "OnServerCommand", "OnCreatePlayer" }) do
+for _, name in ipairs({ "OnGameStart", "OnTick", "OnServerCommand", "OnCreatePlayer", "OnPlayerDeath" }) do
     Events[name] = { Add = function(f) handlers[name] = f end }
 end
 function isClient() return true end
@@ -104,4 +104,20 @@ online = 1
 handlers.OnTick()
 assert(sent == before + 1, "OnCreatePlayer must also defer settings until online readiness")
 reply({ reset = true, serverTeleported = true, playerNum = 0 })
+-- A death marker must survive OnCreatePlayer followed by OnGameStart in SP.
+function isClient() return false end
+function getNumActivePlayers() return 1 end
+function getSpecificPlayer() return first end
+ModData = { get = function() return { released = false } end }
+local movesBefore = first.moves
+handlers.OnPlayerDeath(first)
+handlers.OnCreatePlayer(0, first)
+handlers.OnGameStart(); handlers.OnTick()
+assert(first.moves == movesBefore, "disabled respawn preserves chosen spawn even in a closed lobby")
+SandboxVars.ApocExtractionMapUtils.RelocateOnLogin = false
+SandboxVars.ApocExtractionMapUtils.RelocateOnRespawn = true
+handlers.OnCreatePlayer(0, first)
+handlers.OnGameStart(); handlers.OnTick()
+assert(first.moves == movesBefore + 1, "respawn teleport is independent of login teleport")
+SandboxVars.ApocExtractionMapUtils.RelocateOnRespawn = false
 print("PASS: deferred, one-shot login decisions; invalid-position rescue, safe reconnects and bounded streaming retries")

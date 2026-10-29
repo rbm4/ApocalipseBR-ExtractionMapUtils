@@ -15,6 +15,10 @@ login relocation hook.
 The current core does not require either component to execute its generic lobby
 and reveal hooks.
 
+Death respawns now use an independent default-off switch:
+[respawn relocation](lobby-respawn-relocation.md). With it disabled, this mod
+preserves the safehouse/map/mod spawn even when the lobby is closed.
+
 ## Current behavior
 
 - With both lobby and relocation enabled, living players move to the configured

@@ -4,6 +4,10 @@ Status: updated in 0.2.2; awaiting Build 42 dedicated-server/client validation.
 Version 0.3.0 adds [PostgreSQL event activation](postgresql-event-control.md):
 the scheduled event removes the entire perimeter; the manual RCON behavior
 documented here still removes the six exits.
+Sandbox bounds, default-on switches and 0..3 usable doors are documented in
+[lobby sandbox configuration](lobby-sandbox-configuration.md). The descriptions
+below of a continuous fence apply with `LobbyDoorCount=0`; the default is now 3.
+
 Related foundation: [Login placement and map visibility](lobby-and-map-visibility.md).
 Source investigation: [World-control APIs](../reports/2026-10-19-lobby-world-control-api-investigation.md).
 
@@ -54,15 +58,19 @@ to directional collision. Both short/tall hoppable flags are absent. Startup
 validates directional collision plus `CantClimb` and rejects either hoppable
 flag family. `setIsHoppable(false)` alone does not stop normal wall climbing.
 
-There are no door sprites or door-state transitions. The release command
+With `LobbyDoorCount=0` there are no door sprites or door-state transitions.
+With 1..3, the corresponding exit segments are usable doors and maintenance
+preserves their open state. The release command
 despawns only the six designated fence segments through native server removal.
 The result is 280 fence objects and six single-tile pedestrian gaps. Rescans,
 repairs and chunk reloads deliberately leave those gaps empty. Other fence
 segments retain their protection and repair behavior.
 
-The release latch is saved with the layout. A normal restart of an already
-released save leaves exit gaps empty; this version has no close/reset command or
-daily schedule. The module does not implement zombie clearance, an event
+The release latch is saved with the layout. With an unpatched/older engine, a
+normal restart of an already released save leaves exit gaps empty. With the
+updated 42.21.0 event bridge, the lobby automatically recloses when the cached
+manager agenda confirms there is no active operation, including while another
+operation is queued. See [automatic reconstruction](../hotfixes/lobby-fence-between-operations.md). The module does not implement zombie clearance, an event
 lifecycle, server-authoritative player relocation or forced chunk streaming.
 Existing map objects are preserved; the builder does not clear buildings,
 trees, parked vehicles or other obstructions. Verify the perimeter and all six
@@ -119,7 +127,7 @@ has no effect.
 ## Configuration and work budget
 
 The master sandbox setting `ApocExtractionMapUtils.LobbyEnabled` defaults to
-`false`. When absent or disabled, startup does not validate sprites, build a plan,
+`true` in sandbox defaults. When absent during Lua startup or explicitly disabled, startup does not validate sprites, build a plan,
 read/write lobby ModData, generate tokens, load/subscribe the RCON relay, or
 subscribe to scheduled events. Tick/load callbacks return immediately and direct
 release calls refuse the request. Disassembly wrappers delegate to native behavior.
@@ -131,8 +139,9 @@ Disabling stops control; it does not delete saved fences, reset their native
 flags, consume existing token files, or reset the saved release state. Remove
 existing assets deliberately before retiring a previously active lobby.
 
-Edit `common/media/lua/shared/ApocExtractionMapUtils_LobbySettings.lua` in the core
-mod and restart clients/server with identical configuration. The existing server
+Configure bounds, floor and door count in the sandbox settings. Advanced sprite
+and performance settings remain in `common/media/lua/shared/ApocExtractionMapUtils_LobbySettings.lua`.
+Restart clients/server after changes. The existing server
 `ApocExtractionMapUtils_LobbyConfig.lua` now forwards to the shared settings so
 older module requires continue to work. Server enforcement uses the server's
 own configuration. These bounds remain independent of sandbox login coordinates.

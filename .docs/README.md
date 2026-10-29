@@ -9,6 +9,8 @@ integration. Repository conventions live in [AGENTS.md](../AGENTS.md).
 
 Durable gameplay specifications and current behavior belong in `features/`.
 
+- [Independent respawn relocation](features/lobby-respawn-relocation.md):
+  separate default-off death-respawn policy from login/server-transfer placement.
 - [Successful-login history](features/successful-login-history.md): independent
   connection auditing and cached previous-server decisions for lobby relocation.
 
@@ -19,8 +21,10 @@ Durable gameplay specifications and current behavior belong in `features/`.
   startup content caching, ExtractionMapUtils-owned login requests, server-resolved PTBR dialogue,
   secret choices, account facts and bounded multipart transport.
 
+- [Lobby sandbox configuration](features/lobby-sandbox-configuration.md): configurable
+  perimeter bounds, 0..3 usable doors and individual building restrictions.
 - [Sandbox feature switches](features/sandbox-feature-switches.md): map reveal
-  is on by default; lobby, relocation and zombie money drops require opt-in.
+  and lobby protection are on by default; relocation and money drops require opt-in.
 - [Lobby placement and map visibility](features/lobby-and-map-visibility.md):
   existing foundation, configuration, and validation limits.
 - [Lobby perimeter and RCON release](features/lobby-perimeter.md): bounded server
@@ -44,6 +48,10 @@ documents when designed. Mark proposals as planned until implemented.
 ## Hotfixes
 
 Targeted corrections and compatibility workarounds belong in `hotfixes/`.
+
+- [Lobby fence between operations](hotfixes/lobby-fence-between-operations.md):
+  rebuild the saved released perimeter when no operation is active, including
+  while the next operation is queued.
 
 - [NPC dialogue after respawn](hotfixes/npc-dialogue-respawn-roster.md): refresh
   stable-key/native-ID bindings, close old sessions and recover incomplete rosters.

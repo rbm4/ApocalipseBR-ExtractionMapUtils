@@ -69,3 +69,21 @@ for suffix in ("HelloReply", "HelpReply", "ThanksReply"):
 metadata = load(translations / "PTBR/language.json")
 assert metadata == {"version": "1", "language_name": "Português (Brasil)"}
 print(f"Passed {count} labels per locale, source references, placeholders, accents, JSON and BOM-free UTF-8 checks.")
+
+# Requested lobby defaults and the numeric door control must match the UI contract.
+def option_block(name):
+    match = re.search(r"option ApocExtractionMapUtils\." + name + r"\s*\{([^}]+)\}", options)
+    assert match, name
+    return match.group(1)
+for name in ("LobbyEnabled", "LobbyFenceEnabled", "LobbyBlockConstruction", "LobbyBlockUpgrades",
+             "LobbyBlockDisassembly", "LobbyBlockPickup", "LobbyBlockDestruction", "LobbyBlockDigging"):
+    assert re.search(r"default\s*=\s*true\s*,", option_block(name)), name
+block = option_block("LobbyDoorCount")
+for setting, value in (("min", 0), ("max", 3), ("default", 3)):
+    assert re.search(setting + r"\s*=\s*" + str(value) + r"\s*,", block)
+for name in ("LobbyX1", "LobbyY1", "LobbyX2", "LobbyY2", "LobbyFenceZ"):
+    assert "type = integer" in option_block(name)
+print("Passed lobby sandbox defaults, coordinate controls and door count range checks.")
+
+assert re.search(r"default\s*=\s*false\s*,", option_block("RelocateOnRespawn"))
+print("Passed independent default-off lobby respawn option check.")

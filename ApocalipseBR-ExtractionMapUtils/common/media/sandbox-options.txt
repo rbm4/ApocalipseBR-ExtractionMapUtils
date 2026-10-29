@@ -27,7 +27,7 @@ option ApocExtractionMapUtils.RelocateOnLogin
 option ApocExtractionMapUtils.LobbyEnabled
 {
     type = boolean,
-    default = false,
+    default = true,
     page = ApocExtractionMapUtils,
     translation = ApocExtractionMapUtils_LobbyEnabled,
 }
@@ -68,4 +68,128 @@ option ApocExtractionMapUtils.LobbyZ
     default = 0,
     page = ApocExtractionMapUtils,
     translation = ApocExtractionMapUtils_LobbyZ,
+}
+
+option ApocExtractionMapUtils.LobbyX1
+{
+    type = integer,
+    min = 0,
+    max = 1000000,
+    default = 14260,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyX1,
+}
+
+option ApocExtractionMapUtils.LobbyY1
+{
+    type = integer,
+    min = 0,
+    max = 1000000,
+    default = 11892,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyY1,
+}
+
+option ApocExtractionMapUtils.LobbyX2
+{
+    type = integer,
+    min = 0,
+    max = 1000000,
+    default = 14321,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyX2,
+}
+
+option ApocExtractionMapUtils.LobbyY2
+{
+    type = integer,
+    min = 0,
+    max = 1000000,
+    default = 11812,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyY2,
+}
+
+option ApocExtractionMapUtils.LobbyFenceZ
+{
+    type = integer,
+    min = -32,
+    max = 31,
+    default = 0,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyFenceZ,
+}
+
+option ApocExtractionMapUtils.LobbyDoorCount
+{
+    type = integer,
+    min = 0,
+    max = 3,
+    default = 3,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyDoorCount,
+}
+
+option ApocExtractionMapUtils.LobbyFenceEnabled
+{
+    type = boolean,
+    default = true,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyFenceEnabled,
+}
+
+option ApocExtractionMapUtils.LobbyBlockConstruction
+{
+    type = boolean,
+    default = true,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyBlockConstruction,
+}
+
+option ApocExtractionMapUtils.LobbyBlockUpgrades
+{
+    type = boolean,
+    default = true,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyBlockUpgrades,
+}
+
+option ApocExtractionMapUtils.LobbyBlockDisassembly
+{
+    type = boolean,
+    default = true,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyBlockDisassembly,
+}
+
+option ApocExtractionMapUtils.LobbyBlockPickup
+{
+    type = boolean,
+    default = true,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyBlockPickup,
+}
+
+option ApocExtractionMapUtils.LobbyBlockDestruction
+{
+    type = boolean,
+    default = true,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyBlockDestruction,
+}
+
+option ApocExtractionMapUtils.LobbyBlockDigging
+{
+    type = boolean,
+    default = true,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyBlockDigging,
+}
+
+option ApocExtractionMapUtils.RelocateOnRespawn
+{
+    type = boolean,
+    default = false,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_RelocateOnRespawn,
 }

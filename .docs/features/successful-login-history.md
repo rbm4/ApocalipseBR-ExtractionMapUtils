@@ -72,3 +72,10 @@ Validation on 2026-10-21: both backend migration tests passed on disposable Post
 14.24 with distinct migration/engine roles and zero skips. Engine persistence
 resilience/recovery and all 531 reconstruction checks passed; `tests/login-and-maps.lua`
 also passed. No live migration or deployment was performed.
+
+
+Same-session replacement characters now use the independent default-off
+[respawn relocation policy](lobby-respawn-relocation.md). Their placement skips
+login-origin/geometry overrides when disabled; successful-login auditing remains
+independent and unchanged. Requires the additive `ApocBRPlayerLogin.isRespawn`
+bridge from the updated 42.21.0 patch.

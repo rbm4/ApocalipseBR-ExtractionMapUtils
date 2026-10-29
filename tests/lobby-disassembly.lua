@@ -151,6 +151,42 @@ for _, realm in ipairs({ "client", "server" }) do
     for _, mode in ipairs({ "repair", "place", "rotate" }) do
         assert(ISMoveablesAction.complete({ square = inside, mode = mode, moveProps = props(inside) }))
     end
+    -- Each switch delegates its native paths independently, including queued completion.
+    local options = SandboxVars.ApocExtractionMapUtils
+    options.LobbyBlockDisassembly = false
+    assert(ISMoveablesAction.complete(forged) and ISDismantleAction.complete(old))
+    assert(ISMoveableSpriteProps.canScrapObject(props(inside), {}).canScrap)
+    assert(ISMoveableSpriteProps.canScrapObjectInternal(props(inside), {}, object(inside)))
+    assert(ISMoveableSpriteProps.scrapObjectInternal(props(inside), {}, {}, inside, object(inside)) == 7)
+    for _, class in ipairs({ ISMoveableSpriteProps, ISThumpableSpriteProps }) do
+        assert(class.canScrapObject(props(inside), {}).canScrap)
+        assert(class.scrapObjectViaCursor(props(inside), {}, inside) == 7)
+        assert(class.startScrapAction(props(inside), old))
+    end
+    assert(ISMoveablesAction.complete(pickup) == false and ISDestroyStuffAction.complete(destroy) == false)
+    options.LobbyBlockDisassembly = true
+    assert(ISMoveablesAction.complete(forged) == false and ISDismantleAction.complete(old) == false)
+    options.LobbyBlockPickup = false
+    assert(ISMoveablesAction.complete(pickup))
+    assert(ISMoveableSpriteProps.canPickUpMoveable(props(inside), {}, inside, object(inside)))
+    assert(ISMoveableSpriteProps.pickUpMoveableViaCursor(props(inside), {}, inside))
+    assert(ISMoveableSpriteProps.pickUpMoveableInternal(props(inside), {}, inside, object(inside), nil, "chair", true, false))
+    assert(ISMoveablesAction.complete(forged) == false)
+    options.LobbyBlockPickup = true
+    options.LobbyBlockDestruction = false
+    assert(ISDestroyStuffAction.complete(destroy) and ISDestroyStuffAction.isValid(destroy))
+    assert(ISShovelGround.complete(shovel) == false)
+    options.LobbyBlockDestruction = true
+    options.LobbyBlockDigging = false
+    assert(ISShovelGround.complete(shovel) and ISShovelGround.isValid(shovel))
+    assert(ISShovelGround.shovelGround(shovel, inside))
+    assert(ISDestroyStuffAction.complete(destroy) == false)
+    options.LobbyBlockDigging = true
+    options.LobbyX1, options.LobbyX2, options.LobbyY1, options.LobbyY2, options.LobbyFenceZ = 210, 200, 310, 300, 2
+    assert(not protection.isProtectedSquare(inside))
+    assert(protection.isProtectedSquare(square(205,305,2)))
+    assert(not protection.isProtectedSquare(square(205,305,0)))
+    options.LobbyX1, options.LobbyX2, options.LobbyY1, options.LobbyY2, options.LobbyFenceZ = nil, nil, nil, nil, nil
     -- Configuration is read dynamically on both sides, including custom bounds.
     SandboxVars.ApocExtractionMapUtils.LobbyEnabled = false
     assert(ISMoveablesAction.complete(forged))

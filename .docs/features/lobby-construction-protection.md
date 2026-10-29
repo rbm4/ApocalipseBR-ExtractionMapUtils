@@ -5,8 +5,9 @@ Status: implemented locally; awaiting Build 42 dedicated-server/client validatio
 With `ApocExtractionMapUtils.LobbyEnabled=true`, player construction is blocked
 on the same configured footprint and Z as [lobby removal protection](../hotfixes/lobby-disassembly-protection.md).
 The rule has no faction/admin exemption and remains active after exits or the
-perimeter are released. It uses shared `LobbySettings.lua`; no new option or
-dependency is required. Outside the footprint, or with the lobby disabled, the
+perimeter are released. Bounds come from shared sandbox configuration.
+`LobbyBlockConstruction` and `LobbyBlockUpgrades` independently control these
+rules, both enabled by default; see [sandbox configuration](lobby-sandbox-configuration.md). Outside the footprint, or with the lobby disabled, the
 native behavior and return values are preserved.
 
 ## Behavior and ownership

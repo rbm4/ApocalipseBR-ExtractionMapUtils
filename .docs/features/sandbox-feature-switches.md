@@ -2,7 +2,9 @@
 
 Status: implemented; Lua regression tests pass. Awaiting in-game validation.
 
-Only map revealing is enabled by default. Settings belong to the existing
+Map revealing, lobby control, fence placement and lobby building restrictions
+are enabled by default. See [lobby sandbox configuration](lobby-sandbox-configuration.md)
+for coordinates, the 0..3 usable-door count and individual restriction switches. Settings belong to the existing
 `ApocExtractionMapUtils` sandbox group in `common/media/sandbox-options.txt`.
 The shared Lua helpers read current sandbox values when callbacks execute,
 including when values were unavailable during initial module loading.
@@ -11,8 +13,9 @@ including when values were unavailable during initial module loading.
 | --- | --- | --- |
 | `debugLog` | `false` | All core-mod Lua logs; includes NPC dialogue discovery, picking and request tracing. |
 | `ForceMapReveal` | `true` | Existing client/server map reveal and map availability. |
-| `LobbyEnabled` | `false` | Perimeter initialization/maintenance, disassembly protection, manual and scheduled release, and permission to relocate on login. |
+| `LobbyEnabled` | `true` | Perimeter initialization/maintenance, disassembly protection, manual and scheduled release, and permission to relocate on login. |
 | `RelocateOnLogin` | `false` | Login relocation, also requiring `LobbyEnabled=true` and valid lobby coordinates. |
+| `RelocateOnRespawn` | `false` | Same-session death respawn relocation, independent of login; see [respawn behavior](lobby-respawn-relocation.md). |
 | `ZombieMoneyDrops` | `false` | Server-confirmed zombie money rewards; independent of the lobby. |
 
 Debug logging requires the literal boolean `true`; missing sandbox values during
@@ -22,7 +25,8 @@ event intake/preview messages. It does not control engine errors, Java patch
 logs or other mods. See [NPC dialogue debugging](npc-dialogue.md#debugging-missing-menus)
 for the client/server trace sequence and log locations.
 
-Missing values behave like these defaults. Enabling the lobby alone does not
+The engine supplies these defaults for new settings. A missing master lobby
+value during Lua startup stays inactive until the engine provides it. Enabling the lobby alone does not
 relocate players or award money. Existing explicit `RelocateOnLogin=true` values
 are retained but cannot cause relocation unless the new master switch is enabled.
 

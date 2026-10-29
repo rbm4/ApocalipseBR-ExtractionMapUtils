@@ -115,6 +115,16 @@ for _, realm in ipairs({ "client", "server", "singleplayer" }) do
     assert(ISMultiStageBuild.complete({ item = object(outside) }))
     assert(Actions.build({}, { item = {}, x = 111, y = 211, z = 0 }), "unused southeast diagonal remains outside")
 
+    SandboxVars.ApocExtractionMapUtils.LobbyBlockConstruction = false
+    assert(ISBuildingObject.tryBuild({},105,205,0))
+    assert(ISBuildIsoEntity.isValid({},inside) and ISBuildIsoEntity.create({},105,205,0))
+    assert(Actions.build({}, { item = wide, x = 99, y = 205, z = 0 }))
+    assert(ISMultiStageBuild.complete(stage) == false, "upgrade switch remains independent of construction")
+    SandboxVars.ApocExtractionMapUtils.LobbyBlockConstruction = true
+    SandboxVars.ApocExtractionMapUtils.LobbyBlockUpgrades = false
+    assert(ISMultiStageBuild.isValid(stage) and ISMultiStageBuild.complete(stage))
+    assert(ISBuildIsoEntity.create({},105,205,0) == false)
+    SandboxVars.ApocExtractionMapUtils.LobbyBlockUpgrades = true
     for _, setting in ipairs({ false, "missing" }) do
         SandboxVars.ApocExtractionMapUtils.LobbyEnabled = false
         if setting == "missing" then SandboxVars.ApocExtractionMapUtils.LobbyEnabled = nil end

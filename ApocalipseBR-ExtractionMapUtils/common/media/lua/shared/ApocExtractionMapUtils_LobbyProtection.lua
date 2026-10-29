@@ -16,7 +16,7 @@ local Protection = {}
 Utils.LobbyProtection = Protection
 
 function Protection.isProtectedPosition(x, y, z)
-    local config = Utils.LobbyConfig
+    local config = Utils.getLobbyConfig()
     if not Utils.lobbyEnabled() or z ~= config.Z or type(x) ~= "number" or type(y) ~= "number" then return false end
     local xmin, xmax = math.min(config.X1, config.X2), math.max(config.X1, config.X2)
     local ymin, ymax = math.min(config.Y1, config.Y2), math.max(config.Y1, config.Y2)
@@ -55,9 +55,11 @@ function Protection.isProtectedAction(action)
 end
 
 -- Pickup also removes chairs and floor tiles, and can break furniture for parts.
-local destructiveModes = { scrap = true, dismantle = true, disassemble = true, pickup = true }
+local destructiveModes = { scrap = "LobbyBlockDisassembly", dismantle = "LobbyBlockDisassembly",
+    disassemble = "LobbyBlockDisassembly", pickup = "LobbyBlockPickup" }
 local function blockedMoveableAction(action)
-    return destructiveModes[action.mode] and Protection.isProtectedAction(action)
+    local rule = destructiveModes[action.mode]
+    return rule and Utils.lobbyRuleEnabled(rule) and Protection.isProtectedAction(action)
 end
 
 local function wrapAction(class, blocked)
@@ -75,31 +77,33 @@ local function wrapAction(class, blocked)
 end
 
 wrapAction(ISMoveablesAction, blockedMoveableAction)
-wrapAction(ISDismantleAction, Protection.isProtectedAction)
+wrapAction(ISDismantleAction, function(action)
+    return Utils.lobbyRuleEnabled("LobbyBlockDisassembly") and Protection.isProtectedAction(action)
+end)
 wrapAction(ISDestroyStuffAction, function(action)
     -- This class stores the WORLD target in item, not object/thumpable.
-    return protectedObject(action.item)
+    return Utils.lobbyRuleEnabled("LobbyBlockDestruction") and protectedObject(action.item)
 end)
 wrapAction(ISShovelGround, function(action)
     -- ISShovelGround.item is a boolean; sandTile is the world target.
-    return protectedObject(action.sandTile)
+    return Utils.lobbyRuleEnabled("LobbyBlockDigging") and protectedObject(action.sandTile)
 end)
 
 local oldShovelGround = ISShovelGround.shovelGround
 ISShovelGround.shovelGround = function(self, square, ...)
-    if protectedObject(self.sandTile) or Protection.isProtectedSquare(square) then return false end
+    if Utils.lobbyRuleEnabled("LobbyBlockDigging") and (protectedObject(self.sandTile) or Protection.isProtectedSquare(square)) then return false end
     return oldShovelGround(self, square, ...)
 end
 
 local oldCanPickUp = ISMoveableSpriteProps.canPickUpMoveable
 ISMoveableSpriteProps.canPickUpMoveable = function(self, character, square, object, ...)
-    if protectedProps(self) or protectedObject(object) or Protection.isProtectedSquare(square) then return false end
+    if Utils.lobbyRuleEnabled("LobbyBlockPickup") and (protectedProps(self) or protectedObject(object) or Protection.isProtectedSquare(square)) then return false end
     return oldCanPickUp(self, character, square, object, ...)
 end
 
 local oldPickupCursor = ISMoveableSpriteProps.pickUpMoveableViaCursor
 ISMoveableSpriteProps.pickUpMoveableViaCursor = function(self, character, square, ...)
-    if protectedProps(self) or Protection.isProtectedSquare(square) then return end
+    if Utils.lobbyRuleEnabled("LobbyBlockPickup") and (protectedProps(self) or Protection.isProtectedSquare(square)) then return end
     return oldPickupCursor(self, character, square, ...)
 end
 
@@ -107,13 +111,13 @@ local oldPickupInternal = ISMoveableSpriteProps.pickUpMoveableInternal
 ISMoveableSpriteProps.pickUpMoveableInternal = function(self, character, square, object, sprInstance, spriteName, createItem, rotating, ...)
     -- Vanilla rotation reuses this helper with rotating=true and restores the
     -- object. Preserve it; ordinary pickup must stop before break tests/rewards.
-    if not rotating and (protectedProps(self) or protectedObject(object) or Protection.isProtectedSquare(square)) then return end
+    if Utils.lobbyRuleEnabled("LobbyBlockPickup") and (not rotating and (protectedProps(self) or protectedObject(object) or Protection.isProtectedSquare(square))) then return end
     return oldPickupInternal(self, character, square, object, sprInstance, spriteName, createItem, rotating, ...)
 end
 
 local oldCanScrapInternal = ISMoveableSpriteProps.canScrapObjectInternal
 ISMoveableSpriteProps.canScrapObjectInternal = function(self, result, object, ...)
-    if protectedObject(object) or protectedProps(self) then
+    if Utils.lobbyRuleEnabled("LobbyBlockDisassembly") and (protectedObject(object) or protectedProps(self)) then
         if result then result.canScrap = false end
         return false
     end
@@ -122,7 +126,7 @@ end
 
 local oldScrapInternal = ISMoveableSpriteProps.scrapObjectInternal
 ISMoveableSpriteProps.scrapObjectInternal = function(self, character, scrapDef, square, object, ...)
-    if protectedObject(object) or Protection.isProtectedSquare(square) or protectedProps(self) then return 0 end
+    if Utils.lobbyRuleEnabled("LobbyBlockDisassembly") and (protectedObject(object) or Protection.isProtectedSquare(square) or protectedProps(self)) then return 0 end
     return oldScrapInternal(self, character, scrapDef, square, object, ...)
 end
 
@@ -132,15 +136,15 @@ end
 for _, class in ipairs({ ISMoveableSpriteProps, ISThumpableSpriteProps }) do
     local oldCanScrap, oldViaCursor, oldStart = class.canScrapObject, class.scrapObjectViaCursor, class.startScrapAction
     class.canScrapObject = function(self, ...)
-        if protectedProps(self) then return { canScrap = false }, 0, nil end
+        if Utils.lobbyRuleEnabled("LobbyBlockDisassembly") and (protectedProps(self)) then return { canScrap = false }, 0, nil end
         return oldCanScrap(self, ...)
     end
     class.scrapObjectViaCursor = function(self, character, square, ...)
-        if protectedProps(self) or Protection.isProtectedSquare(square) then return end
+        if Utils.lobbyRuleEnabled("LobbyBlockDisassembly") and (protectedProps(self) or Protection.isProtectedSquare(square)) then return end
         return oldViaCursor(self, character, square, ...)
     end
     class.startScrapAction = function(self, action, ...)
-        if protectedProps(self) or Protection.isProtectedAction(action) then return false end
+        if Utils.lobbyRuleEnabled("LobbyBlockDisassembly") and (protectedProps(self) or Protection.isProtectedAction(action)) then return false end
         return oldStart(self, action, ...)
     end
 end

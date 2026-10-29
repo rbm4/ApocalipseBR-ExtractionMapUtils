@@ -31,15 +31,27 @@ Open **ApocalipseBR - Extraction Map Utils** in sandbox settings.
 | Lobby Y | -1 | World tile Y. Set to a nonnegative coordinate to configure. |
 | Lobby Z | 0 | Floor, from -32 to 31; 0 is ground level. |
 
-Only map revealing is enabled by default. Both lobby switches and X/Y coordinates must be configured before relocation runs. Choose a valid floor tile on the loaded map; players arrive at its center. Login relocation does not validate distant tile geometry before loading it. The perimeter below is configured separately and does not set the login destination.
+Map revealing, lobby control, fences and building restrictions are enabled by default. Both lobby switches and X/Y coordinates must be configured before relocation runs. Choose a valid floor tile on the loaded map; players arrive at its center. Login relocation does not validate distant tile geometry before loading it. The perimeter below is configured separately and does not set the login destination.
 
-Default server `SandboxVars` block (opt in to lobby behavior explicitly):
+Default server `SandboxVars` block (existing explicit values are preserved):
 
 ```lua
 ApocExtractionMapUtils = {
     ForceMapReveal = true,
-    LobbyEnabled = false,
+    LobbyEnabled = true,
+    LobbyFenceEnabled = true,
+    LobbyDoorCount = 3,
+    LobbyX1 = 14260, LobbyY1 = 11892,
+    LobbyX2 = 14321, LobbyY2 = 11812,
+    LobbyFenceZ = 0,
+    LobbyBlockConstruction = true,
+    LobbyBlockUpgrades = true,
+    LobbyBlockDisassembly = true,
+    LobbyBlockPickup = true,
+    LobbyBlockDestruction = true,
+    LobbyBlockDigging = true,
     RelocateOnLogin = false,
+    RelocateOnRespawn = false,
     ZombieMoneyDrops = false,
     LobbyX = -1,
     LobbyY = -1,
@@ -47,7 +59,16 @@ ApocExtractionMapUtils = {
 },
 ```
 
-Restart/reconnect after changing settings. Relocation runs once at game entry, not continuously; players can leave the lobby for the event. UI resets and reopening maps do not relocate players. Death/respawn within an existing session and adding another local player after game entry are outside this login hook.
+Death respawns have a separate default-off `RelocateOnRespawn` option. Leave it
+off to preserve safehouse/map/mod spawns while using login/server-transfer
+relocation. See [respawn relocation](.docs/features/lobby-respawn-relocation.md).
+
+Restart/reconnect after changing settings. Relocation runs once at game entry, not continuously; players can leave the lobby for the event. UI resets and reopening maps do not relocate players. Death/respawn uses the independent switch described above; each local player has its own queued placement decision.
+
+Usable door count is an integer from 0 to 3: use 0 for an enclosed operation
+lobby, or 1..3 for doors that players can use even without any operations.
+See [lobby sandbox configuration](.docs/features/lobby-sandbox-configuration.md)
+for bounds, restriction switches and existing-save migration limits.
 
 ## Implementation
 
@@ -74,9 +95,10 @@ The north/west sprites (`fencing_01_88/90`) carry vanilla `CantClimb` and wall
 collision flags. The existing 0.2.0 perimeter upgrades gradually as chunks load,
 preserving exit positions and the saved release state.
 
-Configure bounds, exit count and work budgets in
+Configure bounds, floor, usable door count and individual protection switches
+in the sandbox settings. Exit-release count and work budgets remain in
 `ApocalipseBR-ExtractionMapUtils/common/media/lua/shared/ApocExtractionMapUtils_LobbySettings.lua`.
-Install the same configuration on clients and server. The former server config
+Restart the server and reconnect clients after changes. The former server config
 file now forwards to these shared settings. Version 0.2.2 blocks world-object
 disassembly throughout the lobby and perimeter squares on Z=0, including welding
 scrap actions. Checks run on client and server, regardless of faction, while

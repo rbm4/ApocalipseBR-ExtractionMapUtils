@@ -44,9 +44,9 @@ local function validInteger(value)
 end
 
 local function buildPlan()
-    config = Utils.LobbyConfig
+    config = Utils.getLobbyConfig()
     for _, field in ipairs({ "X1", "Y1", "X2", "Y2", "Z", "ExitCount",
-        "MaxEdgesPerTick", "MaxTickMilliseconds", "RescanMilliseconds", "ExitCheckMilliseconds" }) do
+        "MaxEdgesPerTick", "MaxTickMilliseconds", "RescanMilliseconds", "ExitCheckMilliseconds", "DoorCount" }) do
         assert(validInteger(config[field]), "invalid integer config: " .. field)
     end
     local xmin, xmax = math.min(config.X1, config.X2), math.max(config.X1, config.X2)
@@ -54,6 +54,7 @@ local function buildPlan()
     assert(xmin >= 0 and ymin >= 0 and xmax <= 1000000 and ymax <= 1000000, "invalid lobby coordinates")
     assert(xmax - xmin >= 6 and ymax - ymin >= 6, "lobby must be at least seven tiles wide/high")
     assert(2 * (xmax - xmin + ymax - ymin + 2) <= 4096, "lobby exceeds 4096-edge safety limit")
+    assert(config.DoorCount >= 0 and config.DoorCount <= 3, "door count must be 0..3")
     assert(config.Z >= -32 and config.Z <= 31, "invalid lobby floor")
     assert(config.MaxEdgesPerTick >= 1 and config.MaxEdgesPerTick <= 16, "tick edge budget must be 1..16")
     assert(config.MaxTickMilliseconds >= 1 and config.MaxTickMilliseconds <= 10, "tick time budget must be 1..10ms")
@@ -115,9 +116,14 @@ local function buildPlan()
         end
     end
     assert(type(state.exitKeys) == "table", "invalid saved lobby exit plan")
+    local doors = 0
     for i, edge in ipairs(edges) do
         edge.exit = state.exitKeys[edgeKey(edge)] == true
-        if edge.exit then exits[#exits + 1] = i end
+        if edge.exit then
+            exits[#exits + 1] = i
+            edge.door = doors < config.DoorCount
+            if edge.door then doors = doors + 1 end
+        end
     end
 end
 
@@ -127,9 +133,16 @@ local function markConstruction(square)
 end
 
 local function makeObject(square, edge)
-    local object = IsoThumpable.new(getCell(), square,
-        edge.north and config.FenceNorth or config.FenceWest, edge.north, {})
-    object:setIsDoor(false)
+    local object
+    if edge.door then
+        object = IsoThumpable.new(getCell(), square,
+            edge.north and config.DoorNorth or config.DoorWest,
+            edge.north and config.DoorOpenNorth or config.DoorOpenWest, edge.north, {})
+    else
+        object = IsoThumpable.new(getCell(), square,
+            edge.north and config.FenceNorth or config.FenceWest, edge.north, {})
+    end
+    object:setIsDoor(edge.door == true)
     object:setMaxHealth(MAX_HP)
     object:setHealth(MAX_HP)
     object:setIsThumpable(false)
@@ -138,11 +151,12 @@ local function makeObject(square, edge)
     object:setIsHoppable(false)
     object:setCanPassThrough(false)
     local data = object:getModData()
-    data[TAG] = { signature = signature, key = edgeKey(edge), exit = edge.exit }
+    data[TAG] = { signature = signature, key = edgeKey(edge), exit = edge.exit, door = edge.door == true }
     return object
 end
 
 local function applyEdge(index)
+    if not Utils.lobbyRuleEnabled("LobbyFenceEnabled") then return end
     local edge = edges[index]
     local square = getCell():getGridSquare(edge.x, edge.y, config.Z)
     if not square then return end -- never force chunks or keep retrying every tick
@@ -168,10 +182,15 @@ local function applyEdge(index)
         return -- released exits remain empty, including after reload/repair scans
     end
     local spriteName = edge.north and config.FenceNorth or config.FenceWest
+    if edge.door then
+        spriteName = existing and existing:IsOpen()
+            and (edge.north and config.DoorOpenNorth or config.DoorOpenWest)
+            or (edge.north and config.DoorNorth or config.DoorWest)
+    end
     local replace = existing and (existing:getModData()[TAG].signature ~= signature
         or existing:getModData()[TAG].exit ~= edge.exit
         or existing:getSprite():getName() ~= spriteName
-        or existing:IsOpen() or existing:isDoor() or existing:getHealth() ~= MAX_HP
+        or existing:isDoor() ~= (edge.door == true) or existing:getHealth() ~= MAX_HP
         or existing:getMaxHealth() ~= MAX_HP or existing:isThumpable()
         or existing:isDismantable() or existing:getCanBarricade() or existing:isCanPassThrough())
     if not existing or replace then
@@ -199,12 +218,38 @@ local function writeToken(value)
     assert(actual == value, "lobby command token file verification failed")
 end
 
+local function fenceState()
+    if ApocBREventControl and ApocBREventControl.getLobbyFenceState then
+        return ApocBREventControl.getLobbyFenceState()
+    end
+end
+
+local function refreshToken()
+    tokenFile = "ApocExtractionLobby-" .. string.gsub(getServerName(), "[^%w_-]", "_") .. "-open-token.txt"
+    local newToken = getRandomUUID()
+    local written, errorMessage = pcall(writeToken, newToken)
+    if written then token = newToken; log("ReleaseExits token: server Lua cache/" .. tokenFile)
+    else log("ReleaseExits disabled: " .. tostring(errorMessage)) end
+end
+
+local function reconcileFence()
+    if fenceState() ~= "CLOSED" or (not state.released and not state.removedAll) then return end
+    state.released, state.removedAll = false, false
+    state.eventId, state.eventRevision = nil, nil
+    token = nil
+    refreshToken()
+    enqueueAll()
+    log("No active operation; lobby perimeter reconstruction queued")
+end
+
 -- Trusted engine entry point. It is deliberately not a client/RCON command.
 -- The bridge confirms a fresh due schedule or a durable prior release receipt.
 function Lobby.releaseForEvent(eventId, revision)
     if not Utils.lobbyEnabled() or not started or not ApocBREventControl
         or type(eventId) ~= "string" or type(revision) ~= "number"
         or not ApocBREventControl.isReleaseAuthorized(eventId, revision) then return false end
+    -- Durable receipts can outlive their operation and coexist with a queued one.
+    if fenceState() == "CLOSED" then return false end
     if state.removedAll ~= true then
         state.removedAll, state.released = true, true
         token = nil
@@ -242,7 +287,7 @@ end
 function Lobby.onStarted()
     if not Utils.lobbyEnabled() or started then return end
     require "ApocBRRCON"
-    config = Utils.LobbyConfig
+    config = Utils.getLobbyConfig()
     -- Validate sprite availability once, not once for every missing square.
     for _, entry in ipairs({ { config.FenceNorth, IsoFlagType.collideN }, { config.FenceWest, IsoFlagType.collideW } }) do
         local sprite = type(entry[1]) == "string" and getSprite(entry[1])
@@ -254,18 +299,20 @@ function Lobby.onStarted()
             return
         end
     end
+    if type(config.DoorCount) == "number" and config.DoorCount > 0 then
+        for _, name in ipairs({ config.DoorNorth, config.DoorWest, config.DoorOpenNorth, config.DoorOpenWest }) do
+            if not getSprite(name) then log("Initialization disabled: missing door sprite " .. tostring(name)); return end
+        end
+    end
     -- Validate assets BEFORE changing the saved signature/migration state.
     local ok, err = pcall(buildPlan)
     if not ok then log("Initialization disabled: " .. tostring(err)); return end
     started = true
+    reconcileFence()
     enqueueAll()
     nextScan, nextExitCheck = now() + config.RescanMilliseconds, now() + config.ExitCheckMilliseconds
     if not state.released then
-        tokenFile = "ApocExtractionLobby-" .. string.gsub(getServerName(), "[^%w_-]", "_") .. "-open-token.txt"
-        local newToken = getRandomUUID()
-        local written, errorMessage = pcall(writeToken, newToken)
-        if written then token = newToken; log("ReleaseExits token: server Lua cache/" .. tokenFile)
-        else log("ReleaseExits disabled: " .. tostring(errorMessage)) end
+        if not token then refreshToken() end
     end
     log("Queued " .. #edges .. " fence edges, including " .. #exits .. " removable exits; released=" .. tostring(state.released == true))
     ApocBRRCON.subscribe("ExtractionLobby", "ReleaseExits", Lobby.releaseExits)
@@ -290,6 +337,7 @@ function Lobby.onTick()
     local time = now()
     if time >= nextScan then enqueueAll(); nextScan = time + config.RescanMilliseconds end
     if time >= nextExitCheck then
+        reconcileFence()
         for _, index in ipairs(exits) do enqueue(index) end
         nextExitCheck = time + config.ExitCheckMilliseconds
     end
@@ -311,7 +359,7 @@ end
 Lobby.openDoors = Lobby.releaseExits -- compatibility for existing server integrations
 -- Queried by ExtractionMapUtils' server-side Lua login command.
 function Lobby.isClosed()
-    return Utils.lobbyEnabled() and started and state.released == false and state.removedAll ~= true
+    return Utils.lobbyRuleEnabled("LobbyFenceEnabled") and started and state.released == false and state.removedAll ~= true
 end
 Events.OnServerStarted.Add(Lobby.onStarted)
 Events.LoadGridsquare.Add(Lobby.onSquareLoaded)

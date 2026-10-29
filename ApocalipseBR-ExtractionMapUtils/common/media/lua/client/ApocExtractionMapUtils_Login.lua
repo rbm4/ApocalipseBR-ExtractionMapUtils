@@ -4,14 +4,18 @@ require "ApocExtractionMapUtils"
 local Utils = ApocExtractionMapUtils
 local pending = {}
 local pendingNPC = {}
+local deaths = {}
 local RETRY_MS, MAX_ATTEMPTS = 1000, 15
 
-local function enabled()
-    return Utils.lobbyEnabled() and Utils.getOptions().RelocateOnLogin == true
+local function enabled(respawn)
+    if not Utils.lobbyEnabled() then return false end
+    local options = Utils.getOptions()
+    if respawn == nil then return options.RelocateOnLogin == true or options.RelocateOnRespawn == true end
+    return options[respawn and "RelocateOnRespawn" or "RelocateOnLogin"] == true
 end
 
-local function relocate(player)
-    if not enabled() or not player or player:isDead() then return end
+local function relocate(player, respawn)
+    if not enabled(respawn == true) or not player or player:isDead() then return end
     local x, y, z = Utils.getLobbyPosition()
     if not x then
         Utils.debugLog("[ApocExtractionMapUtils] Login relocation skipped: configure LobbyX and LobbyY in sandbox settings.")
@@ -25,13 +29,16 @@ local function relocate(player)
     Utils.debugLog("[ApocExtractionMapUtils] Login lobby position: " .. x .. "," .. y .. "," .. z)
 end
 
-local function localDecision(player)
+local function localDecision(player, respawn)
+    if not enabled(respawn == true) then return false end
+    if respawn then return true end
     local state = ModData.get("ApocExtractionLobby")
     if state and state.released == false and state.removedAll ~= true then return true end
     return Utils.loginPositionNeedsReset(player)
 end
 
 local function onGameStart()
+    local previous = pending
     pending = {}
     for playerNum = 0, getNumActivePlayers() - 1 do
         local player = getSpecificPlayer(playerNum)
@@ -39,15 +46,17 @@ local function onGameStart()
             pendingNPC[playerNum] = player
             -- Hooks can run before replicated settings/online registration.
             -- Queue first; evaluate the options once this player can send.
-            pending[playerNum] = { player = player, attempts = 0 }
+            local prior = previous[playerNum]
+            local respawn = deaths[playerNum] ~= nil or (prior and prior.player == player and prior.respawn == true)
+            pending[playerNum] = { player = player, attempts = 0, respawn = respawn == true }
             Utils.debugLog("[ApocExtractionMapUtils][Login][client] queued; protocol=2; source=OnGameStart; playerNum="
                 .. tostring(playerNum) .. "; lobbyEnabled=" .. tostring(Utils.lobbyEnabled())
                 .. "; relocateOnLogin=" .. tostring(Utils.getOptions().RelocateOnLogin))
             if enabled() and not isClient() then
-                local reset = localDecision(player)
+                local reset = localDecision(player, respawn)
                 if reset ~= nil then
                     pending[playerNum] = nil
-                    if reset then relocate(player) end
+                    if reset then relocate(player, respawn) end
                 end
             end
         end
@@ -86,10 +95,10 @@ Events.OnTick.Add(function()
                         .. "; onlineID=" .. tostring(entry.player:getOnlineID()) .. "; attempt=" .. tostring(entry.attempts))
                     sendClientCommand(entry.player, "ApocExtractionMapUtils", "LoginLobbyState", { playerNum = playerNum })
                 else
-                    local reset = localDecision(entry.player)
+                    local reset = localDecision(entry.player, entry.respawn)
                     if reset ~= nil then
                         pending[playerNum] = nil
-                        if reset then relocate(entry.player) end
+                        if reset then relocate(entry.player, entry.respawn) end
                     end
                 end
             end
@@ -108,12 +117,26 @@ Events.OnServerCommand.Add(function(module, command, args)
         .. "; closed=" .. tostring(args.closed == true) .. "; serverTeleported=" .. tostring(args.serverTeleported == true))
     if args.retry == true and args.closed ~= true and args.reset ~= true then return end
     pending[playerNum] = nil
-    if args.serverTeleported ~= true and (args.closed == true or args.reset == true) then relocate(entry.player) end
+    if args.serverTeleported ~= true and (args.closed == true or args.reset == true) then
+        local respawn = args.respawn
+        if respawn == nil then respawn = entry.respawn end
+        relocate(entry.player, respawn)
+    end
 end)
 
 Events.OnGameStart.Add(onGameStart)
 Events.OnCreatePlayer.Add(function(index, player)
     if not player then return end
     pendingNPC[index] = player
-    pending[index] = { player = player, attempts = 0 }
+    pending[index] = { player = player, attempts = 0, respawn = deaths[index] ~= nil }
 end)
+
+-- Vanilla emits this before a replacement character's OnCreatePlayer hook.
+-- Multiplayer authority comes from ApocBRPlayerLogin.isRespawn on the server.
+if Events.OnPlayerDeath then
+    Events.OnPlayerDeath.Add(function(player)
+        for index = 0, getNumActivePlayers() - 1 do
+            if getSpecificPlayer(index) == player then deaths[index] = player end
+        end
+    end)
+end
