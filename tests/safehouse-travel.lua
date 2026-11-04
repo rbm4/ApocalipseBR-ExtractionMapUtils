@@ -23,9 +23,9 @@ local freeSquare = { hasFloor = function() return true end, isFree = function() 
 local currentSafe, square = safe, freeSquare
 SafeHouse = { hasSafehouse = function() return currentSafe end }
 function getCell() return { getGridSquare = function() return square end } end
-local accepted = true
+local accepted, lastDestination = true, nil
 ApocBRHumanAPI = { accountIdentity = function() return "steam:76561198000000001" end,
-    teleport = function(p, a, b, z) requests = requests + 1; return accepted end }
+    teleport = function(p, a, b, z) requests = requests + 1; lastDestination={a,b,z}; return accepted end }
 local D = require "ApocExtractionMapUtils_HumanActions"
 local T = require "ApocExtractionMapUtils_SafehouseTravel"
 local function prepare() return D.executeAction(player, { key = "agente-v", id = 768, option = "teleport_safehouse", sequence = 1 },
@@ -41,9 +41,9 @@ check(requests == 0, "NPC response gets a nonblocking reading interval before de
 now = now + 2500; tick()
 check(requests == 1 and next(state) == nil, "native packet acceptance is not arrival")
 tick(); check(next(state) == nil, "no cooldown while still at NPC")
-x, y = 109.5, 205.5; tick()
+x, y = 99.5, 200.5; tick()
 check(prepare().responsePool == "safehouse.teleport.unavailable", "neighbor tile does not finish travel or start cooldown")
-x, y = 110.5, 205.5; tick()
+x, y = 100.5, 200.5; tick()
 local landed = now
 check(prepare().responsePool == "safehouse.teleport.cooldown" and next(state) == nil, "arrival starts only an in-memory cooldown")
 x, y = 10, 20
@@ -74,22 +74,15 @@ a = prepare(); depart(a); connected = false; tick(); connected = true
 check(next(state) == nil, "disconnect does not consume cooldown")
 vehicle = {}; check(prepare().responsePool == "safehouse.teleport.unavailable", "vehicle transfer refused"); vehicle = nil
 alive = false; check(not prepare().success, "dead player refused"); alive = true
-square = { hasFloor = function() return true end, isFree = function() return false end }
-check(not prepare().success, "blocked loaded destination refused")
-square = { hasFloor = function() return true end, isFree = function() return true end }
-a = prepare(); check(a.success, "free loaded destination accepted"); a.cancel()
-square = nil
-local warms = 0
-ApocBRLobbyStreaming = {keepCellLoaded = function() warms = warms + 1; return 0 end}
-local cold = prepare()
-check(cold.success and warms == 1, "cold destination requests native streaming without guessing a landing tile")
-local coldRequests = requests
-cold.afterResponse(); now = now + 2500; tick()
-check(requests == coldRequests, "cold transfer waits for a verified landing floor")
-square = freeSquare
-tick(); check(requests == coldRequests + 1, "loaded destination launches exactly one transfer")
-tick(); check(requests == coldRequests + 1, "pending arrival does not resend teleport")
-now = now + 21000; tick()
+-- Cold/absent squares must not gate the native teleport request.
+local streamingCalls = 0
+getCell = function() error("safehouse travel must not query loaded squares") end
+ApocBRLobbyStreaming={keepCellLoaded=function() streamingCalls=streamingCalls+1; error("must not preload") end}
+local coldRequests=requests
+a=prepare(); check(a.success,"unloaded safehouse is immediately eligible"); depart(a)
+check(requests==coldRequests+1 and streamingCalls==0,"native teleport sent without preloading a destination chunk")
+check(lastDestination[1]==100 and lastDestination[2]==200 and lastDestination[3]==0,"destination matches vanilla admin safehouse origin, not its center")
+now=now+21000; tick()
 a = prepare(); currentSafe = nil; local before = requests; a.afterResponse()
 check(requests == before and next(state) == nil, "membership revalidated after response"); currentSafe = safe
 D.registerAction("test.failure", function() error("handler failed") end)
@@ -102,46 +95,13 @@ ApocBRHumanAPI.teleport = function() error("native test failure") end
 a = prepare(); depart(a)
 check(logged("bridge_error:") and logged("native test failure"), "native exception preserved in terminal log")
 ApocBRHumanAPI.teleport = teleport
-local getGridSquare = getCell
+local originalSafehouseLookup = SafeHouse.hasSafehouse
 a = prepare(); a.afterResponse()
-getCell = function() error("square test failure") end
+SafeHouse.hasSafehouse = function() error("safehouse test failure") end
 tick()
-check(logged("tick_error:") and logged("square test failure"), "polling error releases reservation with diagnostics")
-getCell = getGridSquare
+check(logged("tick_error:") and logged("safehouse test failure"), "polling error releases reservation with diagnostics")
+SafeHouse.hasSafehouse = originalSafehouseLookup
 a = prepare(); check(a.success, "polling exception leaves account able to retry"); a.cancel()
--- A loaded server cell may have no square at the exact claim center.
--- The old implementation returned loading forever without examining its neighbors.
-ApocBRLobbyStreaming.keepCellLoaded = function() return 1 end
-getCell = function() return {getGridSquare=function(_, a, b)
-    if a == 110 and b == 205 then return nil end
-    return freeSquare
-end} end
-a = prepare()
-check(a.success, "missing center square does not hide a free neighboring landing tile")
-local beforeHole = requests
-depart(a)
-check(requests == beforeHole + 1, "loaded center-hole destination actually sends teleport")
-a.cancel()
-getCell = function() return {getGridSquare=function() return nil end} end
-check(not prepare().success and logged("DESTINATION_UNAVAILABLE"), "loaded empty area is unavailable rather than eternally loading")
-local cellRequests = {}
-currentSafe = {getX=function() return 54 end, getY=function() return 54 end,
-    getW=function() return 20 end, getH=function() return 20 end}
-getCell = function() return {getGridSquare=function() return freeSquare end} end
-ApocBRLobbyStreaming.keepCellLoaded=function(a,b)
-    cellRequests[math.floor(a/64)..":"..math.floor(b/64)] = true
-    return 1
-end
-a = prepare(); local cells = 0; for _ in pairs(cellRequests) do cells=cells+1 end
-check(a.success and cells==4, "search crossing cell borders renews all four native server cells")
-a.cancel(); currentSafe=safe
-getCell = function() return {getGridSquare=function() return nil end} end
-ApocBRLobbyStreaming.keepCellLoaded=function() return 0 end
-a=prepare(); a.afterResponse(); now=now+21000; tick()
-check(prepare().responsePool=="safehouse.teleport.unavailable", "slow loading retains reservation beyond old twenty-second deadline")
-now=now+41000; tick()
-check(logged("destination_loading_timeout") and logged("loadedCells=0"), "loading expiry reports streaming state rather than implying missing NPC response")
-check(next(state)==nil, "destination loading failure never consumes cooldown")
 currentSafe={getX=function() return 100 end,getY=function() return 200 end,
     getW=function() return 1 end,getH=function() return 1 end}
 getCell=function() return {getGridSquare=function() return freeSquare end} end

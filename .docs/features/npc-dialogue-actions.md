@@ -1,9 +1,8 @@
 # NPC dialogue actions and safehouse travel
 
-Follow-up: [travel diagnostics and destination readiness](../hotfixes/safehouse-travel-silent-cancellation.md)
-adds visible stages, preserves errors, searches around missing center squares and
-renews all native cells intersecting the bounded search. Revision 3 allows up to
-60 seconds for destination preparation and 20 seconds for arrival after sending.
+Follow-up: [travel corrections](../hotfixes/safehouse-travel-silent-cancellation.md).
+Revision 5 sends native teleport directly to the claim origin without requiring
+loaded destination squares. Revision 4's memory-only cooldown remains in effect.
 
 Status: implemented for the 42.22.1 Java bridge v5; isolated tests pass, live
 dedicated-server validation pending.
@@ -67,24 +66,28 @@ safehouse, refuses dead/disconnected/in-vehicle players and concurrent transfers
 and uses account identity from the Java bridge. Steam IDs remain exact strings;
 non-Steam identity falls back to username.
 
-The destination is a free loaded ground-floor tile inside the safehouse claim,
-searched in bounded rings up to eight tiles from its center. Cold destinations
-request native loading through `ApocBRLobbyStreaming.keepCellLoaded`; the transfer
-waits for a verified floor without blocking the server. The NPC's success pool
-authorizes/starts the transfer. One native teleport request is sent after that
-response and a nonblocking 2.5-second reading interval; the service then waits for server-observed arrival on the exact destination tile at floor zero.
-It never uses `teleportToLobby`, which is a one-time login operation.
+The destination matches vanilla `ISSafehousesList:onClick(TELEPORT)`:
+`safehouse:getX(), safehouse:getY(), 0`. The server calls the bridge's native
+`GameServer.sendTeleport`, the same transport used by lobby relocation. No
+`getGridSquare` lookup, free-floor scan or forced preloading gates this request;
+native client relocation/streaming handles an unloaded destination. This is the
+registered claim origin, not the claim center. There is no extra terrain scan.
 
+The NPC's success pool authorizes/starts transfer. One native request is sent
+after the response and a nonblocking 2.5-second reading interval. Confirmation
+requires the same live player's server position on the exact target tile/floor.
+The login-only `teleportToLobby` wrapper is not reused because its one-time login
+flag would suppress repeated travel.
 Only confirmed arrival records `getTimestampMs()` in a private server-memory table. The account must wait **six real
 hours** from that success. The allowance is shared across NPCs/characters in the
 running server process; death and reconnect do not reset it. A server restart clears it. Responses round remaining time
 up to minutes. Rejection, missing safehouse, invalid tile, timeout, death or
 disconnect before confirmation leave the previous success timestamp intact.
 
-At most 256 pending trips are tracked. Polling runs every 250 ms with a 60-second
+At most 256 pending trips are tracked. Polling runs every 250 ms with a 20-second
 preparation deadline and a separate 20-second arrival deadline after sending.
 Membership/connection/vehicle state is revalidated before sending;
-loading requests stop on cancellation/expiry, allowing native relevance to lapse.
+No map loading leases are held by this service.
 Failed late transfers do not consume cooldown or emit another response after the
 conversation closes. Cooldown is not saved to Global ModData or PostgreSQL.
 Old saved timestamps are ignored without deleting them. Revision 4 therefore

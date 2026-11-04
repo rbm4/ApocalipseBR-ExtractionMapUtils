@@ -27,46 +27,9 @@ local function atDestination(player, trip)
         and math.floor(player:getY()) == math.floor(trip.y)
 end
 local function destination(safe)
-    local x, y = safe:getX() + math.floor(safe:getW() / 2), safe:getY() + math.floor(safe:getH() / 2)
-    local xmin, xmax = math.max(safe:getX(), x - 8), math.min(safe:getX() + safe:getW() - 1, x + 8)
-    local ymin, ymax = math.max(safe:getY(), y - 8), math.min(safe:getY() + safe:getH() - 1, y + 8)
-    local loading, cells, loaded, unavailable = false, {}, 0, 0
-    -- Keep every cell intersecting the bounded search alive, including border cells.
-    -- Cell readiness is independent of whether its center square exists.
-    if ApocBRLobbyStreaming and ApocBRLobbyStreaming.keepCellLoaded then
-        for _, a in ipairs({xmin, xmax}) do
-            for _, b in ipairs({ymin, ymax}) do
-                local key = math.floor(a / 64) .. ":" .. math.floor(b / 64)
-                if not cells[key] then
-                    cells[key] = true
-                    local status = ApocBRLobbyStreaming.keepCellLoaded(a, b)
-                    if status == 0 then loading = true
-                    elseif status == 1 then loaded = loaded + 1
-                    else unavailable = unavailable + 1 end
-                end
-            end
-        end
-    end
-    local examined = 0
-    for radius = 0, 8 do
-        for dx = -radius, radius do
-            for dy = -radius, radius do
-                if math.max(math.abs(dx), math.abs(dy)) == radius then
-                    local a, b = x + dx, y + dy
-                    if a >= xmin and b >= ymin and a <= xmax and b <= ymax then
-                        local tile = getCell():getGridSquare(a, b, 0)
-                        if tile then
-                            examined = examined + 1
-                            if tile:hasFloor() and tile:isFree(false) then return a + 0.5, b + 0.5, false end
-                        end
-                    end
-                end
-            end
-        end
-    end
-    local detail = "center=" .. x .. "," .. y .. " loadedCells=" .. loaded
-        .. " unavailableCells=" .. unavailable .. " existingSquares=" .. examined
-    return nil, nil, loading, detail
+    -- Match vanilla ISSafehousesList TELEPORT: registered claim origin, floor zero.
+    -- Native teleport initiates destination streaming; no preloaded square is required.
+    return safe:getX(), safe:getY()
 end
 function T.prepare(ctx)
     local player, api = ctx.player, ApocBRHumanAPI
@@ -80,15 +43,11 @@ function T.prepare(ctx)
     end
     local safe = SafeHouse.hasSafehouse(player)
     if not safe then return outcome("no_safehouse") end
-    local x, y, loading, detail = destination(safe)
-    if not x and not loading then
-        log("DESTINATION_UNAVAILABLE", {player=player}, detail)
-        return outcome("unavailable")
-    end
-    local trip = { player = player, x = x, y = y, safe = safe, deadline = now + 60000, started = false, loading = loading, loadingDetail = detail }
+    local x, y = destination(safe)
+    local trip = { player = player, x = x, y = y, safe = safe, deadline = now + 20000, started = false }
     if x and atDestination(player, trip) then return outcome("unavailable") end
     pending[identity], count = trip, count + 1
-    log("PREPARED", trip, "destination=" .. tostring(x) .. "," .. tostring(y) .. " loading=" .. tostring(loading == true))
+    log("PREPARED", trip, "destination=" .. tostring(x) .. "," .. tostring(y))
     local function cancel(reason)
         finish(identity, trip, reason or "response_not_completed")
     end
@@ -108,7 +67,7 @@ D.registerAction("player.teleport_safehouse", T.prepare)
 local function updateTrip(identity, trip, now)
         local player = trip.player
         if not connected(player) then finish(identity, trip, "disconnected_or_dead")
-        elseif now >= trip.deadline then finish(identity, trip, trip.started and "arrival_timeout" or (not trip.armed and "response_not_armed_timeout" or (trip.loading and ("destination_loading_timeout " .. tostring(trip.loadingDetail)) or "departure_timeout")))
+        elseif now >= trip.deadline then finish(identity, trip, trip.started and "arrival_timeout" or (not trip.armed and "response_not_armed_timeout" or "departure_timeout"))
         elseif player:getVehicle() then finish(identity, trip, "in_vehicle")
         elseif trip.started and atDestination(player, trip) then
             -- A requested packet alone never consumes the six-hour allowance.
@@ -116,28 +75,20 @@ local function updateTrip(identity, trip, now)
             pending[identity], count = nil, count - 1
             log("ARRIVED", trip, "cooldownHours=6 storage=memory")
         elseif trip.armed and not trip.started then
-            -- Cold destinations load without blocking Lua or moving into an unverified square.
             if SafeHouse.hasSafehouse(player) ~= trip.safe then
                 finish(identity, trip, "safehouse_changed")
-            else
-                local a, b, loading, detail = destination(trip.safe)
-                trip.loading, trip.loadingDetail = loading, detail
-                if a and now >= trip.departAt then
-                    trip.x, trip.y = a, b
-                    if atDestination(player, trip) then
-                        finish(identity, trip, "already_at_destination")
-                    else
-                        local ok, accepted = pcall(ApocBRHumanAPI.teleport, player, a, b, 0)
-                        if ok and accepted == true then
-                            trip.started = true
-                            trip.deadline = now + 20000
-                            log("TELEPORT_SENT", trip, "destination=" .. a .. "," .. b .. ",0")
-                        else finish(identity, trip, ok and "bridge_rejected" or ("bridge_error: " .. tostring(accepted))) end
-                    end
-                elseif not a and not loading then finish(identity, trip, "no_valid_landing_tile " .. tostring(detail))
-                elseif loading and not trip.loadingLogged then
-                    trip.loadingLogged = true
-                    log("WAITING_FOR_DESTINATION", trip, detail)
+            elseif now >= trip.departAt then
+                local a, b = destination(trip.safe)
+                trip.x, trip.y = a, b
+                if atDestination(player, trip) then
+                    finish(identity, trip, "already_at_destination")
+                else
+                    local ok, accepted = pcall(ApocBRHumanAPI.teleport, player, a, b, 0)
+                    if ok and accepted == true then
+                        trip.started = true
+                        trip.deadline = now + 20000
+                        log("TELEPORT_SENT", trip, "destination=" .. a .. "," .. b .. ",0")
+                    else finish(identity, trip, ok and "bridge_rejected" or ("bridge_error: " .. tostring(accepted))) end
                 end
             end
         end
@@ -152,5 +103,5 @@ Events.OnTick.Add(function()
         if not ok then finish(identity, trip, "tick_error: " .. tostring(errorMessage)) end
     end
 end)
-log("LOADED", nil, "revision=4 cooldownStorage=memory")
+log("LOADED", nil, "revision=5 cooldownStorage=memory destination=claim_origin")
 return T

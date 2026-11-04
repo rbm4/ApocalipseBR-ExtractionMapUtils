@@ -1,5 +1,30 @@
 # Safehouse travel silent cancellation
 
+## Direct native safehouse teleport (revision 5)
+
+The reported `WAITING_FOR_DESTINATION ... loadedCells=0 existingSquares=0`
+confirmed that our preload gate still prevented any native teleport request.
+The gate was an unnecessary addition: lobby relocation already calls
+`GameServer.sendTeleport` without a destination-square requirement. Installed
+vanilla `media/lua/client/ISUI/AdminPanel/ISSafehousesList.lua`, lines 96-101,
+uses the selected claim's `getX(), getY(), 0` for its Teleport button.
+
+Revision 5 uses that exact registered origin and the existing server-authoritative
+native teleport bridge, without querying squares, scanning a radius or waiting
+for forced loading. It keeps membership/account checks, the post-response delay,
+one packet per trip, exact-tile arrival confirmation and memory-only cooldown.
+The preparation deadline is again 20 seconds, with a separate 20-second arrival
+window after sending. `LOADED ... revision=5 ... destination=claim_origin`
+identifies this version. No Java patch or migration is required; redeploy the
+updated server Lua and restart.
+
+Tests pass: 32 travel checks including a deliberately throwing getCell/streaming
+bridge (neither may be called), exact admin-origin coordinates, unloaded and
+tiny claims, failed packets, memory reset and no cooldown before arrival; plus
+32 graph, 89 dialogue and 45 roster checks. Native client loading/arrival still
+requires the next live attempt. Earlier revision notes below are historical.
+
+
 ## Memory cooldown and exact-tile arrival (revision 4)
 
 At the user's request, the six-hour account timer now lives only in a private
