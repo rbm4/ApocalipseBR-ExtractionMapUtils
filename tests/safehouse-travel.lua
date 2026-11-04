@@ -41,9 +41,9 @@ check(requests == 0, "NPC response gets a nonblocking reading interval before de
 now = now + 2500; tick()
 check(requests == 1 and next(state) == nil, "native packet acceptance is not arrival")
 tick(); check(next(state) == nil, "no cooldown while still at NPC")
-x, y = 99.5, 200.5; tick()
+x, y = 104.5, 210.5; tick()
 check(prepare().responsePool == "safehouse.teleport.unavailable", "neighbor tile does not finish travel or start cooldown")
-x, y = 100.5, 200.5; tick()
+x, y = 105.5, 210.5; tick()
 local landed = now
 check(prepare().responsePool == "safehouse.teleport.cooldown" and next(state) == nil, "arrival starts only an in-memory cooldown")
 x, y = 10, 20
@@ -81,7 +81,7 @@ ApocBRLobbyStreaming={keepCellLoaded=function() streamingCalls=streamingCalls+1;
 local coldRequests=requests
 a=prepare(); check(a.success,"unloaded safehouse is immediately eligible"); depart(a)
 check(requests==coldRequests+1 and streamingCalls==0,"native teleport sent without preloading a destination chunk")
-check(lastDestination[1]==100 and lastDestination[2]==200 and lastDestination[3]==0,"destination matches vanilla admin safehouse origin, not its center")
+check(lastDestination[1]==105 and lastDestination[2]==210 and lastDestination[3]==0,"rectangular safehouse destination matches native death-respawn calculation")
 now=now+21000; tick()
 a = prepare(); currentSafe = nil; local before = requests; a.afterResponse()
 check(requests == before and next(state) == nil, "membership revalidated after response"); currentSafe = safe
@@ -102,6 +102,11 @@ tick()
 check(logged("tick_error:") and logged("safehouse test failure"), "polling error releases reservation with diagnostics")
 SafeHouse.hasSafehouse = originalSafehouseLookup
 a = prepare(); check(a.success, "polling exception leaves account able to retry"); a.cancel()
+currentSafe={getX=function() return 100 end,getY=function() return 200 end,
+    getW=function() return 7 end,getH=function() return 5 end}
+a=prepare(); depart(a)
+check(lastDestination[1]==102 and lastDestination[2]==203,"odd dimensions use native integer division for respawn center")
+a.cancel()
 currentSafe={getX=function() return 100 end,getY=function() return 200 end,
     getW=function() return 1 end,getH=function() return 1 end}
 getCell=function() return {getGridSquare=function() return freeSquare end} end

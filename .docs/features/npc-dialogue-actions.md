@@ -1,8 +1,8 @@
 # NPC dialogue actions and safehouse travel
 
 Follow-up: [travel corrections](../hotfixes/safehouse-travel-silent-cancellation.md).
-Revision 5 sends native teleport directly to the claim origin without requiring
-loaded destination squares. Revision 4's memory-only cooldown remains in effect.
+Revision 6 sends native teleport directly to the native safehouse death-respawn
+center without requiring loaded destination squares. Memory-only cooldown remains.
 
 Status: implemented for the 42.22.1 Java bridge v5; isolated tests pass, live
 dedicated-server validation pending.
@@ -66,13 +66,14 @@ safehouse, refuses dead/disconnected/in-vehicle players and concurrent transfers
 and uses account identity from the Java bridge. Steam IDs remain exact strings;
 non-Steam identity falls back to username.
 
-The destination matches vanilla `ISSafehousesList:onClick(TELEPORT)`:
-`safehouse:getX(), safehouse:getY(), 0`. The server calls the bridge's native
-`GameServer.sendTeleport`, the same transport used by lobby relocation. No
-`getGridSquare` lookup, free-floor scan or forced preloading gates this request;
-native client relocation/streaming handles an unloaded destination. This is the
-registered claim origin, not the claim center. There is no extra terrain scan.
+The destination matches the 42.22.1 `IsoWorld` safehouse death-respawn coordinate
+calculation: `X + floor(H / 2), Y + floor(W / 2), 0`. The height/width order is
+intentional: both native respawn setup paths use that order. The calculation
+matches the native starting square; the client's later room/free-tile adjustment
+at character creation is not replayed during teleport.
 
+The server still calls the bridge's native `GameServer.sendTeleport`, without a
+loaded-square lookup or forced preloading. Native relocation handles streaming.
 The NPC's success pool authorizes/starts transfer. One native request is sent
 after the response and a nonblocking 2.5-second reading interval. Confirmation
 requires the same live player's server position on the exact target tile/floor.

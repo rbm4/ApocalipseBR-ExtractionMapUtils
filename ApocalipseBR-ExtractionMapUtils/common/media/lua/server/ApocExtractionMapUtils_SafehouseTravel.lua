@@ -27,9 +27,9 @@ local function atDestination(player, trip)
         and math.floor(player:getY()) == math.floor(trip.y)
 end
 local function destination(safe)
-    -- Match vanilla ISSafehousesList TELEPORT: registered claim origin, floor zero.
+    -- Match 42.22.1 IsoWorld safehouse death-respawn coordinates (integer division).
     -- Native teleport initiates destination streaming; no preloaded square is required.
-    return safe:getX(), safe:getY()
+    return safe:getX() + math.floor(safe:getH() / 2), safe:getY() + math.floor(safe:getW() / 2)
 end
 function T.prepare(ctx)
     local player, api = ctx.player, ApocBRHumanAPI
@@ -103,5 +103,5 @@ Events.OnTick.Add(function()
         if not ok then finish(identity, trip, "tick_error: " .. tostring(errorMessage)) end
     end
 end)
-log("LOADED", nil, "revision=5 cooldownStorage=memory destination=claim_origin")
+log("LOADED", nil, "revision=6 cooldownStorage=memory destination=respawn_center")
 return T

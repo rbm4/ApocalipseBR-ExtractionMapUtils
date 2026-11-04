@@ -1,5 +1,23 @@
 # Safehouse travel silent cancellation
 
+## Native death-respawn center (revision 6)
+
+After revision 5 successfully teleported in-game, the user requested the familiar
+safehouse death-respawn location instead of the admin button's claim origin.
+Destination now uses the exact 42.22.1 `IsoWorld` integer coordinate calculation:
+`safe.getX() + safe.getH()/2`, `safe.getY() + safe.getW()/2`, floor zero. Both
+native safehouse-respawn setup paths (decompiled IsoWorld lines 2161-2163 and
+2342-2344) use this dimension order. Lua uses math.floor to match Java division.
+The later client room/free-tile selection during character creation is not part
+of this coordinate-only teleport and still is not invoked.
+
+No forced loading gate is restored. Memory-only cooldown, native packet sending
+and arrival checks remain in place. Startup identifies `revision=6` and
+`destination=respawn_center`. Travel fixtures pass 33 checks, including rectangular,
+odd-sized and one-tile claims. Redeploy server Lua and restart; no Java patch or
+migration is needed.
+
+
 ## Direct native safehouse teleport (revision 5)
 
 The reported `WAITING_FOR_DESTINATION ... loadedCells=0 existingSquares=0`
