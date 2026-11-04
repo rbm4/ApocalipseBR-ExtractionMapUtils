@@ -26,7 +26,7 @@ Open **ApocalipseBR - Extraction Map Utils** in sandbox settings.
 | Force map and minimap reveal | On | Enable both maps, reveal map knowledge on client/server, and bypass light requirements. Minimap visibility follows normal controls. |
 | Enable lobby | Off | Enable fence construction, maintenance, disassembly protection, RCON release and scheduled perimeter removal. |
 | Relocate to lobby on every login | Off | Requires Enable lobby. Closed-lobby placement requires Relocate logins while the lobby is closed and 0 usable doors. Server-transfer and open-water rescue rules remain active. |
-| Clear lobby zombies on initial chunk load | Off | Requires Enable lobby. Clear existing zombies once per chunk per server run; later arrivals remain. |
+| Clear lobby zombies at server startup | Off | Requires Enable lobby and updated 42.22.1 server patch. Force-load, clear and release lobby cells every startup, with progress logs. |
 | Zombie money drops | Off | Add 1-10 money items to eligible zombie corpses. Independent of Enable lobby. |
 | Lobby X | -1 | World tile X. Set to a nonnegative coordinate to configure. |
 | Lobby Y | -1 | World tile Y. Set to a nonnegative coordinate to configure. |
@@ -83,7 +83,7 @@ for bounds, restriction switches and layout resets and manual cleanup of old fen
 - The native server map store loads a user lazily on the first PlayerVisited request and ignores earlier writes. A server write acknowledgement indicates a successful API call, not proof that the lazy store was already loaded. The server therefore retries up to eight passes, 15 seconds apart, and clears offline sessions. Requests are throttled to one per player instance per five seconds; retry windows can restart at most once per two minutes. Respawn/reconnect instances receive a new retry budget.
 - The server stores revealed knowledge once its per-player map store is loaded. In single player, native exploration saves can retain revealed knowledge. Disabling the option stops writes and restores ordinary map/light availability checks; it does not erase learned map knowledge. No perpetual five-second client render/flag pump remains.
 - Reveal displays available worldmap XML/image data, including custom maps that provide it. It does not generate missing map data, reveal live zombies/items, or bundle Chernarus.
-- The 0.2.1 perimeter uses military fences and command-controlled removal of exit segments as described below. Optional [initial lobby zombie cleanup](.docs/features/lobby-zombie-cleanup.md) runs once per naturally loaded chunk per server session. Event countdowns and a full event lifecycle remain future work.
+- The 0.2.1 perimeter uses military fences and command-controlled removal of exit segments as described below. Optional [initial lobby zombie cleanup](.docs/features/lobby-zombie-cleanup.md) force-loads lobby cells on every server startup, clears their interior and releases loading requests, with progress logs. Requires the updated 42.22.1 server patch. Event countdowns and a full event lifecycle remain future work.
 
 ## Lobby perimeter and scheduled events (0.3.0)
 

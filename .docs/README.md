@@ -10,7 +10,7 @@ integration. Repository conventions live in [AGENTS.md](../AGENTS.md).
 Durable gameplay specifications and current behavior belong in `features/`.
 
 - [Initial lobby zombie cleanup](features/lobby-zombie-cleanup.md): opt-in cleanup
-  once per natural chunk load per server run; later arrivals remain untouched.
+  forced streaming on every server startup, progress logs and loading-request release.
 
 - [Independent respawn relocation](features/lobby-respawn-relocation.md):
   separate default-off death-respawn policy from login/server-transfer placement.

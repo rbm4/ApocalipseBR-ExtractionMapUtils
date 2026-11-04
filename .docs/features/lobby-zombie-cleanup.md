@@ -1,87 +1,105 @@
-# Initial lobby zombie cleanup
+# Startup lobby zombie cleanup
 
-Status: implemented 2026-10-30; awaiting dedicated-server/client validation.
+Status: implemented 2026-11-04; awaiting Build 42.22.1 dedicated-server validation.
 
 ## Configuration and behavior
 
 Enable `SandboxVars.ApocExtractionMapUtils.LobbyCleanupZombies = true` and
-`LobbyEnabled = true`, then restart the server. The cleanup option defaults to
-false. It is independent of fence construction, login relocation and operation
-release state. EN/PTBR sandbox labels explain the behavior.
+`LobbyEnabled = true`, then restart. Default remains false. Requires the updated
+42.22.1 server Java patch exposing `ApocBRLobbyStreaming` as well as this mod.
+Missing bridge or invalid geometry logs FAILED and performs no cleanup.
+The feature is independent of fence construction, login relocation and event release.
 
-On the first natural `LoadChunk` for each lobby chunk during a server run,
-remove existing `IsoZombie` objects from the inclusive rectangle defined by
-`LobbyX1/Y1` and `LobbyX2/Y2`, at `LobbyFenceZ` only. Corner order is normalized.
-The extra east/south squares used to anchor fences are outside this interior
-cleanup area. Players, animals, corpses and reanimated players are preserved.
-Removal does not kill zombies or trigger kill rewards/objectives.
+Every process startup, `OnServerStarted` queues the complete configured lobby
+rectangle. No saved completion flag prevents future startup runs. The job runs
+on `OnTickEvenPaused`, including an empty server with PauseEmpty enabled. It
+cannot block `OnServerStarted`: the loader requires subsequent server frames.
+Server readiness/login is not gated on job completion; wait for COMPLETE in the
+logs before admitting players if the lobby must be clean before entry.
 
-Each callback examines at most 64 tiles on the configured floor. It never loads
-chunks, scans the global zombie list, retains zombie references, or queues a
-future area sweep. Chunk coordinates are derived from exposed grid-square
-methods rather than Java field access. Invalid lobby geometry does no cleanup.
+The server loads one 64x64 server cell at a time through native relevance requests.
+This necessarily loads surrounding chunks in that cell, but deletion touches only
+the inclusive normalized `LobbyX1/Y1`..`LobbyX2/Y2` interior at `LobbyFenceZ`.
+The fence's extra east/south anchoring squares are excluded. After full main-thread
+cell integration, allow five seconds for population settling, then process at most
+four intersecting 8x8 chunks (256 tiles) per callback. Missing squares on the
+configured floor are empty, not a reason to create terrain.
 
-Visited chunk keys are held in memory only. Already cleaned chunks are never
-cleaned again in that run, even after unloading/reloading, fence release or
-player reconnect. A new server run starts fresh. Newly visited lobby chunks
-still receive their first cleanup if loaded much later in the run. Zombies
-entering or spawning after the initial callback survive: this is an initial
-cleanup, not a safe zone or spawn-prevention system. In particular, population
-materialized asynchronously after `LoadChunk` is outside this pass. Restart
-after changing settings; live reconfiguration is not supported.
+Remove IsoZombie objects with removeFromWorld then removeFromSquare. Preserve
+players, animals, corpses and reanimated players. Removal does not kill zombies
+or award kill rewards/objectives. Existing server-authorized ID packets tell
+clients to remove the same identities from affected loaded tiles. Clients cannot
+request or choose cleanup targets. Single player is skipped with a diagnostic;
+forced server streaming is dedicated-server-only.
 
-## Authority and replication
+After each cell, stop renewing its relevance request. Native ServerMap.postupdate
+then saves/unloads it when no player or other native requester needs it. Never
+call ServerCell.Unload directly or evict player chunks. No leases, fake players,
+ImportantAreaManager entries, worker threads or permanent loaded-area pins are
+created. Completed, cancelled and failed jobs stop making loading requests.
 
-The server removes selected zombies with `removeFromWorld()` followed by
-`removeFromSquare()`. For multiplayer, a server-only command includes the
-removed online IDs and affected tile rectangle. Clients mirror removal only for
-matching IDs on those loaded tiles. There is no client request handler and no
-client authority to choose zombies. Unloaded client squares are left alone;
-server world state supplies subsequent loads. Single player removes locally.
+## Logs and failure handling
 
-Affected files:
+The `[ApocExtractionLobbyCleanup]` prefix always prints, independently of DebugLogging:
 
-- `server/ApocExtractionMapUtils_LobbyCleanup.lua`
-- `client/ApocExtractionMapUtils_LobbyCleanupClient.lua`
-- `media/sandbox-options.txt` and EN/PTBR `Sandbox.json`
-- `tests/lobby-cleanup.lua`
+- START: normalized bounds, floor, total cells and intersecting chunks.
+- LOADING: cell index and coordinates.
+- PROGRESS: every five seconds while active, with phase, chunks and removals.
+- CLEANED: per-cell completion totals and loading-request release.
+- COMPLETE: total chunks, removed zombies, elapsed milliseconds and request release.
+- FAILED/CANCELLED: partial totals and request release; never report incomplete work as success.
 
-Lua paths are relative to `ApocalipseBR-ExtractionMapUtils/common/media/lua/`.
+Cell loading/cleanup has a 120-second deadline. Invalid map cells, API exceptions
+and timeout abort the run without retry loops or permanent retention. Disabling
+either option during the job cancels it. A duplicate startup event or module load
+does not rerun cleanup in the same process. Restart after changing configuration.
 
-## Engine evidence and limitations
+This is a finite startup cleanup, not a safe zone. Zombies entering or spawning
+after their tiles are scanned survive. Five seconds is a settling allowance, not
+a native population-drained acknowledgement. In particular virtual population may
+materialize after cleanup, especially when normal simulation was paused with no
+players. This implementation does not erase virtual population, disable respawns
+or advance the paused simulation. Native population timing, loaded-cell saving,
+actual unloading and client ownership must be checked on the dedicated server.
 
-Verified against local `apocalipsebr-zomboid-patches/42.21.0/decompiled/`:
+## Source evidence and affected files
 
-- `zombie/iso/IsoChunk.java`: `getGridSquare(int,int,int)` and `LoadChunk` at
-  the end of `doLoadGridsquare`; chunk dimensions are 8x8.
-- `zombie/Lua/LuaManager.java`: exposes `IsoChunk`, `IsoZombie` and server commands.
-- `zombie/characters/IsoZombie.java`: online ID getter and removal lifecycle.
-- `zombie/commands/serverCommands/RemoveZombiesCommand.java`: native removal
-  order and reanimated-player exclusion. Native code additionally queues a
-  `NetworkZombiePacker` deletion; the mod uses its own server-to-client command
-  because that packer is not exposed in vanilla Lua.
-- `zombie/network/ServerMap.java` and `zombie/popman/ZombiePopulationManager.java`:
-  some indoor/population creation can happen after the chunk callback. Such
-  later zombies are intentionally not watched or continuously removed.
+Verified against `apocalipsebr-zomboid-patches/42.22.1/decompiled/zombie/` and its
+patched ServerMap implementation:
 
-Client replication, zombie ownership timing, population timing and saved-world
-restarts still need a live dedicated-server/client test. No Java patch required.
+- ServerMap.loadOrKeepRelevent uses map-relative 64-tile cell indices; preupdate
+  integrates loading and clears per-frame relevance before Lua's server update.
+- ServerCell.Load2/RecalcAll2 integrates chunks and indoor zombies before marking
+  completion; postupdate uses relevance and player influence to unload/save.
+- IngameState fires OnTickEvenPaused even while paused; normal population
+  updateMain runs only when unpaused.
+- LuaManager exposes the new bridge only on the server. Server-map access runs
+  on the server thread from Lua callbacks, never a loader or NPC worker.
+
+Mod files: server/ApocExtractionMapUtils_LobbyCleanup.lua,
+client/ApocExtractionMapUtils_LobbyCleanupClient.lua (existing replication), sandbox
+option, EN/PTBR labels and tests/lobby-cleanup.lua. Lua paths are relative to
+`ApocalipseBR-ExtractionMapUtils/common/media/lua/`.
+The bridge and its validation are documented in the patch repository under
+`42.22.1/docs/features/2026-11-04-lobby-startup-streaming.md`.
 
 ## Verification
 
-Passed on 2026-10-30:
+Passed on 2026-11-04:
 
 ```powershell
 npm exec --yes --package=fengari-node-cli -- fengari tests/lobby-cleanup.lua
-npm exec --yes --package=fengari-node-cli -- fengari tests/lobby-perimeter.lua Z:/git/Github/Apocalipse-RCON-extension
-npm exec --yes --package=fengari-node-cli -- fengari tests/login-lobby-state.lua
+npm exec --yes --package=fengari-node-cli -- fengari tests/lobby-perimeter.lua
 npm exec --yes --package=fengari-node-cli -- fengari tests/login-and-maps.lua
-npm exec --yes --package=fengari-node-cli -- fengari tests/lobby-disassembly.lua
+npm exec --yes --package=fengari-node-cli -- fengari tests/map-reveal-server.lua
+npm exec --yes --package=fengari-node-cli -- fengari tests/cartography.lua
+py tests/translation-locales.py
+git diff --check
 ```
 
-The new harness mocks engine boundaries and covers default-off/disabled/client
-guards, normalized bounds and floor, multiple zombies on one square, exclusions,
-outside chunks, empty/unavailable tiles, late natural chunk loading, no cleanup
-on repeat loads/ticks, later entrants before the next tick, server restart,
-single player and selective server-authorized client synchronization. JSON,
-UTF-8 without BOM, documentation links and diff whitespace were also checked.
+The mocked Lua harness covers opt-in/master/client guards, nonblocking startup,
+paused callbacks, settling, multiple cells, bounded deletion, exclusions, exact
+bounds/floor, logging, finite requests, no repeat deletion, restart, timeout,
+missing bridge, invalid map, exceptions, cancellation and client identity sync.
+Production bridge fixture and exact-game-JAR compilation also passed (see patch
+guide). No live server was started or installed patch deployed for this change.

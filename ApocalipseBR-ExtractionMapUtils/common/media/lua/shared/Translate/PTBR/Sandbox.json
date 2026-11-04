@@ -48,6 +48,6 @@
     "Sandbox_ApocExtractionMapUtils_LobbyBlockDigging_tooltip": "Ativado por padrão. Bloqueia a remoção de material do solo com pá no lobby.",
     "Sandbox_ApocExtractionMapUtils_RelocateOnRespawn": "Mover para o lobby após a morte",
     "Sandbox_ApocExtractionMapUtils_RelocateOnRespawn_tooltip": "Desativado por padrão. Ao renascer na mesma sessão do servidor, substitui o ponto de abrigo ou mapa/mod e move para o lobby, inclusive durante uma operação. Independente da transferência ao entrar ou trocar de servidor. Requer Ativar lobby e coordenadas X/Y/Z válidas. Atualize o patch 42.21.0 do servidor para detectar renascimentos no multijogador.",
-    "Sandbox_ApocExtractionMapUtils_LobbyCleanupZombies": "Limpar zumbis do lobby ao carregar os chunks",
-    "Sandbox_ApocExtractionMapUtils_LobbyCleanupZombies_tooltip": "Requer Ativar lobby. Uma vez por execução do servidor, remove zumbis existentes nos limites e andar do lobby conforme os chunks carregam naturalmente. Sem carregamento forçado ou proteção contínua: zumbis que chegam ou surgem depois permanecem, inclusive após recarregar o chunk. Exclui jogadores reanimados. Reinicie após alterações. Desativado por padrão."
+    "Sandbox_ApocExtractionMapUtils_LobbyCleanupZombies": "Limpar zumbis do lobby ao iniciar o servidor",
+    "Sandbox_ApocExtractionMapUtils_LobbyCleanupZombies_tooltip": "Requer Ativar lobby e o patch atualizado do servidor 42.22.1. A cada inicialização, força o carregamento das células do lobby, remove zumbis nos limites e andar configurados e libera as solicitações para descarregamento normal. O progresso sempre aparece nos logs. Zumbis que chegam ou surgem depois permanecem. Exclui jogadores reanimados. Reinicie após alterações. Desativado por padrão."
 }
