@@ -33,7 +33,8 @@ local function localDecision(player, respawn)
     if not enabled(respawn == true) then return false end
     if respawn then return true end
     local state = ModData.get("ApocExtractionLobby")
-    if state and state.released == false and state.removedAll ~= true then return true end
+    if Utils.closedLobbyRelocationEnabled() and state and state.released == false
+        and state.removedAll ~= true then return true end
     return Utils.loginPositionNeedsReset(player)
 end
 
@@ -117,7 +118,8 @@ Events.OnServerCommand.Add(function(module, command, args)
         .. "; closed=" .. tostring(args.closed == true) .. "; serverTeleported=" .. tostring(args.serverTeleported == true))
     if args.retry == true and args.closed ~= true and args.reset ~= true then return end
     pending[playerNum] = nil
-    if args.serverTeleported ~= true and (args.closed == true or args.reset == true) then
+    if args.serverTeleported ~= true and (args.reset == true
+        or (args.closed == true and Utils.closedLobbyRelocationEnabled())) then
         local respawn = args.respawn
         if respawn == nil then respawn = entry.respawn end
         relocate(entry.player, respawn)

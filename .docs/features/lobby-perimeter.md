@@ -4,7 +4,7 @@ Status: updated in 0.2.2; awaiting Build 42 dedicated-server/client validation.
 Version 0.3.0 adds [PostgreSQL event activation](postgresql-event-control.md):
 the scheduled event removes the entire perimeter; the manual RCON behavior
 documented here still removes the six exits.
-Sandbox bounds, default-on switches and 0..3 usable doors are documented in
+Sandbox bounds, default-on switches and 0..6 usable doors are documented in
 [lobby sandbox configuration](lobby-sandbox-configuration.md). The descriptions
 below of a continuous fence apply with `LobbyDoorCount=0`; the default is now 3.
 
@@ -29,7 +29,10 @@ and the chosen location's terrain still need in-game verification.
 
 All assets have maximum/current health 2147483647, the maximum positive Java
 int accepted by the inspected setter/save/network fields. They cannot normally
-be thumped, dismantled, climbed or barricaded. Use the intended server setting
+be thumped by default, dismantled, climbed or barricaded. Set
+`LobbyAllowZombieThumping=true` to allow zombie thumping on these fences and
+closed doors; see [sandbox configuration](lobby-sandbox-configuration.md).
+Use the intended server setting
 that disables sledgehammers. These flags address normal gameplay; administrative
 deletion, fire, vehicle physics, animal damage, other mods and modified clients
 are not a universal indestructibility guarantee. Missing assets are repaired
@@ -59,7 +62,7 @@ validates directional collision plus `CantClimb` and rejects either hoppable
 flag family. `setIsHoppable(false)` alone does not stop normal wall climbing.
 
 With `LobbyDoorCount=0` there are no door sprites or door-state transitions.
-With 1..3, the corresponding exit segments are usable doors and maintenance
+With 1..6, the corresponding exit segments are usable doors and maintenance
 preserves their open state. The release command
 despawns only the six designated fence segments through native server removal.
 The result is 280 fence objects and six single-tile pedestrian gaps. Rescans,
@@ -70,8 +73,8 @@ The release latch is saved with the layout. With an unpatched/older engine, a
 normal restart of an already released save leaves exit gaps empty. With the
 updated 42.21.0 event bridge, the lobby automatically recloses when the cached
 manager agenda confirms there is no active operation, including while another
-operation is queued. See [automatic reconstruction](../hotfixes/lobby-fence-between-operations.md). The module does not implement zombie clearance, an event
-lifecycle, server-authoritative player relocation or forced chunk streaming.
+operation is queued. See [automatic reconstruction](../hotfixes/lobby-fence-between-operations.md). Optional [initial zombie cleanup](lobby-zombie-cleanup.md) is independent of fence release state.
+The perimeter module does not implement an event lifecycle, server-authoritative player relocation or forced chunk streaming.
 Existing map objects are preserved; the builder does not clear buildings,
 trees, parked vehicles or other obstructions. Verify the perimeter and all six
 exit positions on the target map before admitting players.
@@ -176,10 +179,12 @@ chunk loaded after another restart is still repaired. A released old save has
 its old doors removed rather than replaced. Unrelated map objects are preserved.
 No world reset or manual cleanup is needed for this upgrade.
 
-Other changes to bounds, exit count or sprites on an existing save are rejected
-rather than silently relocating the perimeter. Deliberately remove the old owned
-assets and migrate/remove its `ApocExtractionLobby` state while the server is
-stopped or through trusted administrative tooling before changing the layout.
+Other changes to bounds, floor, exit count or fence sprites reset the saved
+`ApocExtractionLobby` state at startup and generate a fresh, closed perimeter.
+Old fences remain untouched, including where layouts overlap; administrators
+remove them manually. Release flags, event identity and legacy ownership are
+discarded. An unchanged layout retains its saved exit plan and release state.
+See [layout reset](../hotfixes/lobby-layout-config-reset.md).
 Disabling this feature stops its work; it does not delete existing assets.
 
 ## Engine paths and persistence

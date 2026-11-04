@@ -22,11 +22,14 @@ preserves the safehouse/map/mod spawn even when the lobby is closed.
 ## Current behavior
 
 - With both lobby and relocation enabled, living players move to the configured
-  lobby at login while the lobby is closed. After release (or with unknown lobby
-  state), only invalid positions reset: outside the current world's metagrid
-  bounds, or on loaded open-water tiles. Valid land, floors over water and
-  in-bounds vehicle passengers preserve their positions during an operation.
-  These are map bounds, not lobby bounds or event objective/region boundaries.
+  lobby at login while the lobby is closed only if `RelocateOnClosedLobby` is
+  enabled and `LobbyDoorCount` is 0. Any positive door count disables this rule,
+  even when no operation ever opens the lobby. Other login rules remain active.
+  After release (or with unknown lobby
+  state), only loaded open-water positions within the current world's metagrid
+  reset. Out-of-map positions alone no longer trigger relocation. Valid land,
+  floors over water and vehicle passengers preserve their positions during an
+  operation. See [out-of-map recovery removal](../hotfixes/disable-out-of-map-login-rescue.md).
   With the optional 42.21.0 `ApocBRPlayerLogin` Java bridge, known cross-server
   logins reset even on valid land. The previous ID comes from the independent
   successful-login audit table. Pending audit results retry; first audited logins
@@ -60,7 +63,7 @@ Sandbox group: `ApocExtractionMapUtils`.
 | Option | Default | Meaning |
 | --- | --- | --- |
 | `LobbyEnabled` | `false` | Master opt-in for lobby behavior, including relocation. |
-| `RelocateOnLogin` | `false` | Place players in a closed lobby; after release, rescue out-of-map/open-water logins. |
+| `RelocateOnLogin` | `false` | Closed-lobby placement also requires RelocateOnClosedLobby and zero usable doors; open-water rescue remains active. |
 | `LobbyX` | `-1` | Lobby world tile X; negative means unconfigured. |
 | `LobbyY` | `-1` | Lobby world tile Y; negative means unconfigured. |
 | `LobbyZ` | `0` | Lobby floor, from -32 to 31. |

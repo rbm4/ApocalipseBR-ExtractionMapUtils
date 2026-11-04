@@ -108,7 +108,8 @@ local function fixture(options)
         function o:transmitCompleteItemToClients()
             assert(self.inserted and self.square.construction)
             assert(self.Health == 2147483647 and self.MaxHealth == 2147483647)
-            assert(self.IsThumpable == false and self.IsDismantable == false and self.CanBarricade == false)
+            assert(self.IsThumpable == (SandboxVars.ApocExtractionMapUtils.LobbyAllowZombieThumping == true))
+            assert(self.IsDismantable == false and self.CanBarricade == false)
             assert(self.IsHoppable == false and self.CanPassThrough == false)
             self.sent = true
         end
@@ -297,8 +298,43 @@ consume.start(); local private = consume.token(); consumeIO.failWrite = true
 assert(not pcall(consume.command, private) and consume.store.released == false, "consumption I/O must fail closed")
 local invalid = fixture({ configure = function(c) c.MaxEdgesPerTick = 100000 end })
 invalid.start(); invalid.pump(100); assert(invalid.lookups == 0)
-local mismatch = fixture({ store = saved, configure = function(c) c.X1 = c.X1 - 1 end })
-mismatch.start(); mismatch.pump(100); assert(mismatch.lookups == 0, "never silently migrate a saved perimeter")
+-- Changed layouts reset release/migration state, leaving old objects untouched,
+-- including objects on squares shared with the new plan.
+for _, change in ipairs({
+    function(c) c.X1 = c.X1 - 1 end,
+    function(c) c.Z = 1 end,
+    function(c) c.ExitCount = 4 end,
+}) do
+    local original = fixture()
+    original.start(); original.pump(100)
+    local oldSignature, oldObjects = original.store.signature, original.objects()
+    local oldKeys = original.store.exitKeys
+    original.store.released, original.store.removedAll = true, true
+    original.store.eventId, original.store.eventRevision = "old-event", 7
+    original.store.legacySignatures = { obsolete = true }
+    original.store.doorKeys, original.store.open = {}, true
+    local mismatch = fixture({ store = original.store, squares = original.squares, configure = change })
+    mismatch.start(); mismatch.pump(100)
+    assert(mismatch.command and #mismatch.objects() > #oldObjects and mismatch.loginState(), "changed layout must initialize closed")
+    assert(mismatch.store.signature ~= oldSignature and mismatch.store.exitKeys ~= oldKeys)
+    assert(mismatch.store.released == false and not mismatch.store.removedAll)
+    assert(not mismatch.store.eventId and not mismatch.store.eventRevision and not mismatch.store.legacySignatures)
+    assert(not mismatch.store.doorKeys and not mismatch.store.open, "discard obsolete legacy state")
+    assert(mismatch.removes == 0 and original.removes == 0, "old objects must not be removed")
+    local present = {}
+    for _, object in ipairs(mismatch.objects()) do present[object] = true end
+    for _, object in ipairs(oldObjects) do
+        assert(present[object] and object.data.ApocExtractionLobby.signature == oldSignature,
+            "old objects must survive even where layouts overlap")
+    end
+    local total = #mismatch.objects()
+    local newKeys = mismatch.store.exitKeys
+    local restart = fixture({ store = mismatch.store, squares = mismatch.squares, configure = change })
+    restart.start(); restart.pump(100)
+    assert(#restart.objects() == total and restart.removes == 0 and mismatch.removes == 0
+        and original.removes == 0 and restart.store.exitKeys == newKeys,
+        "unchanged restart must preserve the new plan and both sets of assets")
+end
 local missing = fixture({ missingSprite = true })
 missing.start(); missing.pump(100); assert(missing.lookups == 0)
 for _, bad in ipairs({ "fencing_01_80", "fencing_01_82", "fixtures_doors_01_68", "fencing_01_90" }) do
@@ -435,8 +471,8 @@ assert(rebuild.adds == 0 and rebuild.loginState())
 rebuildOptions.unloaded = false
 rebuild.load(rebuild.square(14260, 11812, 0)); rebuild.pump(2)
 assert(rebuild.adds == 2, "reclosed perimeter must build as unloaded chunks arrive")
--- Permanent lobbies have 0..3 usable doors without any event bridge.
-for count = 0, 3 do
+-- Permanent lobbies have 0..6 usable doors without any event bridge.
+for count = 0, 6 do
     local doors = fixture({ sandbox = { LobbyEnabled = true, LobbyDoorCount = count,
         LobbyX1 = 100, LobbyY1 = 200, LobbyX2 = 110, LobbyY2 = 210, LobbyFenceZ = 2 } })
     doors.start(); doors.pump(100)
@@ -456,18 +492,54 @@ for count = 0, 3 do
     assert(doors.adds == 44 and doors.removes == 0 and open == count,
         "maintenance must preserve open usable doors without an operation")
     local restartedDoors = fixture({ store = doors.store, squares = doors.squares, sandbox = { LobbyEnabled = true,
-        LobbyDoorCount = 3 - count, LobbyX1 = 100, LobbyY1 = 200, LobbyX2 = 110, LobbyY2 = 210, LobbyFenceZ = 2 } })
+        LobbyDoorCount = 6 - count, LobbyX1 = 100, LobbyY1 = 200, LobbyX2 = 110, LobbyY2 = 210, LobbyFenceZ = 2 } })
     restartedDoors.start(); restartedDoors.pump(100)
     found = 0
     for _, obj in ipairs(restartedDoors.objects()) do if obj:isDoor() then found = found + 1 end end
-    assert(found == 3 - count and not restartedDoors.randomCalls, "door count changes must retain the saved exit plan")
+    assert(found == 6 - count and not restartedDoors.randomCalls, "door count changes must retain the saved exit plan")
     assert(restartedDoors.command(restartedDoors.token())); restartedDoors.pump(100)
     assert(#restartedDoors.objects() == 38, "manual release still removes the six exits including usable doors")
+end
+-- Opt-in must affect both object types and migrate saved flags in both directions
+-- without resetting exit positions, closing open doors or churning intact assets.
+local thumpingStore, thumpingSquares
+for _, enabled in ipairs({ false, true, false }) do
+    local thumping = fixture({ store = thumpingStore, squares = thumpingSquares,
+        sandbox = { LobbyEnabled = true, LobbyDoorCount = 3, LobbyAllowZombieThumping = enabled } })
+    thumping.start(); thumping.pump(100)
+    local doors, fences, open = 0, 0, 0
+    for _, object in ipairs(thumping.objects()) do
+        assert(object:isThumpable() == enabled, "saved and new flags must match sandbox")
+        if object:isDoor() then
+            doors = doors + 1
+            if object:IsOpen() then open = open + 1 end
+            object.open = true
+        else fences = fences + 1 end
+    end
+    assert(doors == 3 and fences == 283)
+    if thumpingStore then
+        assert(open == 3 and not thumping.randomCalls, "flag migration must retain open doors and exit plan")
+    end
+    local intact = thumping.objects()
+    thumping.clock = 60000; thumping.pump(100)
+    for i, object in ipairs(thumping.objects()) do
+        assert(object == intact[i], "matching flags must not cause replacement on rescan")
+    end
+    if enabled then
+        local damaged = thumping.objects()[1]
+        damaged:setHealth(damaged:getHealth() - 1)
+        thumping.load(damaged.square); thumping.pump(2)
+        for _, object in ipairs(damaged.square.objects) do
+            assert(object ~= damaged and object:getHealth() == 2147483647,
+                "thumping must retain existing damage repair behavior")
+        end
+    end
+    thumpingStore, thumpingSquares = thumping.store, thumping.squares
 end
 local noFence = fixture({ sandbox = { LobbyEnabled = true, LobbyFenceEnabled = false } })
 noFence.start(); noFence.pump(100)
 assert(noFence.adds == 0 and noFence.lookups == 0 and not noFence.loginState(), "disabled fence must not place objects or report confinement")
-local badDoors = fixture({ sandbox = { LobbyEnabled = true, LobbyDoorCount = 4 } })
+local badDoors = fixture({ sandbox = { LobbyEnabled = true, LobbyDoorCount = 7 } })
 badDoors.start(); badDoors.pump(100)
 assert(badDoors.adds == 0 and badDoors.store.signature == nil, "invalid door counts must not mutate saved layout")
 if arg and arg[1] then

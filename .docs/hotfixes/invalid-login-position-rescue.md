@@ -4,6 +4,10 @@ Current login-hook ownership: ExtractionMapUtils supplies both Lua login hooks a
 
 Status: implemented; awaiting dedicated-server reconnect validation.
 
+The out-of-map portion was disabled on 2026-11-04; see
+[out-of-map recovery removal](disable-out-of-map-login-rescue.md). The original
+implementation below is historical; open-water rescue remains active.
+
 ## Symptom and cause
 
 The closed-lobby login gate preserved every saved position after release. A

@@ -13,7 +13,7 @@ Events.OnClientCommand.Add(function(module, command, player, args)
             respawn = respawn, playerNum = type(args) == "table" and args.playerNum or 0 })
         return
     end
-    local closed = Utils.Lobby.isClosed()
+    local closed = Utils.closedLobbyRelocationEnabled() and Utils.Lobby.isClosed()
     local reset = false
     local x, y, z = Utils.getLobbyPosition()
     -- Successful-login history is recorded independently by GameServer. Wait

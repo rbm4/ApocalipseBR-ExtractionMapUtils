@@ -9,6 +9,9 @@ integration. Repository conventions live in [AGENTS.md](../AGENTS.md).
 
 Durable gameplay specifications and current behavior belong in `features/`.
 
+- [Initial lobby zombie cleanup](features/lobby-zombie-cleanup.md): opt-in cleanup
+  once per natural chunk load per server run; later arrivals remain untouched.
+
 - [Independent respawn relocation](features/lobby-respawn-relocation.md):
   separate default-off death-respawn policy from login/server-transfer placement.
 - [Successful-login history](features/successful-login-history.md): independent
@@ -22,7 +25,8 @@ Durable gameplay specifications and current behavior belong in `features/`.
   secret choices, account facts and bounded multipart transport.
 
 - [Lobby sandbox configuration](features/lobby-sandbox-configuration.md): configurable
-  perimeter bounds, 0..3 usable doors and individual building restrictions.
+  perimeter bounds, 0..6 usable doors, zero-door closed-lobby login relocation
+  and individual building restrictions.
 - [Sandbox feature switches](features/sandbox-feature-switches.md): map reveal
   and lobby protection are on by default; relocation and money drops require opt-in.
 - [Lobby placement and map visibility](features/lobby-and-map-visibility.md):
@@ -47,7 +51,13 @@ documents when designed. Mark proposals as planned until implemented.
 
 ## Hotfixes
 
+- [Out-of-map login recovery removal](hotfixes/disable-out-of-map-login-rescue.md):
+  preserve out-of-map positions; retain water rescue and explicit lobby policies.
+
 Targeted corrections and compatibility workarounds belong in `hotfixes/`.
+
+- [Lobby layout configuration reset](hotfixes/lobby-layout-config-reset.md):
+  reset saved state when the layout changes and leave old fences for admin cleanup.
 
 - [Lobby fence between operations](hotfixes/lobby-fence-between-operations.md):
   rebuild the saved released perimeter when no operation is active, including

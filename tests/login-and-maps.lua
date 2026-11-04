@@ -42,6 +42,7 @@ assert(#callbacks == 1)
 callbacks[1]()
 assert(player.moves == 0, "unconfigured lobby must preserve the saved spawn")
 local options = SandboxVars.ApocExtractionMapUtils
+options.LobbyDoorCount = 0
 options.LobbyX, options.LobbyY, options.LobbyZ = 100, 200, 2
 callbacks[1]()
 assert(player.moves == 0, "coordinates alone must not enable lobby relocation")

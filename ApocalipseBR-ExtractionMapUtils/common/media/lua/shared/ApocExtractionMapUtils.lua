@@ -44,6 +44,13 @@ function Utils.eachRevealBlock(callback)
     end
 end
 
+-- Permanent lobbies with usable doors must preserve normal login positions.
+function Utils.closedLobbyRelocationEnabled()
+    if Utils.getOptions().RelocateOnClosedLobby == false then return false end
+    require "ApocExtractionMapUtils_LobbySettings"
+    return tonumber(Utils.getLobbyConfig().DoorCount) == 0
+end
+
 function Utils.getLobbyPosition()
     local options = Utils.getOptions()
     if not Utils.lobbyEnabled() or (options.RelocateOnLogin ~= true and options.RelocateOnRespawn ~= true) then return nil end
@@ -63,8 +70,9 @@ function Utils.loginPositionNeedsReset(player)
     local grid = world and world:getMetaGrid()
     if not grid or grid:getMaxX() < grid:getMinX() or grid:getMaxY() < grid:getMinY() then return nil end
     local x, y, z = math.floor(player:getX()), math.floor(player:getY()), math.floor(player:getZ())
-    if not grid:isValidSquare(x, y) then return true end
-    -- A passenger reconnecting offshore is valid; being outside the map is not.
+    -- Out-of-map recovery is disabled; preserve these positions without tile checks.
+    if not grid:isValidSquare(x, y) then return false end
+    -- A passenger reconnecting offshore is valid.
     if player:getVehicle() then return false end
     local square = getCell():getGridSquare(x, y, z)
     if not square or not square:getFloor() then return nil end

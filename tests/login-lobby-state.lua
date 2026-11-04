@@ -1,7 +1,7 @@
 local media = "ApocalipseBR-ExtractionMapUtils/common/media/lua/"
 package.path = media .. "shared/?.lua;" .. package.path
 SandboxVars = { ApocExtractionMapUtils = {
-    LobbyEnabled = true, RelocateOnLogin = true, LobbyX = 100, LobbyY = 200, LobbyZ = 0,
+    LobbyEnabled = true, RelocateOnLogin = true, LobbyDoorCount = 0, LobbyX = 100, LobbyY = 200, LobbyZ = 0,
 } }
 local handlers, sent = {}, 0
 local now = 0
@@ -34,6 +34,18 @@ handlers.OnTick(); handlers.OnTick()
 assert(sent == 1 and player.moves == 0, "request once and preserve position while state is unknown")
 reply({ closed = false }); reply({ closed = true })
 assert(player.moves == 0, "active operation and duplicate replies must preserve position")
+local options = SandboxVars.ApocExtractionMapUtils
+for _, switch in ipairs({true, false}) do
+    options.RelocateOnClosedLobby = switch
+    for count = 0, 6 do
+        if not switch or count > 0 then
+            options.LobbyDoorCount = count
+            handlers.OnGameStart(); handlers.OnTick(); reply({ closed = true })
+            assert(player.moves == 0, "closed reply must respect current switch and door count")
+        end
+    end
+end
+options.RelocateOnClosedLobby, options.LobbyDoorCount = nil, 0
 handlers.OnGameStart(); handlers.OnTick(); reply({ closed = true })
 assert(player.moves == 1 and player.x == 100.5 and player.y == 200.5)
 reply({ closed = true })

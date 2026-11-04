@@ -24,6 +24,14 @@ option ApocExtractionMapUtils.RelocateOnLogin
     translation = ApocExtractionMapUtils_RelocateOnLogin,
 }
 
+option ApocExtractionMapUtils.RelocateOnClosedLobby
+{
+    type = boolean,
+    default = true,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_RelocateOnClosedLobby,
+}
+
 option ApocExtractionMapUtils.LobbyEnabled
 {
     type = boolean,
@@ -124,7 +132,7 @@ option ApocExtractionMapUtils.LobbyDoorCount
 {
     type = integer,
     min = 0,
-    max = 3,
+    max = 6,
     default = 3,
     page = ApocExtractionMapUtils,
     translation = ApocExtractionMapUtils_LobbyDoorCount,
@@ -136,6 +144,14 @@ option ApocExtractionMapUtils.LobbyFenceEnabled
     default = true,
     page = ApocExtractionMapUtils,
     translation = ApocExtractionMapUtils_LobbyFenceEnabled,
+}
+
+option ApocExtractionMapUtils.LobbyAllowZombieThumping
+{
+    type = boolean,
+    default = false,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyAllowZombieThumping,
 }
 
 option ApocExtractionMapUtils.LobbyBlockConstruction
@@ -192,4 +208,12 @@ option ApocExtractionMapUtils.RelocateOnRespawn
     default = false,
     page = ApocExtractionMapUtils,
     translation = ApocExtractionMapUtils_RelocateOnRespawn,
+}
+
+option ApocExtractionMapUtils.LobbyCleanupZombies
+{
+    type = boolean,
+    default = false,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyCleanupZombies,
 }

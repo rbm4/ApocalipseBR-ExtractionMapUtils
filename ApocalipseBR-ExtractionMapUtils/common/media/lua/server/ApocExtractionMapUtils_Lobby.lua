@@ -54,7 +54,7 @@ local function buildPlan()
     assert(xmin >= 0 and ymin >= 0 and xmax <= 1000000 and ymax <= 1000000, "invalid lobby coordinates")
     assert(xmax - xmin >= 6 and ymax - ymin >= 6, "lobby must be at least seven tiles wide/high")
     assert(2 * (xmax - xmin + ymax - ymin + 2) <= 4096, "lobby exceeds 4096-edge safety limit")
-    assert(config.DoorCount >= 0 and config.DoorCount <= 3, "door count must be 0..3")
+    assert(config.DoorCount >= 0 and config.DoorCount <= 6, "door count must be 0..6")
     assert(config.Z >= -32 and config.Z <= 31, "invalid lobby floor")
     assert(config.MaxEdgesPerTick >= 1 and config.MaxEdgesPerTick <= 16, "tick edge budget must be 1..16")
     assert(config.MaxTickMilliseconds >= 1 and config.MaxTickMilliseconds <= 10, "tick time budget must be 1..10ms")
@@ -84,8 +84,12 @@ local function buildPlan()
         log("Migrating saved perimeter to military fences; exit positions/release state preserved")
     end
     if state.signature ~= signature then
-        -- Never silently rearrange an existing perimeter into a different plan.
-        assert(state.signature == nil, "saved lobby layout differs from config; migrate old assets/state first")
+        -- A changed layout starts fresh. Forget old ownership/release state but
+        -- leave its world objects untouched for administrators to remove.
+        if state.signature ~= nil then
+            for key in pairs(state) do state[key] = nil end
+            log("Lobby layout changed; saved state reset, old perimeter left for manual cleanup")
+        end
         state.signature, state.exitKeys, state.released = signature, {}, false
         local candidates = {}
         for i, edge in ipairs(edges) do
@@ -145,7 +149,7 @@ local function makeObject(square, edge)
     object:setIsDoor(edge.door == true)
     object:setMaxHealth(MAX_HP)
     object:setHealth(MAX_HP)
-    object:setIsThumpable(false)
+    object:setIsThumpable(config.AllowZombieThumping)
     object:setIsDismantable(false)
     object:setCanBarricade(false)
     object:setIsHoppable(false)
@@ -191,12 +195,13 @@ local function applyEdge(index)
         or existing:getModData()[TAG].exit ~= edge.exit
         or existing:getSprite():getName() ~= spriteName
         or existing:isDoor() ~= (edge.door == true) or existing:getHealth() ~= MAX_HP
-        or existing:getMaxHealth() ~= MAX_HP or existing:isThumpable()
+        or existing:getMaxHealth() ~= MAX_HP or existing:isThumpable() ~= config.AllowZombieThumping
         or existing:isDismantable() or existing:getCanBarricade() or existing:isCanPassThrough())
     if not existing or replace then
         -- Construct before removing anything; invalid sprites/errors leave the
         -- previous barrier in place and are retried on the next slow scan.
         local object = makeObject(square, edge)
+        if existing and edge.door and existing:IsOpen() then object:ToggleDoorSilent() end
         if existing then
             assert(square:transmitRemoveItemFromSquare(existing) >= 0, "native removal failed; replacement deferred")
         end

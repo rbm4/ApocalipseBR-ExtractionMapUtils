@@ -16,7 +16,7 @@ The mod did not choose a safehouse or map spawn itself.
 
 | Connection/spawn path | Setting | Result |
 | --- | --- | --- |
-| Login, including known cross-server arrival | RelocateOnLogin | Existing login policy: closed-lobby relocation, cross-server relocation and invalid-position rescue. |
+| Login, including known cross-server arrival | RelocateOnLogin | Login policy: closed-lobby relocation requires RelocateOnClosedLobby and 0 usable doors; cross-server relocation and in-map water rescue remain independent. |
 | Replacement character in the same accepted connection slot | RelocateOnRespawn=false | Preserve the safehouse, map or other mod's selected spawn, even with a closed lobby. Skip login-origin and geometry rescue overrides for this respawn. |
 | Replacement character in the same accepted connection slot | RelocateOnRespawn=true | Relocate to the configured lobby, including during operations, independently of RelocateOnLogin. |
 

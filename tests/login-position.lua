@@ -32,15 +32,15 @@ function player:isDead() return false end
 function player:getOnlineID() return 1 end
 assert(Utils.loginPositionNeedsReset(player) == false, "valid land reconnect stays")
 player.x = 512
-assert(Utils.loginPositionNeedsReset(player) == true, "east boundary is exclusive")
+assert(Utils.loginPositionNeedsReset(player) == false, "east boundary no longer triggers rescue")
 player.x = -256
 assert(Utils.loginPositionNeedsReset(player) == false, "negative map cells are supported")
 player.x = -256.1
-assert(Utils.loginPositionNeedsReset(player) == true, "floor negative coordinates before checking")
+assert(Utils.loginPositionNeedsReset(player) == false, "negative out-of-map positions no longer trigger rescue")
 player.x, player.y = 10, 512
-assert(Utils.loginPositionNeedsReset(player) == true, "south boundary is exclusive")
+assert(Utils.loginPositionNeedsReset(player) == false, "south boundary no longer triggers rescue")
 player.y = -0.1
-assert(Utils.loginPositionNeedsReset(player) == true)
+assert(Utils.loginPositionNeedsReset(player) == false, "north boundary no longer triggers rescue")
 player.y = 20
 square.water = true
 assert(Utils.loginPositionNeedsReset(player) == true, "water floor requires rescue")
@@ -55,7 +55,7 @@ square.objects = { object({ water = true }) }
 player.vehicle = {}
 assert(Utils.loginPositionNeedsReset(player) == false, "offshore passenger stays")
 player.x = 9999
-assert(Utils.loginPositionNeedsReset(player) == true, "vehicle cannot bypass map boundary")
+assert(Utils.loginPositionNeedsReset(player) == false, "out-of-map vehicle position is preserved")
 player.x, player.vehicle, loaded = 10, nil, false
 assert(Utils.loginPositionNeedsReset(player) == nil, "unloaded tile is unknown")
 loaded, square.floor = true, false
@@ -81,11 +81,33 @@ handler("ApocExtractionMapUtils", "LoginLobbyState", player, {})
 assert(response.retry and not response.reset, "server requests retry for unknown geometry")
 player.x = 9999
 handler("ApocExtractionMapUtils", "LoginLobbyState", player, {})
-assert(response.reset and not response.retry, "out of bounds needs no loaded tile")
+assert(not response.reset and not response.retry, "out-of-map login stays even without a loaded tile")
 SandboxVars.ApocExtractionMapUtils.RelocateOnLogin = false
 handler("ApocExtractionMapUtils", "LoginLobbyState", player, {})
 assert(not response.reset and not response.retry, "disabled relocation skips geometry validation")
 SandboxVars.ApocExtractionMapUtils.RelocateOnLogin = true
+-- Closed-lobby policy is independently configurable and doors always override it.
+local savedIsClosed = Utils.Lobby.isClosed
+Utils.Lobby.isClosed = function() return true end
+player.x, loaded, square.water, square.objects = 10, true, false, {}
+local options = SandboxVars.ApocExtractionMapUtils
+for _, switch in ipairs({true, false}) do
+    options.RelocateOnClosedLobby = switch
+    for count = 0, 6 do
+        options.LobbyDoorCount = count
+        handler("ApocExtractionMapUtils", "LoginLobbyState", player, {})
+        assert(response.closed == (switch and count == 0) and not response.reset,
+            "only enabled zero-door closed lobbies may request login relocation")
+    end
+end
+options.RelocateOnClosedLobby, options.LobbyDoorCount = nil, nil
+handler("ApocExtractionMapUtils", "LoginLobbyState", player, {})
+assert(not response.closed, "missing door option uses the shared default of three")
+options.LobbyDoorCount = 0
+handler("ApocExtractionMapUtils", "LoginLobbyState", player, {})
+assert(response.closed, "missing switch preserves zero-door closed-lobby behavior")
+Utils.Lobby.isClosed = savedIsClosed
+options.LobbyDoorCount = nil
 local changed, accepted, teleports, historyReady = true, true, 0, false
 ApocBRPlayerLogin = {
     isReady = function(p) assert(p == player); return historyReady end,
@@ -108,6 +130,10 @@ changed = false
 handler("ApocExtractionMapUtils", "LoginLobbyState", player, { changedServer = true })
 assert(not response.reset and not response.serverTeleported and teleports == 1,
     "client cannot forge server history; same-server safe reconnect stays")
+player.x, loaded = 9999, false
+handler("ApocExtractionMapUtils", "LoginLobbyState", player, {})
+assert(not response.reset and not response.retry and teleports == 1,
+    "same-server out-of-map reconnect must not invoke native teleport or retry terrain")
 changed, accepted = true, false
 handler("ApocExtractionMapUtils", "LoginLobbyState", player, {})
 assert(response.retry and not response.reset and not response.closed,
@@ -153,14 +179,28 @@ function player:setLastZ(z) self.z = z end
 dofile("ApocalipseBR-ExtractionMapUtils/common/media/lua/client/ApocExtractionMapUtils_Login.lua")
 player.x, loaded = 9999, false
 callbacks.OnGameStart()
-assert(player.moves == 1, "single player also rescues an out-of-map login after release")
+assert(player.moves == 0 and player.x == 9999, "single player preserves out-of-map login after release")
+player.x = 10
 loaded, square.objects = true, {}
 callbacks.OnGameStart()
-assert(player.moves == 1, "safe single-player reconnect stays")
+assert(player.moves == 0, "safe single-player reconnect stays")
 loaded = false
 callbacks.OnGameStart(); callbacks.OnTick()
-assert(player.moves == 1)
+assert(player.moves == 0)
 loaded, square.objects, clock = true, { object({ water = true }) }, 1000
 callbacks.OnTick()
-assert(player.moves == 2, "single-player water rescue waits for terrain streaming")
-print("PASS: map boundaries, water rescue, land/boat/bridge reconnects, unknown geometry and server-owned login decisions")
+assert(player.moves == 1, "single-player water rescue waits for terrain streaming")
+-- Single-player uses the same switch and door override.
+ModData = { get = function() return { released = false } end }
+square.water, square.objects, loaded = false, {}, true
+for _, switch in ipairs({true, false}) do
+    options.RelocateOnClosedLobby = switch
+    for count = 0, 6 do
+        options.LobbyDoorCount = count
+        local before = player.moves
+        callbacks.OnGameStart(); callbacks.OnTick()
+        assert(player.moves == before + ((switch and count == 0) and 1 or 0),
+            "single-player closed-lobby placement must respect switch and doors")
+    end
+end
+print("PASS: disabled out-of-map rescue, water rescue, land/boat/bridge reconnects, unknown geometry and server-owned login decisions")

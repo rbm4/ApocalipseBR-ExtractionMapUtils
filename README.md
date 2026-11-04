@@ -25,7 +25,8 @@ Open **ApocalipseBR - Extraction Map Utils** in sandbox settings.
 | --- | --- | --- |
 | Force map and minimap reveal | On | Enable both maps, reveal map knowledge on client/server, and bypass light requirements. Minimap visibility follows normal controls. |
 | Enable lobby | Off | Enable fence construction, maintenance, disassembly protection, RCON release and scheduled perimeter removal. |
-| Relocate to lobby on every login | Off | Requires Enable lobby. Place players in a closed lobby; after release, rescue out-of-map/open-water logins and preserve valid positions. |
+| Relocate to lobby on every login | Off | Requires Enable lobby. Closed-lobby placement requires Relocate logins while the lobby is closed and 0 usable doors. Server-transfer and open-water rescue rules remain active. |
+| Clear lobby zombies on initial chunk load | Off | Requires Enable lobby. Clear existing zombies once per chunk per server run; later arrivals remain. |
 | Zombie money drops | Off | Add 1-10 money items to eligible zombie corpses. Independent of Enable lobby. |
 | Lobby X | -1 | World tile X. Set to a nonnegative coordinate to configure. |
 | Lobby Y | -1 | World tile Y. Set to a nonnegative coordinate to configure. |
@@ -40,6 +41,7 @@ ApocExtractionMapUtils = {
     ForceMapReveal = true,
     LobbyEnabled = true,
     LobbyFenceEnabled = true,
+    LobbyCleanupZombies = false,
     LobbyDoorCount = 3,
     LobbyX1 = 14260, LobbyY1 = 11892,
     LobbyX2 = 14321, LobbyY2 = 11812,
@@ -51,6 +53,7 @@ ApocExtractionMapUtils = {
     LobbyBlockDestruction = true,
     LobbyBlockDigging = true,
     RelocateOnLogin = false,
+    RelocateOnClosedLobby = true, -- ignored when LobbyDoorCount > 0
     RelocateOnRespawn = false,
     ZombieMoneyDrops = false,
     LobbyX = -1,
@@ -66,13 +69,13 @@ relocation. See [respawn relocation](.docs/features/lobby-respawn-relocation.md)
 Restart/reconnect after changing settings. Relocation runs once at game entry, not continuously; players can leave the lobby for the event. UI resets and reopening maps do not relocate players. Death/respawn uses the independent switch described above; each local player has its own queued placement decision.
 
 Usable door count is an integer from 0 to 3: use 0 for an enclosed operation
-lobby, or 1..3 for doors that players can use even without any operations.
+lobby, or 1..6 for doors that players can use even without any operations.
 See [lobby sandbox configuration](.docs/features/lobby-sandbox-configuration.md)
-for bounds, restriction switches and existing-save migration limits.
+for bounds, restriction switches and layout resets and manual cleanup of old fences.
 
 ## Implementation
 
-- ExtractionMapUtils' Lua `OnCreatePlayer`/`OnGameStart` hooks schedule a server position/state request per local player for the next tick, after B42 sends `GameClient.sendPlayerConnect`. A closed lobby relocates everyone; after release, out-of-map or open-water logins still reset to the lobby. The optional 42.21.0 Java login bridge also resets known cross-server logins, even on safe land, and initiates movement with the native server teleport packet. Valid land, floors over water and in-bounds boat passengers stay in place. Bounds come from the current world metagrid. Missing geometry/replies retry once per second, up to 15 requests, then preserve position. Single player checks the local world. See the [login position rescue hotfix](.docs/hotfixes/invalid-login-position-rescue.md). Placement requires multiplayer movement/anti-cheat validation.
+- ExtractionMapUtils' Lua `OnCreatePlayer`/`OnGameStart` hooks schedule a server position/state request per local player for the next tick, after B42 sends `GameClient.sendPlayerConnect`. A closed lobby relocates logins only with `RelocateOnClosedLobby=true` and `LobbyDoorCount=0`; after release, open-water logins still reset; out-of-map positions alone do not trigger relocation to the lobby. The optional 42.21.0 Java login bridge also resets known cross-server logins, even on safe land, and initiates movement with the native server teleport packet. Valid land, floors over water and boat passengers stay in place. Bounds come from the current world metagrid. Missing geometry/replies retry once per second, up to 15 requests, then preserve position. Single player checks the local world. See the [login position rescue hotfix](.docs/hotfixes/invalid-login-position-rescue.md). Placement requires multiplayer movement/anti-cheat validation.
 - Version 0.1.3 adopts the client/server known-map strategy inspected in FullMapReveal 1.1.0 (Workshop item 3796627078). This is an independent implementation in our mod; FullMapReveal is not a dependency. Test with that other mod disabled so the two implementations do not duplicate writes.
 - Reveal only calls `setKnownInSquares`. It does not mark the world visited, change `HideUnvisited`/`BlurUnvisited`, replace minimap initialization, alter bounds, or reset zoom. Original game code owns minimap loading, fog, saved visibility and interaction. Map/light availability overrides remain for the original sandbox requirement. Version 0.1.4 separately adjusts Chernarus road styling as described below.
 - Both sides derive real world bounds from the metagrid (256-square cells) and write blocks of at most 8192 squares per side. No client-supplied coordinates are accepted by the server.
@@ -80,7 +83,7 @@ for bounds, restriction switches and existing-save migration limits.
 - The native server map store loads a user lazily on the first PlayerVisited request and ignores earlier writes. A server write acknowledgement indicates a successful API call, not proof that the lazy store was already loaded. The server therefore retries up to eight passes, 15 seconds apart, and clears offline sessions. Requests are throttled to one per player instance per five seconds; retry windows can restart at most once per two minutes. Respawn/reconnect instances receive a new retry budget.
 - The server stores revealed knowledge once its per-player map store is loaded. In single player, native exploration saves can retain revealed knowledge. Disabling the option stops writes and restores ordinary map/light availability checks; it does not erase learned map knowledge. No perpetual five-second client render/flag pump remains.
 - Reveal displays available worldmap XML/image data, including custom maps that provide it. It does not generate missing map data, reveal live zombies/items, or bundle Chernarus.
-- The 0.2.1 perimeter uses military fences and command-controlled removal of exit segments as described below. Event countdowns, zombie clearance, and a full event lifecycle remain future work.
+- The 0.2.1 perimeter uses military fences and command-controlled removal of exit segments as described below. Optional [initial lobby zombie cleanup](.docs/features/lobby-zombie-cleanup.md) runs once per naturally loaded chunk per server session. Event countdowns and a full event lifecycle remain future work.
 
 ## Lobby perimeter and scheduled events (0.3.0)
 

@@ -78,8 +78,14 @@ def option_block(name):
 for name in ("LobbyEnabled", "LobbyFenceEnabled", "LobbyBlockConstruction", "LobbyBlockUpgrades",
              "LobbyBlockDisassembly", "LobbyBlockPickup", "LobbyBlockDestruction", "LobbyBlockDigging"):
     assert re.search(r"default\s*=\s*true\s*,", option_block(name)), name
+assert re.search(r"default\s*=\s*true\s*,", option_block("RelocateOnClosedLobby"))
+assert re.search(r"default\s*=\s*false\s*,", option_block("LobbyAllowZombieThumping"))
+for language in ("EN", "PTBR"):
+    tooltip = load(translations / language / "Sandbox.json")["Sandbox_ApocExtractionMapUtils_RelocateOnClosedLobby_tooltip"]
+    assert "0" in tooltip
+    assert ("WARNING" if language == "EN" else "AVISO") in tooltip
 block = option_block("LobbyDoorCount")
-for setting, value in (("min", 0), ("max", 3), ("default", 3)):
+for setting, value in (("min", 0), ("max", 6), ("default", 3)):
     assert re.search(setting + r"\s*=\s*" + str(value) + r"\s*,", block)
 for name in ("LobbyX1", "LobbyY1", "LobbyX2", "LobbyY2", "LobbyFenceZ"):
     assert "type = integer" in option_block(name)

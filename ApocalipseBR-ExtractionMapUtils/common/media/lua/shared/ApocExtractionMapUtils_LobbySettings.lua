@@ -1,13 +1,13 @@
 -- Shared fallback values and advanced performance/assets configuration.
 -- Lobby bounds, door count and protection switches come from SandboxVars.
--- Restart server/clients after changes. Moving a saved layout requires removal
--- or migration of its old assets/state first; never accept bounds from commands.
+-- Restart server/clients after changes. Changing a saved layout resets its state and leaves old assets
+-- for manual cleanup; never accept bounds from commands.
 ApocExtractionMapUtils = ApocExtractionMapUtils or {}
 ApocExtractionMapUtils.LobbyConfig = {
     X1 = 14260, Y1 = 11892,
     X2 = 14321, Y2 = 11812,
     Z = 0,
-    DoorCount = 3, -- usable doors; sandbox range 0..3
+    DoorCount = 3, -- usable doors; sandbox range 0..6
     DoorWest = "fixtures_doors_01_68", DoorNorth = "fixtures_doors_01_69",
     DoorOpenWest = "fixtures_doors_01_70", DoorOpenNorth = "fixtures_doors_01_71",
     ExitCount = 6, -- clamped to 0..6; selected once per layout/save
@@ -25,6 +25,7 @@ function ApocExtractionMapUtils.getLobbyConfig()
     local config = {}
     for key, value in pairs(ApocExtractionMapUtils.LobbyConfig) do config[key] = value end
     local options = ApocExtractionMapUtils.getOptions()
+    config.AllowZombieThumping = options.LobbyAllowZombieThumping == true
     for field, option in pairs({ X1 = "LobbyX1", Y1 = "LobbyY1", X2 = "LobbyX2",
         Y2 = "LobbyY2", Z = "LobbyFenceZ", DoorCount = "LobbyDoorCount" }) do
         if options[option] ~= nil then config[field] = options[option] end
