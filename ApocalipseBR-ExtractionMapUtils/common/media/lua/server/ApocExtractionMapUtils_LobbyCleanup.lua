@@ -32,7 +32,10 @@ local function geometry()
 end
 
 local function finish(status)
+    local released, releaseError = pcall(ApocBRLobbyStreaming.releasePopulation)
+    if not released then status = "FAILED: population release: " .. tostring(releaseError) end
     log(status .. ": chunks=" .. run.done .. "/" .. run.total .. ", removed=" .. run.removed
+        .. ", loadedTiles=" .. run.loadedTiles .. ", missingTiles=" .. run.missingTiles
         .. ", elapsedMs=" .. (getTimestampMs() - run.started)
         .. "; all cleanup loading requests released; normal server save/unload resumes (player areas stay loaded)")
     run = nil
@@ -44,7 +47,8 @@ function Cleanup.start()
     if not isServer() then log("SKIPPED: forced startup streaming requires a dedicated server"); return end
     local bounds = geometry()
     if not bounds then log("FAILED: invalid lobby bounds/floor; no chunks requested"); return end
-    if not ApocBRLobbyStreaming or not ApocBRLobbyStreaming.keepCellLoaded then
+    if not ApocBRLobbyStreaming or not ApocBRLobbyStreaming.keepCellLoaded
+        or not ApocBRLobbyStreaming.activatePopulation or not ApocBRLobbyStreaming.releasePopulation then
         log("FAILED: ApocBRLobbyStreaming bridge unavailable; install the updated 42.22.1 server patch; no cleanup performed")
         return
     end
@@ -63,10 +67,11 @@ function Cleanup.start()
     end
     local now = getTimestampMs()
     run = { bounds = bounds, cells = cells, index = 1, chunkIndex = 1,
-        total = total, done = 0, removed = 0, started = now, nextLog = now + LOG_MS }
+        total = total, done = 0, removed = 0, loadedTiles = 0, missingTiles = 0,
+        started = now, nextLog = now + LOG_MS }
     log("START: bounds=" .. bounds.x1 .. "," .. bounds.y1 .. ".." .. bounds.x2 .. "," .. bounds.y2
         .. ", z=" .. bounds.z .. ", cells=" .. #cells .. ", chunks=" .. total
-        .. "; loading one 64x64 server cell at a time")
+        .. "; populationActivation=true; loading one 64x64 server cell at a time")
 end
 
 local function clearChunk(chunk)
@@ -76,6 +81,10 @@ local function clearChunk(chunk)
     for y = job.y1, job.y2 do
         for x = job.x1, job.x2 do
             local square = getCell():getGridSquare(x, y, job.z)
+            if not run.cells[run.index].firstPassDone then
+                local field = square and "loadedTiles" or "missingTiles"
+                run[field] = run[field] + 1
+            end
             if square then
                 local objects = square:getMovingObjects()
                 for i = objects:size() - 1, 0, -1 do
@@ -105,25 +114,39 @@ local function step()
     local ready = ApocBRLobbyStreaming.keepCellLoaded(cell.x, cell.y)
     if ready == -1 then finish("FAILED: cell outside server map"); return end
     if now - cell.started >= TIMEOUT_MS then finish("FAILED: cell load/cleanup timed out"); return end
+    local populationReady = ready == 1 and ApocBRLobbyStreaming.activatePopulation(cell.x, cell.y)
     if now >= run.nextLog then
         log("PROGRESS: cell=" .. run.index .. "/" .. #run.cells .. ", chunks=" .. run.done .. "/" .. run.total
-            .. ", removed=" .. run.removed .. ", phase=" .. (ready == 1 and "settling/cleaning" or "loading"))
+            .. ", removed=" .. run.removed .. ", phase=" .. (ready == 1 and "activating/verifying population" or "loading")
+            .. ", populationReady=" .. tostring(populationReady))
         run.nextLog = now + LOG_MS
     end
     if ready ~= 1 then return end
     cell.readyAt = cell.readyAt or now
-    -- Load2 has finished indoor creation; give population integration a bounded
-    -- settling interval before clearing rather than scanning inside LoadChunk.
+    cell.quietSince = cell.quietSince or now
+    -- Loaded map geometry alone does not activate virtual population. The
+    -- bridge registers a temporary population area and drains paused updates.
     if now - cell.readyAt < SETTLE_MS then return end
     for _ = 1, CHUNKS_PER_TICK do
         local chunk = cell.chunks[run.chunkIndex]
         if not chunk then break end
+        local before = run.removed
         clearChunk(chunk)
-        run.chunkIndex, run.done = run.chunkIndex + 1, run.done + 1
+        if run.removed > before then cell.quietSince = now end
+        if not cell.firstPassDone then run.done = run.done + 1 end
+        run.chunkIndex = run.chunkIndex + 1
     end
     if run.chunkIndex > #cell.chunks then
+        cell.firstPassDone = true
+        cell.passes = (cell.passes or 0) + 1
+        if not populationReady or now - cell.quietSince < SETTLE_MS or cell.passes < 2 then
+            run.chunkIndex = 1
+            return -- Recheck after pending native work and late materialization.
+        end
+        ApocBRLobbyStreaming.releasePopulation()
         log("CLEANED cell " .. run.index .. "/" .. #run.cells .. ": chunks=" .. run.done .. "/" .. run.total
-            .. ", removed=" .. run.removed .. "; releasing cell loading request")
+            .. ", removed=" .. run.removed .. ", verificationPasses=" .. cell.passes
+            .. ", populationReady=" .. tostring(populationReady) .. "; releasing cell loading request")
         run.index, run.chunkIndex = run.index + 1, 1
         if run.index > #run.cells then finish("COMPLETE") end
     end

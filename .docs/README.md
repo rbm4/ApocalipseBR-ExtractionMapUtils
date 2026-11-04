@@ -51,6 +51,9 @@ documents when designed. Mark proposals as planned until implemented.
 
 ## Hotfixes
 
+- [Startup cleanup virtual population](hotfixes/lobby-cleanup-virtual-population.md):
+  activate population on empty servers and verify delayed zombies before completion.
+
 - [Out-of-map login recovery removal](hotfixes/disable-out-of-map-login-rescue.md):
   preserve out-of-map positions; retain water rescue and explicit lobby policies.
 

@@ -12,7 +12,7 @@ local function fixture(opts)
     function isClient() return opts.client == true end
     function isServer() return not opts.client and not opts.singleplayer end
     function instanceof(obj, kind) return obj.kind == kind end
-    local f = { squares = {}, removed = 0, lookups = 0, packets = {}, hooks = {}, clock = 0, logs = {}, requests = {} }
+    local f = { squares = {}, removed = 0, lookups = 0, packets = {}, hooks = {}, clock = 0, logs = {}, requests = {}, populationCalls = 0, releases = 0 }
     function getTimestampMs() return f.clock end
     function print(message) f.logs[#f.logs + 1] = message end
     ApocBRLobbyStreaming = { keepCellLoaded = function(x, y)
@@ -20,6 +20,12 @@ local function fixture(opts)
         if opts.bridgeError then error("loader fault") end
         return opts.ready == nil and 1 or opts.ready
     end }
+    ApocBRLobbyStreaming.activatePopulation = function()
+        f.populationCalls = f.populationCalls + 1
+        if opts.population then return opts.population(f) end
+        return true
+    end
+    ApocBRLobbyStreaming.releasePopulation = function() f.releases = f.releases + 1 end
     if opts.noBridge then ApocBRLobbyStreaming = nil end
     function f.pump(n)
         for _ = 1, n do f.clock = f.clock + 1000; f.fire("OnTickEvenPaused") end
@@ -105,7 +111,9 @@ local duringLoad = f.add(8, 8, 1, 9)
 f.pump(5)
 assert(inside.removed and inside2.removed and corner.removed and border.removed and duringLoad.removed)
 assert(not outside.removed and not below.removed and not player.removed and not reanimated.removed)
-assert(f.lookups == 64 and f.logged("COMPLETE: chunks=4/4, removed=5"))
+assert(f.lookups == 64 and not f.logged("COMPLETE:"), "first sweep must not imply population completion")
+f.pump(5)
+assert(f.logged("COMPLETE: chunks=4/4, removed=5") and f.releases > 0)
 assert(f.logged("PROGRESS:") and f.logged("CLEANED cell") and f.logged("loading requests released"))
 local entrant = f.add(8, 8, 1, 20)
 local requested = #f.requests
@@ -118,7 +126,7 @@ SandboxVars.ApocExtractionMapUtils.LobbyX2 = 60
 SandboxVars.ApocExtractionMapUtils.LobbyY1 = 70
 SandboxVars.ApocExtractionMapUtils.LobbyY2 = 60
 local edge = multi.add(70, 70, 1, 4)
-multi.fire("OnServerStarted"); multi.pump(30)
+multi.fire("OnServerStarted"); multi.pump(60)
 assert(edge.removed and multi.logged("COMPLETE: chunks=4/4"))
 local sequence = { "0:0", "64:0", "0:64", "64:64" }
 local previous, index = nil, 0
@@ -132,10 +140,11 @@ local waitingZombie = waiting.add(8, 8, 1, 1)
 waiting.fire("OnServerStarted"); waiting.pump(3)
 assert(not waitingZombie.removed and waiting.lookups == 0)
 ApocBRLobbyStreaming.keepCellLoaded = function() return 1 end
-waiting.pump(6)
+waiting.pump(12)
 assert(waitingZombie.removed and waiting.logged("COMPLETE:"))
 for _, opts in ipairs({ { enabled = true, ready = 0 }, { enabled = true, ready = -1 },
-    { enabled = true, bridgeError = true }, { enabled = true, noBridge = true } }) do
+    { enabled = true, bridgeError = true }, { enabled = true, noBridge = true },
+    { enabled = true, population = function() error("population fault") end } }) do
     local failed = fixture(opts)
     failed.fire("OnServerStarted"); failed.pump(122)
     assert(failed.logged("FAILED:") and not failed.logged("COMPLETE:"))
@@ -143,6 +152,26 @@ for _, opts in ipairs({ { enabled = true, ready = 0 }, { enabled = true, ready =
     failed.pump(10)
     assert(#failed.requests == count and failed.lookups == 0, "failure must stop streaming")
 end
+-- Reproduce the empty startup sweep followed by virtual zombies arriving later.
+local hydrated
+local delayed = fixture({ enabled = true, population = function(job)
+    if job.populationCalls == 8 then hydrated = job.add(8, 8, 1, 75) end
+    return job.populationCalls >= 9
+end })
+delayed.fire("OnServerStarted"); delayed.pump(7)
+assert(delayed.removed == 0 and not delayed.logged("COMPLETE:"), "native population still pending after the first empty sweep")
+delayed.pump(1)
+assert(hydrated.removed and not delayed.logged("COMPLETE:"))
+delayed.pump(5)
+assert(delayed.logged("COMPLETE: chunks=4/4, removed=1") and delayed.releases > 0)
+local pending = fixture({ enabled = true, population = function() return false end })
+pending.fire("OnServerStarted"); pending.pump(122)
+assert(pending.logged("FAILED:") and not pending.logged("COMPLETE:") and pending.releases > 0,
+    "undrained population must fail, not claim an empty successful cleanup")
+local legacy = fixture({ enabled = true })
+ApocBRLobbyStreaming.activatePopulation = nil
+legacy.fire("OnServerStarted"); legacy.pump(10)
+assert(legacy.logged("FAILED:") and #legacy.requests == 0, "old streaming-only bridge must fail visibly")
 local cancel = fixture({ enabled = true })
 cancel.fire("OnServerStarted"); cancel.pump(1)
 SandboxVars.ApocExtractionMapUtils.LobbyCleanupZombies = false
@@ -156,7 +185,9 @@ SandboxVars.ApocExtractionMapUtils.LobbyY2 = 63
 budget.fire("OnServerStarted"); budget.pump(6)
 assert(budget.lookups == 256 and not budget.logged("COMPLETE:"), "at most four chunks per callback")
 budget.pump(15)
-assert(budget.lookups == 4096 and budget.logged("COMPLETE: chunks=64/64"))
+assert(budget.lookups == 4096 and not budget.logged("COMPLETE:"))
+budget.pump(16)
+assert(budget.lookups == 8192 and budget.logged("COMPLETE: chunks=64/64"))
 local invalid = fixture({ enabled = true })
 SandboxVars.ApocExtractionMapUtils.LobbyFenceZ = 100
 invalid.fire("OnServerStarted"); invalid.pump(10)
@@ -166,7 +197,7 @@ empty.fire("OnServerStarted"); empty.pump(10)
 assert(empty.logged("COMPLETE: chunks=4/4, removed=0"))
 local restart = fixture({ enabled = true })
 local restarted = restart.add(8, 8, 1, 1)
-restart.fire("OnServerStarted"); restart.pump(10)
+restart.fire("OnServerStarted"); restart.pump(12)
 assert(restarted.removed, "every new process must run cleanup without persisted completion")
 local sp = fixture({ enabled = true, singleplayer = true })
 sp.fire("OnServerStarted"); sp.pump(10)
