@@ -48,6 +48,8 @@
     "Sandbox_ApocExtractionMapUtils_LobbyBlockDigging_tooltip": "Enabled by default. Block shoveling ground material inside the lobby.",
     "Sandbox_ApocExtractionMapUtils_RelocateOnRespawn": "Relocate to lobby after death",
     "Sandbox_ApocExtractionMapUtils_RelocateOnRespawn_tooltip": "Disabled by default. After respawning in the same server session, override the safehouse or map/mod spawn and move to the configured lobby, even during an operation. Independent of login/server-transfer relocation. Requires Enable lobby and valid Lobby X/Y/Z. Update the 42.21.0 server patch for authoritative multiplayer respawn detection.",
+    "Sandbox_ApocExtractionMapUtils_LobbyCleanupMargin": "Lobby zombie cleanup: outside margin (tiles)",
+    "Sandbox_ApocExtractionMapUtils_LobbyCleanupMargin_tooltip": "Extend startup zombie cleanup this many tiles beyond every side of the lobby rectangle, including corners, on the configured lobby floor. Applies to forced loading and removal. Requires Clear lobby zombies at server startup. Default 10; range 0-100. Zero clears only the lobby interior. Restart after changes.",
     "Sandbox_ApocExtractionMapUtils_LobbyCleanupZombies": "Clear lobby zombies at server startup",
     "Sandbox_ApocExtractionMapUtils_LobbyCleanupZombies_tooltip": "Requires Enable lobby and the updated 42.22.1 server patch. Every server startup, force-load lobby cells, clear zombies inside the configured bounds and floor, then release loading requests for normal unloading. Progress is always logged. Later arrivals and spawns remain. Excludes reanimated players. Restart after changes. Disabled by default."
 }

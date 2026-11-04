@@ -1,6 +1,8 @@
 if not isServer() then return end
 require "ApocExtractionMapUtils_HumanDialogs"
 local D = ApocExtractionMapUtils.HumanDialogs
+require "ApocExtractionMapUtils_HumanActions"
+require "ApocExtractionMapUtils_SafehouseTravel"
 local G = require "ApocExtractionMapUtils_HumanDialogueGraph"
 local W = require "ApocExtractionMapUtils_HumanDialogueWire"
 if D.serverLoaded then return end
@@ -197,11 +199,36 @@ local function engineCommand(command, player, args)
     if command ~= "HumanSelect" or not session.opened or not integer(args.sequence) or not integer(args.dialogueRevision) then return end
     local result = ApocBRHumanAPI.dialogueSelect(player, args.id, args.token, args.node, args.dialogueRevision, args.option, args.sequence)
     if not result or result.error then reject(player, args, result and result.error or "unavailable"); return end
+    local actionResult
+    if result.action then
+        if not ApocBRHumanAPI.dialogueComplete then
+            reject(player, args, "unavailable"); ApocBRHumanAPI.finish(player, args.id, args.token); return
+        end
+        actionResult = D.executeAction(player, { key = session.key, id = args.id,
+            option = result.option, sequence = result.sequence }, result.action)
+        local ok, completed = pcall(ApocBRHumanAPI.dialogueComplete, player, args.id, args.token,
+            { sequence = result.sequence, success = actionResult.success == true,
+                responsePool = actionResult.responsePool, values = actionResult.values, close = actionResult.close == true })
+        if not ok or not completed or completed.error then
+            if actionResult.cancel then pcall(actionResult.cancel) end
+            reject(player, args, "unavailable"); ApocBRHumanAPI.finish(player, args.id, args.token); return
+        end
+        result = completed
+    end
     local data = { id = args.id, token = args.token, key = session.key, option = result.option,
         sequence = result.sequence, response = result.response }
     D.emit("selected", player, data)
     if not sendResolved(player, "Selected", data, result.dialogue) then
+        if actionResult and actionResult.cancel then pcall(actionResult.cancel) end
         ApocBRHumanAPI.finish(player, args.id, args.token); return
+    end
+    if actionResult and actionResult.success == true and actionResult.afterResponse then
+        local ok, errorMessage = pcall(actionResult.afterResponse)
+        if not ok then
+            ApocExtractionMapUtils.logOperation("[ApocHumanAction] AFTER_RESPONSE_FAILED action="
+                .. tostring(args.option) .. " player=" .. tostring(player:getOnlineID()) .. " error=" .. tostring(errorMessage))
+            if actionResult.cancel then pcall(actionResult.cancel) end
+        end
     end
     if result.close then ApocBRHumanAPI.finish(player, args.id, args.token) end
 end

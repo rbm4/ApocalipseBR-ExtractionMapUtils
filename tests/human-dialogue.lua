@@ -1,3 +1,4 @@
+package.path = "ApocalipseBR-ExtractionMapUtils/common/media/lua/server/?.lua;" .. package.path
 -- Mock only engine boundaries; execute the real registry, server routing and client actions.
 package.path = "ApocalipseBR-ExtractionMapUtils/common/media/lua/shared/?.lua;"
     .. "ApocalipseBR-ExtractionMapUtils/common/media/lua/client/?.lua;" .. package.path
@@ -44,7 +45,7 @@ local function command(name, data)
 end
 command("List")
 check(#sent == 0, "payload-free discovery waits server-side for roster bridge readiness")
-check(#logs == 0, "module load and missing bridge stay silent with debugLog absent")
+check(#logs == 1 and logged("[ApocSafehouseTravel] LOADED"), "startup revision is operational; discovery debug remains silent")
 SandboxVars = { ApocExtractionMapUtils = { debugLog = true } }
 Events.OnTick.fire()
 check(logged("bridge_status status=missing"), "debug identifies a missing server patch bridge")

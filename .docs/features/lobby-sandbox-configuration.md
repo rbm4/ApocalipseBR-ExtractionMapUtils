@@ -16,6 +16,7 @@ See [respawn relocation](lobby-respawn-relocation.md) for preserving safehouse/m
 | LobbyEnabled | true | Master lobby control switch. |
 | RelocateOnClosedLobby | true | With RelocateOnLogin enabled, relocate logins while closed only when LobbyDoorCount is 0. Automatically ignored with 1..6 doors. |
 | LobbyCleanupZombies | false | [Clear existing zombies](lobby-zombie-cleanup.md) on every server startup using forced streaming; logs progress and releases loading requests. |
+| LobbyCleanupMargin | 10 | Extra tiles beyond every side of the cleanup rectangle, including corners; integer 0..100. Zero clears only the lobby interior. |
 | LobbyFenceEnabled | true | Build/maintain fence and doors; independent of area restrictions. |
 | LobbyAllowZombieThumping | false | Allow zombies to thump mod-created fences and closed doors. Requires vanilla Thump on Construction. |
 | LobbyX1 / LobbyY1 | 14260 / 11892 | First inclusive interior corner. |

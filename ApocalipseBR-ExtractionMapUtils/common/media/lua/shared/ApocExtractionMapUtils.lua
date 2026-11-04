@@ -16,6 +16,11 @@ function Utils.debugLog(message)
     print(tostring(message):gsub("[%c]", " "):sub(1, 2048))
 end
 
+-- Bounded operational transitions/errors must remain visible with debugLog off.
+function Utils.logOperation(message)
+    print(tostring(message):gsub("[%c]", " "):sub(1, 2048))
+end
+
 function Utils.forceMapReveal()
     return Utils.getOptions().ForceMapReveal ~= false
 end

@@ -1,3 +1,4 @@
+package.path = "ApocalipseBR-ExtractionMapUtils/common/media/lua/server/?.lua;" .. package.path
 package.path = "ApocalipseBR-ExtractionMapUtils/common/media/lua/shared/?.lua;" .. package.path
 local count, now, sent = 0, 1000, {}
 local function check(v, message) count=count+1; assert(v,message) end
@@ -80,6 +81,47 @@ command("Select",{id=1024,token=8,sequence=2,option="ask",node="root",dialogueRe
 check(selections==2 and #lastSelection==7 and lastSelection[4]=="root","Lua forwards only identifiers; progression is engine-owned")
 command("Close",{id=1024,token=8})
 check(sent[#sent].command=="HumanClosed","engine close event releases Lua session")
+
+local D = ApocExtractionMapUtils.HumanDialogs
+local commits, cancels, completions = 0, 0, 0
+D.registerAction("test.action", function(ctx)
+    check(ctx.player==player and ctx.npcKey=="guide", "handler receives authenticated server context")
+    return {success=true,responsePool="test.result.success",close=true,
+        afterResponse=function() commits=commits+1 end, cancel=function() cancels=cancels+1 end}
+end)
+ApocBRHumanAPI.dialogueSelect=function()
+    return {action={id="test.action",responsePrefix="test.result"},option="ask",sequence=1}
+end
+ApocBRHumanAPI.dialogueComplete=function(p,id,token,result)
+    check(commits==0 and result.responsePool=="test.result.success", "effect waits for pooled NPC response")
+    completions=completions+1
+    return {dialogue=resolved,option="ask",sequence=1,response="Pooled speech",close=true}
+end
+command("Begin",{id=1024,request=3,dialogueRevision=1,node="root",option="ask"})
+command("Arrive",{id=1024,token=8})
+check(completions==1 and commits==1 and cancels==0, "accepted callback completes response then executes once")
+command("Select",{id=1024,token=8,sequence=1,option="ask",node="root",dialogueRevision=1})
+check(commits==1, "closed lease cannot execute action again")
+now=now+1000
+ApocBRHumanAPI.dialogueComplete=function() return {error="unavailable"} end
+command("Begin",{id=1024,request=4,dialogueRevision=1,node="root",option="ask"})
+command("Arrive",{id=1024,token=8})
+check(commits==1 and cancels==1, "failed completion cancels prepared effect")
+now=now+1000
+local failureLog
+local operationLog=ApocExtractionMapUtils.logOperation
+ApocExtractionMapUtils.logOperation=function(message) failureLog=message end
+D.registerAction("test.after_error",function()
+    return {success=true,responsePool="test.result.success",close=true,
+        afterResponse=function() error("after response test failure") end,
+        cancel=function() cancels=cancels+1 end}
+end)
+ApocBRHumanAPI.dialogueSelect=function() return {action={id="test.after_error",responsePrefix="test.result"},option="ask",sequence=1} end
+ApocBRHumanAPI.dialogueComplete=function() return {dialogue=resolved,option="ask",sequence=1,response="Ready",close=true} end
+command("Begin",{id=1024,request=5,dialogueRevision=1,node="root",option="ask"})
+command("Arrive",{id=1024,token=8})
+check(cancels==2 and failureLog:find("AFTER_RESPONSE_FAILED",1,true) and failureLog:find("after response test failure",1,true), "post-response exceptions are logged and cancel reservations")
+ApocExtractionMapUtils.logOperation=operationLog
 
 -- Large UTF-8 content splits into bounded frames and installs atomically.
 local actors={}

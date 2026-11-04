@@ -20,8 +20,15 @@ logs before admitting players if the lobby must be clean before entry.
 
 The server loads one 64x64 server cell at a time through native relevance requests.
 This necessarily loads surrounding chunks in that cell, but deletion touches only
-the inclusive normalized `LobbyX1/Y1`..`LobbyX2/Y2` interior at `LobbyFenceZ`.
-The fence's extra east/south anchoring squares are excluded. After full main-thread
+the inclusive normalized `LobbyX1/Y1`..`LobbyX2/Y2` rectangle expanded by
+`LobbyCleanupMargin` tiles on every side, at `LobbyFenceZ`. The margin defaults
+to 10 tiles and accepts integers 0..100. It includes corners as a rectangular
+expansion; 0 restores interior-only cleanup. Coordinates are clipped to 0..1000000.
+For example, a lobby at (100,200)..(120,220) clears (90,190)..(130,230) with
+the default margin. The expanded bounds determine both forced cell loading and
+zombie removal; fence placement and area protection still use the lobby bounds.
+Larger margins load more cells and take longer. Startup logs show the expanded
+bounds and margin. Restart after changing it. After full main-thread
 cell integration, register a temporary population activation area for that cell.
 The bridge drains population updateMain on the server thread while paused;
 unpaused servers keep their normal update path. Allow five seconds for initial
@@ -112,5 +119,10 @@ paused callbacks, delayed virtual population after an empty first sweep, native
 pending-work refusal, settling, multiple cells, bounded deletion, exclusions, exact
 bounds/floor, logging, finite requests, no repeat deletion, restart, timeout,
 missing bridge, invalid map, exceptions, cancellation and client identity sync.
+Margin coverage added 2026-11-04: absent option uses 10, explicit 0 preserves the
+original area, custom margins load neighbouring cells, corners/outer boundaries
+are inclusive, world-origin clipping preserves nonnegative coordinates, wrong
+floors and tiles beyond the margin survive, and invalid values fail before loading.
+Locale checks verify the option's integer type, 0..100 range and default 10.
 Production bridge fixture and exact-game-JAR compilation also passed (see patch
 guide). No live server was started or installed patch deployed for this change.

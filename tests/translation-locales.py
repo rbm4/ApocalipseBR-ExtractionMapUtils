@@ -89,7 +89,11 @@ for setting, value in (("min", 0), ("max", 6), ("default", 3)):
     assert re.search(setting + r"\s*=\s*" + str(value) + r"\s*,", block)
 for name in ("LobbyX1", "LobbyY1", "LobbyX2", "LobbyY2", "LobbyFenceZ"):
     assert "type = integer" in option_block(name)
-print("Passed lobby sandbox defaults, coordinate controls and door count range checks.")
+block = option_block("LobbyCleanupMargin")
+assert "type = integer" in block
+for setting, value in (("min", 0), ("max", 100), ("default", 10)):
+    assert re.search(setting + r"\s*=\s*" + str(value) + r"\s*,", block)
+print("Passed lobby sandbox defaults, coordinate controls, door count and cleanup margin ranges.")
 
 assert re.search(r"default\s*=\s*false\s*,", option_block("RelocateOnRespawn"))
 print("Passed independent default-off lobby respawn option check.")

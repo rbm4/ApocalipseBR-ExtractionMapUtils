@@ -217,3 +217,13 @@ option ApocExtractionMapUtils.LobbyCleanupZombies
     page = ApocExtractionMapUtils,
     translation = ApocExtractionMapUtils_LobbyCleanupZombies,
 }
+
+option ApocExtractionMapUtils.LobbyCleanupMargin
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 10,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyCleanupMargin,
+}

@@ -28,7 +28,11 @@ local function geometry()
     local ymin, ymax = math.min(c.Y1, c.Y2), math.max(c.Y1, c.Y2)
     if xmin < 0 or ymin < 0 or xmax > 1000000 or ymax > 1000000 or c.Z < -32 or c.Z > 31
         or xmax - xmin < 6 or ymax - ymin < 6 or 2 * (xmax - xmin + ymax - ymin + 2) > 4096 then return end
-    return { x1 = xmin, x2 = xmax, y1 = ymin, y2 = ymax, z = c.Z }
+    local margin = Utils.getOptions().LobbyCleanupMargin
+    if margin == nil then margin = 10 end
+    if type(margin) ~= "number" or margin ~= math.floor(margin) or margin < 0 or margin > 100 then return end
+    return { x1 = math.max(0, xmin - margin), x2 = math.min(1000000, xmax + margin),
+        y1 = math.max(0, ymin - margin), y2 = math.min(1000000, ymax + margin), z = c.Z, margin = margin }
 end
 
 local function finish(status)
@@ -46,7 +50,7 @@ function Cleanup.start()
     attempted = true
     if not isServer() then log("SKIPPED: forced startup streaming requires a dedicated server"); return end
     local bounds = geometry()
-    if not bounds then log("FAILED: invalid lobby bounds/floor; no chunks requested"); return end
+    if not bounds then log("FAILED: invalid lobby bounds/floor/cleanup margin; no chunks requested"); return end
     if not ApocBRLobbyStreaming or not ApocBRLobbyStreaming.keepCellLoaded
         or not ApocBRLobbyStreaming.activatePopulation or not ApocBRLobbyStreaming.releasePopulation then
         log("FAILED: ApocBRLobbyStreaming bridge unavailable; install the updated 42.22.1 server patch; no cleanup performed")
@@ -70,7 +74,7 @@ function Cleanup.start()
         total = total, done = 0, removed = 0, loadedTiles = 0, missingTiles = 0,
         started = now, nextLog = now + LOG_MS }
     log("START: bounds=" .. bounds.x1 .. "," .. bounds.y1 .. ".." .. bounds.x2 .. "," .. bounds.y2
-        .. ", z=" .. bounds.z .. ", cells=" .. #cells .. ", chunks=" .. total
+        .. ", z=" .. bounds.z .. ", margin=" .. bounds.margin .. ", cells=" .. #cells .. ", chunks=" .. total
         .. "; populationActivation=true; loading one 64x64 server cell at a time")
 end
 

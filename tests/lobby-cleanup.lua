@@ -9,6 +9,7 @@ local function fixture(opts)
     SandboxVars = { ApocExtractionMapUtils = { LobbyEnabled = opts.lobby ~= false,
         LobbyCleanupZombies = opts.enabled, LobbyX1 = 14, LobbyX2 = 7,
         LobbyY1 = 14, LobbyY2 = 7, LobbyFenceZ = 1 } }
+    if not opts.omitMargin then SandboxVars.ApocExtractionMapUtils.LobbyCleanupMargin = opts.margin or 0 end
     function isClient() return opts.client == true end
     function isServer() return not opts.client and not opts.singleplayer end
     function instanceof(obj, kind) return obj.kind == kind end
@@ -199,6 +200,33 @@ local restart = fixture({ enabled = true })
 local restarted = restart.add(8, 8, 1, 1)
 restart.fire("OnServerStarted"); restart.pump(12)
 assert(restarted.removed, "every new process must run cleanup without persisted completion")
+-- Default ten-tile rectangular margin, inclusive corners, clipped at world origin.
+local expanded = fixture({ enabled = true, omitMargin = true })
+local near = expanded.add(24, 24, 1, 101)
+local west = expanded.add(0, 8, 1, 102)
+local north = expanded.add(8, 0, 1, 103)
+local beyond = expanded.add(25, 8, 1, 104)
+local otherFloor = expanded.add(24, 24, 0, 105)
+expanded.fire("OnServerStarted"); expanded.pump(30)
+assert(near.removed and west.removed and north.removed and not beyond.removed and not otherFloor.removed)
+assert(expanded.logged("START: bounds=0,0..24,24, z=1, margin=10") and expanded.logged("COMPLETE: chunks=16/16"))
+-- Custom margin must also expand the loading plan into neighbouring server cells.
+local custom = fixture({ enabled = true, margin = 2 })
+SandboxVars.ApocExtractionMapUtils.LobbyX1 = 70
+SandboxVars.ApocExtractionMapUtils.LobbyX2 = 60
+SandboxVars.ApocExtractionMapUtils.LobbyY1 = 70
+SandboxVars.ApocExtractionMapUtils.LobbyY2 = 60
+local southwest = custom.add(58, 72, 1, 201)
+local northeast = custom.add(72, 58, 1, 202)
+local tooFar = custom.add(73, 58, 1, 203)
+custom.fire("OnServerStarted"); custom.pump(60)
+assert(southwest.removed and northeast.removed and not tooFar.removed)
+assert(custom.logged("COMPLETE: chunks=9/9") and custom.logged("LOADING cell 4/4"))
+for _, value in ipairs({ -1, 101, 1.5, "10" }) do
+    local badMargin = fixture({ enabled = true, margin = value })
+    badMargin.fire("OnServerStarted"); badMargin.pump(10)
+    assert(badMargin.logged("FAILED:") and #badMargin.requests == 0, "invalid margins must not load or remove")
+end
 local sp = fixture({ enabled = true, singleplayer = true })
 sp.fire("OnServerStarted"); sp.pump(10)
 assert(#sp.requests == 0 and sp.logged("SKIPPED:"))

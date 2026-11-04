@@ -1,3 +1,4 @@
+package.path = "ApocalipseBR-ExtractionMapUtils/common/media/lua/server/?.lua;" .. package.path
 -- Real server subscription/cache flow; only Java/network/event boundaries mocked.
 package.path = "ApocalipseBR-ExtractionMapUtils/common/media/lua/shared/?.lua;" .. package.path
 local checks, now, messages, scans = 0, 1000, {}, 0

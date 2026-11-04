@@ -9,6 +9,9 @@ integration. Repository conventions live in [AGENTS.md](../AGENTS.md).
 
 Durable gameplay specifications and current behavior belong in `features/`.
 
+- [NPC actions and safehouse travel](features/npc-dialogue-actions.md): named server
+  Lua handlers, pooled NPC responses and confirmed-arrival six-hour cooldown.
+
 - [Initial lobby zombie cleanup](features/lobby-zombie-cleanup.md): opt-in cleanup
   forced streaming on every server startup, progress logs and loading-request release.
 
@@ -50,6 +53,9 @@ Future event activation and database integration should receive their own featur
 documents when designed. Mark proposals as planned until implemented.
 
 ## Hotfixes
+
+- [Safehouse travel diagnostics](hotfixes/safehouse-travel-silent-cancellation.md):
+  expose departure stages, native rejection and silent callback/polling failures.
 
 - [Startup cleanup virtual population](hotfixes/lobby-cleanup-virtual-population.md):
   activate population on empty servers and verify delayed zombies before completion.

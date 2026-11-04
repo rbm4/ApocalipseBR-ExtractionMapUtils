@@ -42,6 +42,7 @@ ApocExtractionMapUtils = {
     LobbyEnabled = true,
     LobbyFenceEnabled = true,
     LobbyCleanupZombies = false,
+    LobbyCleanupMargin = 10, -- extra cleanup tiles on every side; 0..100
     LobbyDoorCount = 3,
     LobbyX1 = 14260, LobbyY1 = 11892,
     LobbyX2 = 14321, LobbyY2 = 11812,
