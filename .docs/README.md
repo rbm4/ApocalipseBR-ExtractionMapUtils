@@ -7,6 +7,8 @@ integration. Repository conventions live in [AGENTS.md](../AGENTS.md).
 
 ## Features
 
+- [Lobby fixed power](features/lobby-fixed-power.md): optional startup registration of the lobby for server-side power.
+
 Durable gameplay specifications and current behavior belong in `features/`.
 
 - [NPC actions and safehouse travel](features/npc-dialogue-actions.md): named server

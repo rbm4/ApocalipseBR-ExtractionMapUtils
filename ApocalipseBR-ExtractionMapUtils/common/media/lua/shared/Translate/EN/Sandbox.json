@@ -12,6 +12,8 @@
     "Sandbox_ApocExtractionMapUtils_LobbyEnabled_tooltip": "Enable military fence construction, protection against disassembly in the lobby, release commands and scheduled perimeter removal. Relocation on login also requires its own setting. Restart the server and reconnect clients after changes. Disabling this option stops lobby control but does not remove fences already saved in the world.",
     "Sandbox_ApocExtractionMapUtils_ZombieMoneyDrops": "Zombie money drops",
     "Sandbox_ApocExtractionMapUtils_ZombieMoneyDrops_tooltip": "Add 1 to 10 Base.Money items to zombie corpses after server-confirmed kills by connected players. Independent of the lobby setting. Disabled by default.",
+    "Sandbox_ApocExtractionMapUtils_LobbyFixedPower": "Lobby: permanent server-side electricity",
+    "Sandbox_ApocExtractionMapUtils_LobbyFixedPower_tooltip": "Registers the lobby rectangle for permanent server-side power on all floors. Requires the updated 42.22.2 server patch. Restart after changes. Client lighting and interactions may still need client support. Disabled by default.",
     "Sandbox_ApocExtractionMapUtils_LobbyX": "Lobby X",
     "Sandbox_ApocExtractionMapUtils_LobbyX_tooltip": "X coordinate of the world tile. A value of -1 leaves the lobby unconfigured and skips relocation on login.",
     "Sandbox_ApocExtractionMapUtils_LobbyY": "Lobby Y",
@@ -49,7 +51,7 @@
     "Sandbox_ApocExtractionMapUtils_RelocateOnRespawn": "Relocate to lobby after death",
     "Sandbox_ApocExtractionMapUtils_RelocateOnRespawn_tooltip": "Disabled by default. After respawning in the same server session, override the safehouse or map/mod spawn and move to the configured lobby, even during an operation. Independent of login/server-transfer relocation. Requires Enable lobby and valid Lobby X/Y/Z. Update the 42.21.0 server patch for authoritative multiplayer respawn detection.",
     "Sandbox_ApocExtractionMapUtils_LobbyCleanupMargin": "Lobby zombie cleanup: outside margin (tiles)",
-    "Sandbox_ApocExtractionMapUtils_LobbyCleanupMargin_tooltip": "Extend startup zombie cleanup this many tiles beyond every side of the lobby rectangle, including corners, on the configured lobby floor. Applies to forced loading and removal. Requires Clear lobby zombies at server startup. Default 10; range 0-100. Zero clears only the lobby interior. Restart after changes.",
+    "Sandbox_ApocExtractionMapUtils_LobbyCleanupMargin_tooltip": "Extend startup zombie cleanup this many tiles beyond every side of the lobby rectangle, including corners, on floors Z=0 through Z=5. Applies to forced loading and removal. Requires Clear lobby zombies at server startup. Default 10; range 0-100. Zero clears only the lobby interior. Restart after changes.",
     "Sandbox_ApocExtractionMapUtils_LobbyCleanupZombies": "Clear lobby zombies at server startup",
-    "Sandbox_ApocExtractionMapUtils_LobbyCleanupZombies_tooltip": "Requires Enable lobby and the updated 42.22.1 server patch. Every server startup, force-load lobby cells, clear zombies inside the configured bounds and floor, then release loading requests for normal unloading. Progress is always logged. Later arrivals and spawns remain. Excludes reanimated players. Restart after changes. Disabled by default."
+    "Sandbox_ApocExtractionMapUtils_LobbyCleanupZombies_tooltip": "Requires Enable lobby and the updated 42.22.1 server patch. Every server startup, force-load lobby cells, clear zombies inside the configured bounds on floors Z=0 through Z=5, then release loading requests for normal unloading. Progress is always logged. Later arrivals and spawns remain. Excludes reanimated players. Restart after changes. Disabled by default."
 }

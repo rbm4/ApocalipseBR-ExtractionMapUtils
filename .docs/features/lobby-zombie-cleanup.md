@@ -21,7 +21,7 @@ logs before admitting players if the lobby must be clean before entry.
 The server loads one 64x64 server cell at a time through native relevance requests.
 This necessarily loads surrounding chunks in that cell, but deletion touches only
 the inclusive normalized `LobbyX1/Y1`..`LobbyX2/Y2` rectangle expanded by
-`LobbyCleanupMargin` tiles on every side, at `LobbyFenceZ`. The margin defaults
+`LobbyCleanupMargin` tiles on every side, on floors `Z=0` through `Z=5` inclusive. The margin defaults
 to 10 tiles and accepts integers 0..100. It includes corners as a rectangular
 expansion; 0 restores interior-only cleanup. Coordinates are clipped to 0..1000000.
 For example, a lobby at (100,200)..(120,220) clears (90,190)..(130,230) with
@@ -32,11 +32,11 @@ bounds and margin. Restart after changing it. After full main-thread
 cell integration, register a temporary population activation area for that cell.
 The bridge drains population updateMain on the server thread while paused;
 unpaused servers keep their normal update path. Allow five seconds for initial
-settling, then process at most four intersecting 8x8 chunks (256 tiles) per callback.
+settling, then process at most four intersecting 8x8 chunks (up to 1,536 floor squares) per callback.
 Repeat bounded verification sweeps until native readyToPause reports no pending
 population work, at least two sweeps finish, and no removal occurs for five seconds.
 Chunk progress counts unique chunks, not repeated sweeps. Missing squares on the
-configured floor are empty, not a reason to create terrain.
+scanned floors are empty, not a reason to create terrain.
 
 Remove IsoZombie objects with removeFromWorld then removeFromSquare. Preserve
 players, animals, corpses and reanimated players. Removal does not kill zombies
@@ -57,7 +57,7 @@ Completed, cancelled and failed jobs stop making loading requests.
 
 The `[ApocExtractionLobbyCleanup]` prefix always prints, independently of DebugLogging:
 
-- START: normalized bounds, floor, total cells and intersecting chunks.
+- START: normalized bounds, floor range, total cells and intersecting chunks.
 - LOADING: cell index and coordinates.
 - PROGRESS: every five seconds, with phase, chunks, removals and populationReady.
 - CLEANED: per-cell totals, verification passes, populationReady and request release.

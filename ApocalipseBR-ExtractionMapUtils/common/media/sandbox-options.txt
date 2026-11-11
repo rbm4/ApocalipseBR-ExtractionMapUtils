@@ -40,6 +40,14 @@ option ApocExtractionMapUtils.LobbyEnabled
     translation = ApocExtractionMapUtils_LobbyEnabled,
 }
 
+option ApocExtractionMapUtils.LobbyFixedPower
+{
+    type = boolean,
+    default = false,
+    page = ApocExtractionMapUtils,
+    translation = ApocExtractionMapUtils_LobbyFixedPower,
+}
+
 option ApocExtractionMapUtils.ZombieMoneyDrops
 {
     type = boolean,

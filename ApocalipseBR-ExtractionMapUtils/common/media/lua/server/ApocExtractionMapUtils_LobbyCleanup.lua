@@ -9,6 +9,7 @@ Utils.LobbyCleanup = Cleanup
 local run, attempted
 local SETTLE_MS, TIMEOUT_MS, LOG_MS = 5000, 120000, 5000
 local CHUNKS_PER_TICK = 4
+local MIN_CLEANUP_Z, MAX_CLEANUP_Z = 0, 5
 
 local function log(message)
     -- Operational output is independent of DebugLogging.
@@ -32,7 +33,7 @@ local function geometry()
     if margin == nil then margin = 10 end
     if type(margin) ~= "number" or margin ~= math.floor(margin) or margin < 0 or margin > 100 then return end
     return { x1 = math.max(0, xmin - margin), x2 = math.min(1000000, xmax + margin),
-        y1 = math.max(0, ymin - margin), y2 = math.min(1000000, ymax + margin), z = c.Z, margin = margin }
+        y1 = math.max(0, ymin - margin), y2 = math.min(1000000, ymax + margin), margin = margin }
 end
 
 local function finish(status)
@@ -74,37 +75,39 @@ function Cleanup.start()
         total = total, done = 0, removed = 0, loadedTiles = 0, missingTiles = 0,
         started = now, nextLog = now + LOG_MS }
     log("START: bounds=" .. bounds.x1 .. "," .. bounds.y1 .. ".." .. bounds.x2 .. "," .. bounds.y2
-        .. ", z=" .. bounds.z .. ", margin=" .. bounds.margin .. ", cells=" .. #cells .. ", chunks=" .. total
+        .. ", z=" .. MIN_CLEANUP_Z .. ".." .. MAX_CLEANUP_Z .. ", margin=" .. bounds.margin .. ", cells=" .. #cells .. ", chunks=" .. total
         .. "; populationActivation=true; loading one 64x64 server cell at a time")
 end
 
 local function clearChunk(chunk)
     local b = run.bounds
-    local job = { x1 = math.max(chunk.x, b.x1), x2 = math.min(chunk.x + 7, b.x2),
-        y1 = math.max(chunk.y, b.y1), y2 = math.min(chunk.y + 7, b.y2), z = b.z, ids = {} }
-    for y = job.y1, job.y2 do
-        for x = job.x1, job.x2 do
-            local square = getCell():getGridSquare(x, y, job.z)
-            if not run.cells[run.index].firstPassDone then
-                local field = square and "loadedTiles" or "missingTiles"
-                run[field] = run[field] + 1
-            end
-            if square then
-                local objects = square:getMovingObjects()
-                for i = objects:size() - 1, 0, -1 do
-                    local zombie = objects:get(i)
-                    if instanceof(zombie, "IsoZombie") and not zombie:isReanimatedPlayer() then
-                        local id = zombie:getOnlineID()
-                        if id >= 0 then job.ids[#job.ids + 1] = id end
-                        zombie:removeFromWorld()
-                        zombie:removeFromSquare()
-                        run.removed = run.removed + 1
+    for z = MIN_CLEANUP_Z, MAX_CLEANUP_Z do
+        local job = { x1 = math.max(chunk.x, b.x1), x2 = math.min(chunk.x + 7, b.x2),
+            y1 = math.max(chunk.y, b.y1), y2 = math.min(chunk.y + 7, b.y2), z = z, ids = {} }
+        for y = job.y1, job.y2 do
+            for x = job.x1, job.x2 do
+                local square = getCell():getGridSquare(x, y, job.z)
+                if not run.cells[run.index].firstPassDone then
+                    local field = square and "loadedTiles" or "missingTiles"
+                    run[field] = run[field] + 1
+                end
+                if square then
+                    local objects = square:getMovingObjects()
+                    for i = objects:size() - 1, 0, -1 do
+                        local zombie = objects:get(i)
+                        if instanceof(zombie, "IsoZombie") and not zombie:isReanimatedPlayer() then
+                            local id = zombie:getOnlineID()
+                            if id >= 0 then job.ids[#job.ids + 1] = id end
+                            zombie:removeFromWorld()
+                            zombie:removeFromSquare()
+                            run.removed = run.removed + 1
+                        end
                     end
                 end
             end
         end
+        if #job.ids > 0 then sendServerCommand("ApocExtractionMapUtils", "LobbyCleanupZombies", job) end
     end
-    if #job.ids > 0 then sendServerCommand("ApocExtractionMapUtils", "LobbyCleanupZombies", job) end
 end
 
 local function step()
