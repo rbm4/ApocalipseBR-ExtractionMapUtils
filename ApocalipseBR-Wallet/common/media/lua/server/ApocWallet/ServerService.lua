@@ -1,9 +1,15 @@
 require "ApocWallet/Protocol"
+local Operation = require "ApocWallet/Operation"
 if ApocWallet.ServerService then return ApocWallet.ServerService end
 
-local Service = { entries = {}, count = 0, nextUpdate = 0, nextRequest = 0 }
+local Service = { entries = {}, pending = {}, pendingCount = 0, count = 0,
+    nextUpdate = 0, nextRequest = 0, nextPrune = 0 }
 ApocWallet.ServerService = Service
 local MAX_PLAYERS, IDENTITY_TIMEOUT, RESPONSE_TIMEOUT = 256, 120000, 60000
+
+local function workChanged()
+    if Service.onWorkChanged then Service.onWorkChanged(Service.pendingCount > 0) end
+end
 
 local function live(player)
     return player and not player:isDead() and player:getOnlineID() >= 0
@@ -26,37 +32,90 @@ local function identity(player)
     return context
 end
 
-local function snapshot(player, entry)
+local function snapshot(player, entry, cached)
     return { token = entry.token, onlineId = player:getOnlineID(), status = entry.status,
-        balance = entry.balance, error = entry.error }
+        balance = entry.balance, error = entry.error, updatedAt = entry.updatedAt, cached = cached == true }
 end
 
 local function notify(player, entry)
-    if Service.notify and live(player) then Service.notify(player, snapshot(player, entry)) end
+    if Service.notify and entry.token and live(player) then Service.notify(player, snapshot(player, entry)) end
 end
 
-local function fail(player, entry, error)
-    entry.status, entry.error, entry.balance = "error", error, nil
+local function finish(player, entry, status, balance, error)
+    if entry.status ~= "loading" then return end
+    entry.status, entry.balance, entry.error = status, balance, error
+    if status == "ready" then entry.updatedAt = getTimestampMs() end
+    if Service.pending[player] == entry then
+        Service.pending[player], Service.pendingCount = nil, Service.pendingCount - 1
+    end
+    workChanged()
     notify(player, entry)
+    Operation.resolve(entry.operation, { status = status, balance = balance, error = error,
+        updatedAt = entry.updatedAt, cached = false })
 end
 
-function Service.login(player, token)
+local function fail(player, entry, error) finish(player, entry, "error", nil, error) end
+
+local function drop(player, entry)
+    if Service.entries[player] ~= entry then return end
+    Service.entries[player], Service.count = nil, Service.count - 1
+    fail(player, entry, "CANCELLED")
+end
+
+local function load(player, refresh, now)
+    local entry = Service.entries[player]
+    if entry and entry.status ~= "loading" and entry.context then
+        local current = identity(player)
+        if not current or current.characterId ~= entry.context.characterId or current.session ~= entry.context.session then
+            drop(player, entry)
+            entry = Service.entries[player]
+        end
+    end
+    if entry and (entry.status == "loading" or not refresh
+        or now - entry.started < ApocWallet.Protocol.MIN_REFRESH_MS) then return entry end
+    if not entry and Service.count >= MAX_PLAYERS then return nil end
+    local nextEntry = { status = "loading", started = now, lastReply = entry and entry.lastReply,
+        operation = Operation.new() }
+    if not entry then Service.count = Service.count + 1 end
+    Service.entries[player], Service.pending[player] = nextEntry, nextEntry
+    Service.pendingCount = Service.pendingCount + 1
+    Service.nextUpdate = 0
+    workChanged()
+    return nextEntry
+end
+
+local function requestBalance(player, callback, refresh)
+    assert(callback == nil or type(callback) == "function", "Wallet callback must be a function")
+    if not live(player) then
+        Operation.deliver(callback, { status = "error", error = "PLAYER_UNAVAILABLE" })
+        return function() end
+    end
+    local entry = load(player, refresh, getTimestampMs())
+    if not entry then
+        Operation.deliver(callback, { status = "error", error = "WALLET_BUSY" })
+        return function() end
+    end
+    if entry.status == "loading" then return Operation.subscribe(entry.operation, callback) end
+    Operation.deliver(callback, { status = entry.status, balance = entry.balance, error = entry.error,
+        updatedAt = entry.updatedAt, cached = entry.status == "ready" })
+    return function() end
+end
+
+function Service.requestBalance(player, callback) return requestBalance(player, callback, false) end
+function Service.refreshBalance(player, callback) return requestBalance(player, callback, true) end
+
+function Service.login(player, token, refresh)
     if not live(player) or type(token) ~= "string" or #token < 1 or #token > 80
         or not token:match("^[%w:%-]+$") then return end
     local now = getTimestampMs()
-    local entry = Service.entries[player]
+    local old = Service.entries[player]
+    if old and old.lastReply and now - old.lastReply < 2000 then return end
+    local entry = load(player, refresh == true, now)
     if not entry then
-        if Service.count >= MAX_PLAYERS then
-            return { token = token, onlineId = player:getOnlineID(), status = "error", error = "WALLET_BUSY" }
-        end
-        entry = { token = token, status = "loading", started = now, lastReply = now }
-        Service.entries[player], Service.count = entry, Service.count + 1
-    else
-        -- Repeated/forged login commands never refresh a completed balance or spawn another request.
-        if now - entry.lastReply < 2000 then return end
-        entry.token, entry.lastReply = token, now
+        return { token = token, onlineId = player:getOnlineID(), status = "error", error = "WALLET_BUSY" }
     end
-    return snapshot(player, entry)
+    entry.token, entry.lastReply = token, now
+    return snapshot(player, entry, entry.status == "ready")
 end
 
 local function submit(player, entry, context, now)
@@ -78,8 +137,7 @@ local function submit(player, entry, context, now)
         end
         if response.ok == true and type(response.balance) == "number" and response.balance == response.balance
             and math.abs(response.balance) <= 9007199254740991 then
-            entry.status, entry.balance, entry.error = "ready", response.balance, nil
-            notify(player, entry)
+            finish(player, entry, "ready", response.balance)
         else
             local error = type(response.error) == "string" and #response.error <= 80 and response.error or "API_ERROR"
             fail(player, entry, error)
@@ -96,13 +154,14 @@ local function submit(player, entry, context, now)
 end
 
 function Service.update()
+    if Service.pendingCount == 0 then return end
     local now = getTimestampMs()
     if now < Service.nextUpdate then return end
     Service.nextUpdate = now + 1000
-    local nextPlayer, nextEntry
-    for player, entry in pairs(Service.entries) do
+    local nextPlayer, nextEntry, nextContext
+    for player, entry in pairs(Service.pending) do
         if not live(player) then
-            Service.entries[player], Service.count = nil, Service.count - 1
+            drop(player, entry)
         elseif entry.status == "loading" then
             if entry.requestId then
                 if now - entry.acceptedAt >= RESPONSE_TIMEOUT then fail(player, entry, "API_TIMEOUT") end
@@ -111,22 +170,31 @@ function Service.update()
             elseif now >= Service.nextRequest and (not nextEntry or entry.started < nextEntry.started) then
                 -- Resolve pending imports independently: one unready player cannot block everyone else.
                 local context, error = identity(player)
-                if context then nextPlayer, nextEntry = player, entry
+                if context then nextPlayer, nextEntry, nextContext = player, entry, context
                 elseif error ~= "IDENTITY_PENDING" then fail(player, entry, error) end
             end
         end
     end
-    if nextEntry then
-        local context, error = identity(nextPlayer)
-        if context then submit(nextPlayer, nextEntry, context, now)
-        elseif error ~= "IDENTITY_PENDING" then fail(nextPlayer, nextEntry, error) end
+    if nextEntry and Service.pending[nextPlayer] == nextEntry and live(nextPlayer) then
+        submit(nextPlayer, nextEntry, nextContext, now)
     end
 end
 
 function Service.getState(player)
     local entry = Service.entries[player]
     if not entry or not live(player) then return { status = "idle" } end
-    return { status = entry.status, balance = entry.balance, error = entry.error }
+    return { status = entry.status, balance = entry.balance, error = entry.error, updatedAt = entry.updatedAt }
+end
+
+-- Cache cleanup is independent of request scheduling. Never refreshes a balance.
+function Service.prune()
+    if Service.count == 0 then return end
+    local now = getTimestampMs()
+    if now < Service.nextPrune then return end
+    Service.nextPrune = now + 10000
+    for player, entry in pairs(Service.entries) do
+        if not live(player) then drop(player, entry) end
+    end
 end
 
 return Service

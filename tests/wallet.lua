@@ -1,23 +1,38 @@
 local root = "ApocalipseBR-Wallet/common/media/lua/"
 package.path = root .. "shared/?.lua;" .. root .. "client/?.lua;" .. root .. "server/?.lua;" .. package.path
-local checks, now, role = 0, 0, "server"
+local checks, now, role, clockReads, nativeLookups = 0, 0, "server", 0, 0
 local online, locals, outgoing, requests, clientCommands = {}, {}, {}, {}, {}
 local uuid = "12345678-1234-4234-8234-123456789abc"
 local serverEvents, clientEvents
 local function check(value, message) checks = checks + 1; assert(value, message) end
-function getTimestampMs() return now end
+function getTimestampMs() clockReads = clockReads + 1; return now end
 function isServer() return role == "server" end
 function isClient() return role == "client" end
-function getPlayerByOnlineID(id) return online[id] end
+function getPlayerByOnlineID(id) nativeLookups = nativeLookups + 1; return online[id] end
 function getSpecificPlayer(index) return locals[index] end
 function getNumActivePlayers() return 2 end
 local function events()
     local result = {}
     for _, name in ipairs({"OnCreatePlayer", "OnGameStart", "OnTick", "OnServerCommand",
-        "OnClientCommand", "OnPlayerDeath", "OnDisconnect"}) do
+        "OnClientCommand", "OnPlayerDeath", "OnDisconnect", "EveryOneMinute"}) do
         local callbacks = {}
         result[name] = { Add = function(f) callbacks[#callbacks + 1] = f end,
-            fire = function(...) for _, f in ipairs(callbacks) do f(...) end end }
+            Remove = function(f)
+                for index, registered in ipairs(callbacks) do
+                    if registered == f then table.remove(callbacks,index); return end
+                end
+            end,
+            count = function() return #callbacks end,
+            fire = function(...)
+                local index = 1
+                while index <= #callbacks do
+                    local f = callbacks[index]
+                    f(...)
+                    local exists = false
+                    for _, registered in ipairs(callbacks) do if registered == f then exists = true; break end end
+                    if exists then index = index + 1 end
+                end
+            end }
     end
     return result
 end
@@ -53,7 +68,7 @@ local function setup()
     online, locals, outgoing, requests, clientCommands = {}, {}, {}, {}, {}
     reject, rejection, apiEnabled, apiThrows = false, "THROTTLED", true, false
     ApocWallet = nil
-    for _, name in ipairs({"Protocol", "ServerService", "ServerController", "ClientService", "ClientController"}) do
+    for _, name in ipairs({"Protocol", "Operation", "ServerService", "ServerController", "ClientService", "ClientController"}) do
         package.loaded["ApocWallet/" .. name] = nil
     end
     Events = events(); serverEvents = Events
@@ -102,7 +117,7 @@ p.session = "new-session"; complete(2, 100)
 check(ApocWallet.ServerService.getState(p).error == "STALE_SESSION", "changed session cannot receive stale balance")
 online[2] = player(2, "reconnect"); complete(1, 777)
 check(ApocWallet.ServerService.getState(second).status == "idle", "reused online ID cannot inherit stale callback")
-now = 4000; serverEvents.OnTick.fire()
+now = 4000; serverEvents.OnTick.fire(); serverEvents.EveryOneMinute.fire()
 check(ApocWallet.ServerService.entries[second] == nil, "disconnect removes server cache")
 
 for _, code in ipairs({"THROTTLED", "QUEUE_FULL", "BACKEND_COOLDOWN"}) do
@@ -135,7 +150,7 @@ require "ApocWallet/ClientController"
 local localPlayer = player(-1); locals[0] = localPlayer
 clientEvents.OnCreatePlayer.fire(0,localPlayer); clientEvents.OnGameStart.fire(); clientEvents.OnTick.fire()
 check(#clientCommands == 0, "login waits for online registration")
-localPlayer.id = 5; clientEvents.OnTick.fire()
+localPlayer.id = 5; now = 250; clientEvents.OnTick.fire()
 check(#clientCommands == 1 and clientCommands[1].args.token and clientCommands[1].args.steamId == nil, "one login intent without identity fields")
 local command = clientCommands[1]; login(serverPlayer,command.args.token); serverEvents.OnTick.fire()
 check(#requests == 1, "login intent reaches API bridge")
@@ -154,9 +169,9 @@ clientEvents.OnCreatePlayer.fire(0,replacement)
 clientEvents.OnServerCommand.fire(response.module,response.command,response.args)
 check(ApocWallet.ClientService.getState(0).status == "loading", "previous life reply ignored")
 clientEvents.OnTick.fire(); now = now + 5000; clientEvents.OnTick.fire()
-check(#clientCommands == 3, "loading client retries intent at five-second cadence")
+check(#clientCommands == 2, "loading client sends one intent and waits for pushed completion")
 now = now + 180000; clientEvents.OnTick.fire()
-check(ApocWallet.ClientService.getState(0).error == "LOGIN_TIMEOUT", "client wait is bounded")
+check(ApocWallet.ClientService.getState(0).error == "REQUEST_TIMEOUT", "client wait is bounded")
 clientEvents.OnDisconnect.fire()
 check(next(ApocWallet.ClientService.entries) == nil, "disconnect clears all local slots")
 
@@ -189,4 +204,117 @@ for id = 1, 256 do local owned = player(id); online[id] = owned; login(owned,"ca
 local overflow = player(257); online[257] = overflow; login(overflow,"overflow")
 check(ApocWallet.ServerService.count == 256 and outgoing[#outgoing].args.error == "WALLET_BUSY",
     "server session cache is bounded")
+-- Operation callbacks are shared, cancellable and leave no permanent tick handlers.
+setup()
+local serverOwner = player(21); online[21] = serverOwner
+role, Events = "client", events(); clientEvents = Events
+require "ApocWallet/ClientController"
+locals[0] = player(21)
+check(clientEvents.OnTick.count() == 0 and serverEvents.OnTick.count() == 0, "idle controllers attach no tick callbacks")
+local callbackOne, callbackTwo, cancelled = 0, 0, 0
+local cancel = ApocWallet.ClientService.requestBalance(0,function() cancelled = cancelled + 1 end)
+ApocWallet.ClientService.requestBalance(0,function(result) callbackOne = callbackOne + 1; result.balance = -999 end)
+ApocWallet.ClientService.requestBalance(0,function(result) callbackTwo = callbackTwo + 1; check(result.balance == 15000,"callback snapshots isolated") end)
+cancel(); cancel()
+clientEvents.OnGameStart.fire()
+check(clientEvents.OnTick.count() == 1, "concurrent callers and startup share one tick registration")
+clientEvents.OnTick.fire()
+check(#clientCommands == 1,"concurrent UI callers share one client operation")
+command = clientCommands[1]; login(serverOwner,command.args.token); serverEvents.OnTick.fire()
+local serverCallbacks = 0
+ApocWallet.ServerService.requestBalance(serverOwner,function(result) serverCallbacks = serverCallbacks + 1; check(result.balance == 15000,"server callback gets balance") end)
+complete(1,15000)
+response = outgoing[#outgoing]
+clientEvents.OnServerCommand.fire(response.module,response.command,response.args)
+check(callbackOne == 1 and callbackTwo == 1 and cancelled == 0 and serverCallbacks == 1,"callbacks resolve once; cancelled observer never called")
+check(clientEvents.OnTick.count() == 0 and serverEvents.OnTick.count() == 0,"completed operations detach both tick handlers")
+local beforeClock, beforeLookups = clockReads, nativeLookups
+for i = 1, 1000 do clientEvents.OnTick.fire(); serverEvents.OnTick.fire() end
+ApocWallet.ClientService.update(); ApocWallet.ServerService.update()
+check(clockReads == beforeClock and nativeLookups == beforeLookups,"idle tick/update paths read neither clock nor player map")
+local cachedCalls = 0
+ApocWallet.ClientService.requestBalance(0,function(result) cachedCalls = cachedCalls + 1; check(result.cached and result.updatedAt == 0,"cache freshness timestamp exposed") end)
+check(cachedCalls == 1 and #clientCommands == 1,"cached callback resolves immediately without network")
+now = 6000
+local refreshCalls = 0
+ApocWallet.ClientService.refreshBalance(0,function(result) refreshCalls = refreshCalls + 1; check(result.balance == 7000,"explicit refresh replaces stale display balance") end)
+ApocWallet.ClientService.refreshBalance(0,function() refreshCalls = refreshCalls + 1 end)
+clientEvents.OnTick.fire()
+check(#clientCommands == 2 and clientCommands[2].command == "RefreshBalance","explicit refresh sends one new intent")
+serverEvents.OnClientCommand.fire("ApocWallet","RefreshBalance",serverOwner,clientCommands[2].args)
+serverEvents.OnTick.fire()
+check(#requests == 2,"server refresh creates a new read operation after cooldown")
+complete(2,7000); response = outgoing[#outgoing]
+clientEvents.OnServerCommand.fire(response.module,response.command,response.args)
+check(refreshCalls == 2 and ApocWallet.ClientService.getState(0).balance == 7000,"coalesced refresh callbacks see backend change")
+check(clientEvents.OnTick.count() == 0 and serverEvents.OnTick.count() == 0,"refresh completion also detaches ticks")
+local rapid
+now = 7000
+ApocWallet.ClientService.refreshBalance(0,function(result) rapid = result end)
+check(rapid and rapid.cached and #clientCommands == 2,"rapid UI refresh uses cache instead of waiting on a throttled command")
+now = 8000
+serverEvents.OnClientCommand.fire("ApocWallet","RefreshBalance",serverOwner,{token="forged-refresh"})
+serverEvents.OnTick.fire()
+check(#requests == 2 and outgoing[#outgoing].args.cached and serverEvents.OnTick.count() == 0,
+    "server independently prevents fresh-token refresh spam inside cooldown")
+now = 12000
+ApocWallet.ClientService.refreshBalance(0,function() error("fixture UI callback failure") end)
+local safe = 0
+ApocWallet.ClientService.requestBalance(0,function(result) safe = safe + 1; check(result.error == "HTTP_503","failure delivered through callback") end)
+clientEvents.OnTick.fire()
+serverEvents.OnClientCommand.fire("ApocWallet","RefreshBalance",serverOwner,clientCommands[3].args)
+serverEvents.OnTick.fire(); complete(3,nil,"HTTP_503"); response = outgoing[#outgoing]
+clientEvents.OnServerCommand.fire(response.module,response.command,response.args)
+check(safe == 1 and clientEvents.OnTick.count() == 0,"throwing UI observer cannot interrupt another observer or cleanup")
+now = 18000
+local closed = 0
+cancel = ApocWallet.ClientService.refreshBalance(0,function() closed = closed + 1 end)
+local survivor = 0
+ApocWallet.ClientService.requestBalance(0,function() survivor = survivor + 1 end)
+cancel(); clientEvents.OnDisconnect.fire()
+check(closed == 0 and survivor == 1 and clientEvents.OnTick.count() == 0,"disconnect cancels pending operation and notifies attached observers")
+now = 24000
+ApocWallet.ClientService.refreshBalance(0,function()
+    ApocWallet.ClientService.refreshBalance(0)
+end)
+clientEvents.OnDisconnect.fire()
+check(clientEvents.OnTick.count() == 0 and next(ApocWallet.ClientService.entries) == nil,
+    "cancellation callback cannot resurrect a request during disconnect")
+
+setup(); serverOwner = player(1); online[1] = serverOwner
+local deliveries, limited = 0, 0
+for i = 1, 33 do
+    ApocWallet.ServerService.requestBalance(serverOwner,function(result)
+        if result.error == "CALLBACK_LIMIT" then limited = limited + 1 else deliveries = deliveries + 1 end
+    end)
+end
+check(limited == 1,"operation observer count bounded to 32")
+serverEvents.OnTick.fire(); complete(1,50)
+check(deliveries == 32 and serverEvents.OnTick.count() == 0,"bounded server observers settle and release tick")
+local readyOwner = player(2); online[2] = readyOwner
+now = 6000; login(readyOwner,"ready"); serverEvents.OnTick.fire(); complete(2,10)
+online[2] = nil; now = 20000
+beforeLookups = nativeLookups
+serverEvents.OnTick.fire()
+check(nativeLookups == beforeLookups,"completed player cache is not scanned by ticks")
+serverEvents.EveryOneMinute.fire()
+check(ApocWallet.ServerService.entries[readyOwner] == nil,"coarse maintenance removes disconnected completed cache")
+beforeLookups = nativeLookups
+serverEvents.EveryOneMinute.fire()
+check(nativeLookups == beforeLookups,"cache cleanup has a ten-second real-time gate")
+
+local Operation = require "ApocWallet/Operation"
+local operation = Operation.new()
+local delivered = 0
+local cancelFirst = Operation.subscribe(operation,function() delivered = delivered + 1 end)
+local cancelSecond = Operation.subscribe(operation,function() delivered = delivered + 1 end)
+local firstTicket = next(operation.listeners)
+operation.listeners[firstTicket] = function()
+    delivered = delivered + 1
+    cancelFirst(); cancelSecond()
+end
+Operation.resolve(operation,{status="ready",balance=1})
+Operation.resolve(operation,{status="ready",balance=2})
+check(delivered == 1 and operation.count == 0 and next(operation.listeners) == nil,
+    "cancellation during dispatch removes not-yet-delivered observers and settlement is terminal")
 print("Passed " .. checks .. " wallet assertions (production Lua, mocked engine/API boundaries).")
