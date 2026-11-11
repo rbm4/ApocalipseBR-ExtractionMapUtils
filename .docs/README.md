@@ -7,7 +7,9 @@ integration. Repository conventions live in [AGENTS.md](../AGENTS.md).
 
 ## Features
 
-- [Lobby fixed power](features/lobby-fixed-power.md): optional startup registration of the lobby for server-side power.
+- [Persisted managed generators](features/persisted-fixed-power.md): startup entity query and native generator registration from PostgreSQL.
+
+- [Lobby managed generator](features/lobby-fixed-power.md): optional startup registration of a native lobby generator.
 
 Durable gameplay specifications and current behavior belong in `features/`.
 
@@ -55,6 +57,8 @@ Future event activation and database integration should receive their own featur
 documents when designed. Mark proposals as planned until implemented.
 
 ## Hotfixes
+
+- [Managed generator validation and pre-warm](hotfixes/managed-generator-validation-and-prewarm.md): exact coordinate rejection logs and explicit bounded map pre-warming before placement.
 
 - [Safehouse travel diagnostics](hotfixes/safehouse-travel-silent-cancellation.md):
   expose departure stages, native rejection and silent callback/polling failures.

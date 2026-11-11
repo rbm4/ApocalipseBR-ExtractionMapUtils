@@ -12,8 +12,8 @@
     "Sandbox_ApocExtractionMapUtils_LobbyEnabled_tooltip": "Ativar a construção de cercas militares, a proteção contra desmontagem no lobby, os comandos de liberação e a remoção programada do perímetro. A transferência ao entrar no jogo também exige sua própria configuração. Reinicie o servidor e reconecte os clientes após alterações. Desativar interrompe o controle do lobby, mas não remove cercas já salvas no mundo.",
     "Sandbox_ApocExtractionMapUtils_ZombieMoneyDrops": "Dinheiro nos corpos de zumbis",
     "Sandbox_ApocExtractionMapUtils_ZombieMoneyDrops_tooltip": "Adicionar de 1 a 10 itens Base.Money aos corpos de zumbis mortos por jogadores conectados, após confirmação do servidor. Independe da configuração do lobby. Desativado por padrão.",
-    "Sandbox_ApocExtractionMapUtils_LobbyFixedPower": "Lobby: eletricidade permanente no servidor",
-    "Sandbox_ApocExtractionMapUtils_LobbyFixedPower_tooltip": "Registra o ret?ngulo do lobby para energia permanente no servidor em todos os andares. Requer o patch de servidor 42.22.2 atualizado. Reinicie ap?s altera??es. Ilumina??o e intera??es dos clientes ainda podem exigir suporte no cliente. Desativado por padr?o.",
+    "Sandbox_ApocExtractionMapUtils_LobbyFixedPower": "Lobby: gerador gerenciado",
+    "Sandbox_ApocExtractionMapUtils_LobbyFixedPower_tooltip": "Cria e protege um gerador nativo permanente nas coordenadas X/Y/Z do gerador do lobby. Configure um quadrado v?lido; X/Y=-1 impede a instala??o. Usa o alcance e os efeitos normais de gerador. Requer o patch de servidor 42.22.2 atualizado. Reinicie ap?s altera??es. Desativado por padr?o.",
     "Sandbox_ApocExtractionMapUtils_LobbyX": "Coordenada X do lobby",
     "Sandbox_ApocExtractionMapUtils_LobbyX_tooltip": "Coordenada X do quadrado no mundo. O valor -1 deixa o lobby sem configuração e impede a transferência ao entrar no jogo.",
     "Sandbox_ApocExtractionMapUtils_LobbyY": "Coordenada Y do lobby",
@@ -53,5 +53,11 @@
     "Sandbox_ApocExtractionMapUtils_LobbyCleanupMargin": "Limpeza de zumbis do lobby: margem externa (quadrados)",
     "Sandbox_ApocExtractionMapUtils_LobbyCleanupMargin_tooltip": "Estende a limpeza inicial de zumbis esta quantidade de quadrados além de cada lado do retângulo do lobby, incluindo os cantos, nos andares Z=0 a Z=5. Aplica-se ao carregamento forçado e à remoção. Requer Limpar zumbis do lobby ao iniciar o servidor. Padrão 10; intervalo 0-100. Zero limpa apenas o interior do lobby. Reinicie após alterações.",
     "Sandbox_ApocExtractionMapUtils_LobbyCleanupZombies": "Limpar zumbis do lobby ao iniciar o servidor",
-    "Sandbox_ApocExtractionMapUtils_LobbyCleanupZombies_tooltip": "Requer Ativar lobby e o patch atualizado do servidor 42.22.1. A cada inicialização, força o carregamento das células do lobby, remove zumbis nos limites configurados, nos andares Z=0 a Z=5 e libera as solicitações para descarregamento normal. O progresso sempre aparece nos logs. Zumbis que chegam ou surgem depois permanecem. Exclui jogadores reanimados. Reinicie após alterações. Desativado por padrão."
+    "Sandbox_ApocExtractionMapUtils_LobbyCleanupZombies_tooltip": "Requer Ativar lobby e o patch atualizado do servidor 42.22.1. A cada inicialização, força o carregamento das células do lobby, remove zumbis nos limites configurados, nos andares Z=0 a Z=5 e libera as solicitações para descarregamento normal. O progresso sempre aparece nos logs. Zumbis que chegam ou surgem depois permanecem. Exclui jogadores reanimados. Reinicie após alterações. Desativado por padrão.",
+    "Sandbox_ApocExtractionMapUtils_LobbyGeneratorX": "Gerador do lobby: X",
+    "Sandbox_ApocExtractionMapUtils_LobbyGeneratorX_tooltip": "Coordenada do quadrado do gerador nativo gerenciado do lobby. Reinicie ap?s altera??es. Usa a cobertura do gerador, independentemente dos limites retangulares do lobby.",
+    "Sandbox_ApocExtractionMapUtils_LobbyGeneratorY": "Gerador do lobby: Y",
+    "Sandbox_ApocExtractionMapUtils_LobbyGeneratorY_tooltip": "Coordenada do quadrado do gerador nativo gerenciado do lobby. Reinicie ap?s altera??es. Usa a cobertura do gerador, independentemente dos limites retangulares do lobby.",
+    "Sandbox_ApocExtractionMapUtils_LobbyGeneratorZ": "Gerador do lobby: Z",
+    "Sandbox_ApocExtractionMapUtils_LobbyGeneratorZ_tooltip": "Coordenada do quadrado do gerador nativo gerenciado do lobby. Reinicie ap?s altera??es. Usa a cobertura do gerador, independentemente dos limites retangulares do lobby."
 }
