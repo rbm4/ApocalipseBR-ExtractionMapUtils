@@ -8,6 +8,11 @@ Do not assume that a database bridge or event lifecycle is already implemented.
 
 ## Component boundaries
 
+- `ApocalipseBR-Wallet/`: independent wallet mod. Keep its `ApocWallet` protocol,
+  client/server controllers and services separate from extraction gameplay. Use
+  server-derived character identity and the Java API bridge; never trust client
+  identity or balance fields. See [.docs/features/wallet-api-connectivity.md](.docs/features/wallet-api-connectivity.md).
+
 - `ApocalipseBR-ExtractionMapUtils/`: our main extraction and server-control mod.
   Put lobby rules, player placement, map visibility, and future event
   orchestration here.

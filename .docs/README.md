@@ -7,6 +7,8 @@ integration. Repository conventions live in [AGENTS.md](../AGENTS.md).
 
 ## Features
 
+- [Wallet API connectivity](features/wallet-api-connectivity.md): independent wallet mod, four client/server layers, trusted login balance requests and in-memory caches.
+
 - [Persisted managed generators](features/persisted-fixed-power.md): startup entity query and native generator registration from PostgreSQL.
 
 - [Lobby managed generator](features/lobby-fixed-power.md): optional startup registration of a native lobby generator.

@@ -1,0 +1,8 @@
+name=ApocalipseBR - Wallet
+id=ApocalipseBR-Wallet
+author=Hypothetic
+description=Server-authoritative wallet balance loading through the ApocBR API bridge.
+poster=poster.png
+icon=icon.png
+versionMin=42.22.2
+modversion=0.1.0

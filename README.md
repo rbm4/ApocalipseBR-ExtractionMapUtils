@@ -17,6 +17,8 @@ Copy the `ApocalipseBR-ExtractionMapUtils` directory (containing `42` and `commo
 
 The checked-in B42 directory is ready to install directly. The template's npm scripts require Project Zomboid Studio; verify that your Studio version supports B42's `42`/`common` layout before using generated output.
 
+The separate `ApocalipseBR-Wallet` mod provides login balance loading and client/server memory caches on the patched 42.22.2 server. Enable it on both sides; it has no UI yet. See [wallet API connectivity](.docs/features/wallet-api-connectivity.md) for Java prerequisites, layer ownership and cache access.
+
 ## Sandbox settings
 
 Open **ApocalipseBR - Extraction Map Utils** in sandbox settings.
