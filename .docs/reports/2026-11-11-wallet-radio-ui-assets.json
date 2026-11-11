@@ -1,0 +1,348 @@
+{
+  "created": "2026-11-11",
+  "sourceWorkshopId": "3807707103",
+  "sourceRoot": "Z:\\SteamLibrary\\steamapps\\workshop\\content\\108600\\3807707103\\mods\\RadioTraders",
+  "scope": "Ordinary handheld and ham visual skins; no RadioTraders gameplay dependency",
+  "assets": [
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/ham_bloodmoon_hd.png",
+      "source": "42/media/textures/RadioTraders/skins/ham_bloodmoon_hd.png",
+      "sha256": "1b1c5fb9f71f6413d1451807b1ec67d923d7c4e06a80e8aadc94e0884f71b0bc",
+      "bytes": 1312456,
+      "dimensions": [
+        1965,
+        638
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/ham_bloodmoon_sd.png",
+      "source": "42/media/textures/RadioTraders/skins/ham_bloodmoon_sd.png",
+      "sha256": "b610268f134ba979ceee35f1362bc276323ca3582e2a58d81c62dcf8a0147a5f",
+      "bytes": 367932,
+      "dimensions": [
+        982,
+        319
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/ham_digital_hd.png",
+      "source": "42/media/textures/RadioTraders/skins/ham_digital_hd.png",
+      "sha256": "7308fe0ec3214b97ef0414f30e65cd3bfc3e13b3bae13f5bb8e2fc647ec1e8a8",
+      "bytes": 1194029,
+      "dimensions": [
+        1965,
+        638
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/ham_digital_sd.png",
+      "source": "42/media/textures/RadioTraders/skins/ham_digital_sd.png",
+      "sha256": "0eff1f58ec7449985a9d3e6f76271f240dd2629c5e1dc46c26ebb99a9f659fdd",
+      "bytes": 329453,
+      "dimensions": [
+        982,
+        319
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/ham_flag_hd.png",
+      "source": "42/media/textures/RadioTraders/skins/ham_flag_hd.png",
+      "sha256": "a4f3934a28d6c52c9e28daaae3255d9b2c6340e727a43646223c0145bd05d4ce",
+      "bytes": 1378460,
+      "dimensions": [
+        1965,
+        638
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/ham_flag_sd.png",
+      "source": "42/media/textures/RadioTraders/skins/ham_flag_sd.png",
+      "sha256": "719039a4230fa1c63ed43feabdab9dd283fe4a31f7385770a887947b86a72004",
+      "bytes": 393233,
+      "dimensions": [
+        982,
+        319
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/ham_gold_hd.png",
+      "source": "42/media/textures/RadioTraders/skins/ham_gold_hd.png",
+      "sha256": "8d2525a458eba0e4213dcf0f18c38af24d76a4abf2698c813aa54163336a8322",
+      "bytes": 1346157,
+      "dimensions": [
+        1965,
+        638
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/ham_gold_sd.png",
+      "source": "42/media/textures/RadioTraders/skins/ham_gold_sd.png",
+      "sha256": "c893d3af9fa46e6d041042b6ac99ac7fcefff9cf625adc1057be9fb14306634b",
+      "bytes": 362411,
+      "dimensions": [
+        982,
+        319
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/ham_leopard_hd.png",
+      "source": "42/media/textures/RadioTraders/skins/ham_leopard_hd.png",
+      "sha256": "fc645733f39116d0c460215bbb4ed066f354d26e75b244b75df8133422836c48",
+      "bytes": 1308118,
+      "dimensions": [
+        1965,
+        638
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/ham_leopard_sd.png",
+      "source": "42/media/textures/RadioTraders/skins/ham_leopard_sd.png",
+      "sha256": "523662753466c8a1d5646494e4dde7f4b26cf59f0111541f9d1a6494bc849efe",
+      "bytes": 365137,
+      "dimensions": [
+        982,
+        319
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/ham_standard_hd.png",
+      "source": "42/media/textures/RadioTraders/skins/ham_standard_hd.png",
+      "sha256": "199533765077bcbbcb0c4b1c9ee674ff14a020045986349d3a7018197def9ac9",
+      "bytes": 1221227,
+      "dimensions": [
+        1965,
+        638
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/ham_standard_sd.png",
+      "source": "42/media/textures/RadioTraders/skins/ham_standard_sd.png",
+      "sha256": "4a4ea131110ab2b906e797667a654fa6dc0c1de6ee79d54e8dc949c11c1354e4",
+      "bytes": 336057,
+      "dimensions": [
+        982,
+        319
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/ham_tiger_hd.png",
+      "source": "42/media/textures/RadioTraders/skins/ham_tiger_hd.png",
+      "sha256": "5eb6718a62604889f3ce149b8c412d0c55a7969b0378de30ab8cb9370c3413ec",
+      "bytes": 1301553,
+      "dimensions": [
+        1965,
+        638
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/ham_tiger_sd.png",
+      "source": "42/media/textures/RadioTraders/skins/ham_tiger_sd.png",
+      "sha256": "0d6f811375780259099fb78f60889c60ec7770e7e89896bc1be3d2b685befca9",
+      "bytes": 364443,
+      "dimensions": [
+        982,
+        319
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/ham_woodland_hd.png",
+      "source": "42/media/textures/RadioTraders/skins/ham_woodland_hd.png",
+      "sha256": "740ae6b125b53c9f612eae7bb36495ea90056ab138a3f3565d81a60e65d0288a",
+      "bytes": 1266145,
+      "dimensions": [
+        1965,
+        638
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/ham_woodland_sd.png",
+      "source": "42/media/textures/RadioTraders/skins/ham_woodland_sd.png",
+      "sha256": "4495b859e9708455d950b6e04b1dbf87fa0d58b91629e8e86a03eac5c9cf9d0a",
+      "bytes": 353578,
+      "dimensions": [
+        982,
+        319
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_blackmarket_hd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_blackmarket_hd.png",
+      "sha256": "5fd4f465c276395eeed5a0e371833eeeae963b4f5112477e50fe6d919d660e4d",
+      "bytes": 1005395,
+      "dimensions": [
+        703,
+        1681
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_blackmarket_sd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_blackmarket_sd.png",
+      "sha256": "d273983cbb3834b85463c40f3d15d34a3addb5a8d221792d1c2bfcfa558756dd",
+      "bytes": 266671,
+      "dimensions": [
+        351,
+        840
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_bloodmoon_hd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_bloodmoon_hd.png",
+      "sha256": "7920224bc23cab64e7b44bd8d4e3df253e3a145192e5f6ee2505c0ea2331b89d",
+      "bytes": 969849,
+      "dimensions": [
+        703,
+        1681
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_bloodmoon_sd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_bloodmoon_sd.png",
+      "sha256": "8027dcca6eb72936fd3ffdd81417ac763bbc82a93b8211d0d2218a92f921adbb",
+      "bytes": 254596,
+      "dimensions": [
+        351,
+        840
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_digital_hd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_digital_hd.png",
+      "sha256": "63cbef299382d7a90bd78acea8979a70982cdca4aecefdd403bce7864a850ae4",
+      "bytes": 949753,
+      "dimensions": [
+        703,
+        1681
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_digital_sd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_digital_sd.png",
+      "sha256": "f8bdf0478a90b19483ac9f5bf31120377905623fe7652344ba6f6375634c3a94",
+      "bytes": 249665,
+      "dimensions": [
+        351,
+        840
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_flag_hd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_flag_hd.png",
+      "sha256": "ce7d15ed3d20a6b3dec1ab73f946fb485f58759de256fdbc17bf5febd4390be2",
+      "bytes": 1030827,
+      "dimensions": [
+        703,
+        1681
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_flag_sd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_flag_sd.png",
+      "sha256": "6ef6cd18454f8f8623ee0f6bc5a358f79575a1d5ecac178a22a3241c5a1c7533",
+      "bytes": 267447,
+      "dimensions": [
+        351,
+        840
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_gold_hd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_gold_hd.png",
+      "sha256": "567881e91475d7a1c8da3c5785fa83fae83ad5a942a4387246717a57811ebd1a",
+      "bytes": 1112590,
+      "dimensions": [
+        703,
+        1681
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_gold_sd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_gold_sd.png",
+      "sha256": "22bb705c76432733a3e8ccfcf4b45a688e716d2e8569419acc9557b087bb19aa",
+      "bytes": 287149,
+      "dimensions": [
+        351,
+        840
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_leopard_hd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_leopard_hd.png",
+      "sha256": "266fde01c7257b36f6e9db7b0d9564785629a6e44625bf2bbf244de9952044eb",
+      "bytes": 1024056,
+      "dimensions": [
+        703,
+        1681
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_leopard_sd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_leopard_sd.png",
+      "sha256": "5507c9c1dd2de763f8a6a17d0ad927f2b73c18e7caa631decc48707078c3295a",
+      "bytes": 270813,
+      "dimensions": [
+        351,
+        840
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_standard_hd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_standard_hd.png",
+      "sha256": "054ffa1b8a64ccfad364fb5b29b7ef7e2f703d2c90504e07f22dfebd4a641c4b",
+      "bytes": 930390,
+      "dimensions": [
+        703,
+        1681
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_standard_sd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_standard_sd.png",
+      "sha256": "aba8eba4d2ecab0a017b703c452848765470d6d04bd9a8a821ec2d6400ee8a82",
+      "bytes": 240895,
+      "dimensions": [
+        351,
+        840
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_tiger_hd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_tiger_hd.png",
+      "sha256": "8b16b5e5ff49048f6c1e8a8c2ea1ef9ca44b4916f88cdeb86e7eb6d700b73406",
+      "bytes": 996584,
+      "dimensions": [
+        703,
+        1681
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_tiger_sd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_tiger_sd.png",
+      "sha256": "4d568ee8c7671e00379c1b5327793da945c49dbffa964c4191f1ce6fdc5e43b2",
+      "bytes": 266805,
+      "dimensions": [
+        351,
+        840
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_woodland_hd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_woodland_hd.png",
+      "sha256": "ab667a3503055b15c43b7be597e3293ed46d4176a9716822cb63b41dc69e6e86",
+      "bytes": 955399,
+      "dimensions": [
+        703,
+        1681
+      ]
+    },
+    {
+      "file": "ApocalipseBR-Wallet/common/media/textures/ApocWallet/radio/walkie_woodland_sd.png",
+      "source": "42/media/textures/RadioTraders/skins/walkie_woodland_sd.png",
+      "sha256": "bd4aae0af7091de7f6c6e2a044c86d2d3cb3d90e019d8461f013c72e6b7d60b3",
+      "bytes": 251457,
+      "dimensions": [
+        351,
+        840
+      ]
+    }
+  ]
+}

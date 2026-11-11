@@ -17,7 +17,7 @@ Copy the `ApocalipseBR-ExtractionMapUtils` directory (containing `42` and `commo
 
 The checked-in B42 directory is ready to install directly. The template's npm scripts require Project Zomboid Studio; verify that your Studio version supports B42's `42`/`common` layout before using generated output.
 
-The separate `ApocalipseBR-Wallet` mod provides login balance loading, callback-based display refreshes and client/server memory caches on the patched 42.22.2 server. Enable it on both sides; its UI integration with RadioTraders is next. See [wallet API connectivity](.docs/features/wallet-api-connectivity.md) for Java prerequisites, layer ownership and callback usage.
+The separate `ApocalipseBR-Wallet` mod provides login balance loading, callback-based refreshes and its own [skinned radio UI](.docs/features/wallet-radio-ui.md), with handheld/ham shells, an empty list and a balance display. Enable it on both sides; RadioTraders is not required. See [wallet API connectivity](.docs/features/wallet-api-connectivity.md) for Java prerequisites and callback usage.
 
 ## Sandbox settings
 

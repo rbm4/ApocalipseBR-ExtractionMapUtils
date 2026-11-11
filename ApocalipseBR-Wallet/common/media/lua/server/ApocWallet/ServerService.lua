@@ -1,5 +1,6 @@
 require "ApocWallet/Protocol"
 local Operation = require "ApocWallet/Operation"
+local Diagnostics = require "ApocWallet/Diagnostics"
 if ApocWallet.ServerService then return ApocWallet.ServerService end
 
 local Service = { entries = {}, pending = {}, pendingCount = 0, count = 0,
@@ -21,6 +22,13 @@ local function identity(player)
     local ok, context = pcall(ApocBRModEntities.character, player)
     if not ok or type(context) ~= "table" then return nil, "IDENTITY_UNAVAILABLE" end
     if context.status == "IDENTITY_PENDING" then return nil, "IDENTITY_PENDING" end
+    if context.status == "OK" and (context.steamId == nil or context.sourceServerId == nil) then
+        return nil,"IDENTITY_API_OUTDATED"
+    end
+    if context.status == "OK" and (type(context.steamId) ~= "string"
+        or not context.steamId:match("^%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d$")) then
+        return nil,"INVALID_STEAM_ID"
+    end
     if context.status ~= "OK" or type(context.characterId) ~= "string"
         or not context.characterId:match("^%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x$")
         or type(context.session) ~= "string" or #context.session > 80
@@ -44,6 +52,7 @@ end
 local function finish(player, entry, status, balance, error)
     if entry.status ~= "loading" then return end
     entry.status, entry.balance, entry.error = status, balance, error
+    Diagnostics.stage(entry,"COMPLETE",error or "OK")
     if status == "ready" then entry.updatedAt = getTimestampMs() end
     if Service.pending[player] == entry then
         Service.pending[player], Service.pendingCount = nil, Service.pendingCount - 1
@@ -115,6 +124,7 @@ function Service.login(player, token, refresh)
         return { token = token, onlineId = player:getOnlineID(), status = "error", error = "WALLET_BUSY" }
     end
     entry.token, entry.lastReply = token, now
+    Diagnostics.log("server","COMMAND_ACCEPTED",token,refresh and "REFRESH" or "LOGIN")
     return snapshot(player, entry, entry.status == "ready")
 end
 
@@ -144,9 +154,12 @@ local function submit(player, entry, context, now)
         end
     end)
     if not ok then fail(player, entry, "API_ERROR")
-    elseif requestId then entry.requestId, entry.acceptedAt = requestId, now
+    elseif requestId then
+        entry.requestId, entry.acceptedAt = requestId, now
+        Diagnostics.stage(entry,"API_ACCEPTED","QUEUED")
     else
         local rejection = ApocBrApiBridge.getLastRejection and ApocBrApiBridge.getLastRejection() or "UNAVAILABLE"
+        Diagnostics.stage(entry,"API_WAIT",rejection)
         if rejection ~= "THROTTLED" and rejection ~= "QUEUE_FULL" and rejection ~= "BACKEND_COOLDOWN" then
             fail(player, entry, rejection)
         end
@@ -171,7 +184,8 @@ function Service.update()
                 -- Resolve pending imports independently: one unready player cannot block everyone else.
                 local context, error = identity(player)
                 if context then nextPlayer, nextEntry, nextContext = player, entry, context
-                elseif error ~= "IDENTITY_PENDING" then fail(player, entry, error) end
+                elseif error ~= "IDENTITY_PENDING" then fail(player, entry, error)
+                else Diagnostics.stage(entry,"IDENTITY_WAIT","IDENTITY_PENDING") end
             end
         end
     end

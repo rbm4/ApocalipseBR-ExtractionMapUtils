@@ -1,5 +1,9 @@
 if not isClient() then return end
 require "ApocWallet/ClientService"
+local Diagnostics = require "ApocWallet/Diagnostics"
+if ApocWallet.clientControllerInstalled then return end
+ApocWallet.clientControllerInstalled = true
+Diagnostics.log("client","LOADED",nil,"READY")
 local Service, Protocol = ApocWallet.ClientService, ApocWallet.Protocol
 
 Events.OnCreatePlayer.Add(Service.begin)

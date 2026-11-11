@@ -7,6 +7,8 @@ integration. Repository conventions live in [AGENTS.md](../AGENTS.md).
 
 ## Features
 
+- [Wallet-owned skinned radio UI](features/wallet-radio-ui.md): independent handheld/ham windows, 34 skins, native walk-to-radio access, empty list and callback-driven balance display.
+
 - [Wallet API connectivity](features/wallet-api-connectivity.md): independent wallet mod, four client/server layers, operation callbacks, explicit display refreshes and idle tick removal.
 
 - [Persisted managed generators](features/persisted-fixed-power.md): startup entity query and native generator registration from PostgreSQL.
@@ -115,6 +117,10 @@ Targeted corrections and compatibility workarounds belong in `hotfixes/`.
   building guards after B42 registers the server Lua dependencies.
 
 ## Reports
+
+- [2026-11-11: Wallet radio UI asset copy receipt](reports/2026-11-11-wallet-radio-ui-assets.json): source paths, dimensions and SHA-256 hashes for the 34 forked PNGs.
+
+- [2026-11-11: Wallet radio UI fork map](reports/2026-11-11-wallet-radio-ui-fork-map.md): RadioTraders visual components, minimal artwork, dependency removal and callback wiring for an empty-list wallet window.
 
 [Reports](reports/README.md) hold dated investigations and test results. They are
 evidence for feature and hotfix documents, not the source of ongoing behavior

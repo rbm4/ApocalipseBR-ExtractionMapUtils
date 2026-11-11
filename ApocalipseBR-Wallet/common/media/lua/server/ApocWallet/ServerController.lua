@@ -1,5 +1,9 @@
 if not isServer() then return end
 require "ApocWallet/ServerService"
+local Diagnostics = require "ApocWallet/Diagnostics"
+if ApocWallet.serverControllerInstalled then return end
+ApocWallet.serverControllerInstalled = true
+Diagnostics.log("server","LOADED",nil,"READY")
 local Service, Protocol = ApocWallet.ServerService, ApocWallet.Protocol
 
 Service.notify = function(player, state)
@@ -10,7 +14,12 @@ Events.OnClientCommand.Add(function(module, command, player, args)
         or type(args) ~= "table" then return end
     -- The native command callback supplies the authenticated player. Ignore all client identity fields.
     local state = Service.login(player, args.token, command == Protocol.REFRESH)
-    if state then Service.notify(player, state) end
+    if state then
+        Service.notify(player, state)
+        -- Make the first attempt in the native command callback. OnTick remains
+        -- only for bounded identity/admission waits and completion deadlines.
+        Service.update()
+    end
 end)
 local ticking, tickEvent = false, Events.OnTick
 Service.onWorkChanged = function(active)

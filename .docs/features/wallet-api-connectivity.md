@@ -1,8 +1,14 @@
 # Wallet API connectivity
 
 Status: implemented; awaiting dedicated-server/backend validation. Created
-2026-11-11. The operation/callback architecture is ready for RadioTraders display
-integration. No wallet UI or balance mutation is implemented.
+2026-11-11. The operation/callback architecture now powers the independent
+[wallet-owned radio UI](wallet-radio-ui.md). Balance mutation remains backend-owned.
+
+UI implementation: selected RadioTraders visual components were forked into our
+wallet source with no RadioTraders runtime dependency. See the
+[2026-11-11 extraction map](../reports/2026-11-11-wallet-radio-ui-fork-map.md) for
+original extraction plan; the UI feature guide describes the implemented
+handheld/ham shells, empty list, balance callback and native radio entry points.
 
 ## Installation and prerequisites
 
@@ -63,7 +69,7 @@ Files live under `ApocalipseBR-Wallet/common/media/lua/`:
 Controller files operate only in multiplayer client/server roles. Single-player
 has no fallback wallet, invented identity or balance.
 
-## Callback contract for RadioTraders UI
+## Callback contract for the wallet-owned UI
 
 ```lua
 require "ApocWallet/ClientService"
@@ -125,14 +131,15 @@ The backend owns all debits and credits through its other operations. Wallet Lua
 never discounts balance, authorizes a purchase using its cache or writes a new
 balance to the backend. Display freshness is explicit through `updatedAt`.
 
-The local RadioTraders reference is Workshop `3807707103`, under
+The local RadioTraders source reference is Workshop `3807707103`, under
 `mods/RadioTraders/42/media/lua/`. `client/RadioTraders/RT_TradeWindow.lua` is a
-future UI integration point. Its shared `RT_API.lua` payment-provider contract
+visual fork reference. Its shared `RT_API.lua` payment-provider contract
 requires both `balance(player)` and `debit(player, amount)`; it is deliberately
 not registered here because that would integrate spending, beyond a read-only
-display. No RadioTraders vendor file or purchase logic was modified. The future
-window should request/refresh once on open, set its label from the callback,
-and call unsubscribe on close. It should not fetch from `render`/`update`.
+display. The [forked radio UI](wallet-radio-ui.md) is owned by this mod; no source
+RadioTraders function or vendor file is patched. The implemented window refreshes
+once on open, sets its label from the callback and unsubscribes on close. It does
+not fetch from `render`/`update`.
 
 ## Limits and failure behavior
 

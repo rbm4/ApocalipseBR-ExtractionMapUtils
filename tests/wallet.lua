@@ -68,10 +68,11 @@ local function setup()
     online, locals, outgoing, requests, clientCommands = {}, {}, {}, {}, {}
     reject, rejection, apiEnabled, apiThrows = false, "THROTTLED", true, false
     ApocWallet = nil
-    for _, name in ipairs({"Protocol", "Operation", "ServerService", "ServerController", "ClientService", "ClientController"}) do
+    for _, name in ipairs({"Protocol", "Operation", "Diagnostics", "ServerService", "ServerController", "ClientService", "ClientController"}) do
         package.loaded["ApocWallet/" .. name] = nil
     end
     Events = events(); serverEvents = Events
+    require("ApocWallet/Diagnostics").enabled = false
     require "ApocWallet/ServerController"
 end
 local function login(p, token, extra)
@@ -86,7 +87,7 @@ end
 setup()
 local p = player(1); online[1] = p
 login(p, "login-1", {runtimeUuid = "attacker", steamId = "attacker", sourceServerId = 999, balance = 999999})
-check(#requests == 0, "controller queues login without blocking on HTTP")
+check(#requests == 1, "native command handler admits API request immediately without waiting for OnTick")
 serverEvents.OnTick.fire()
 check(#requests == 1 and requests[1].endpoint == "enum-value", "server service submits enum endpoint")
 check(requests[1].params == '{"runtimeUuid":"' .. uuid .. '","sourceServerId":2,"steamId":"76561198000000001"}',

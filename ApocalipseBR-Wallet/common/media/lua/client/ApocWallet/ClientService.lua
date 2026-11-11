@@ -1,5 +1,6 @@
 require "ApocWallet/Protocol"
 local Operation = require "ApocWallet/Operation"
+local Diagnostics = require "ApocWallet/Diagnostics"
 if ApocWallet.ClientService then return ApocWallet.ClientService end
 
 local Protocol = ApocWallet.Protocol
@@ -20,6 +21,7 @@ local function finish(entry, status, balance, error, updatedAt, cached)
     entry.status, entry.balance, entry.error = status, balance, error
     entry.updatedAt, entry.cached = updatedAt, cached
     entry.completedAt = getTimestampMs()
+    Diagnostics.log("client","COMPLETE",entry.token,error or "OK")
     Service.pending = Service.pending - 1
     workChanged()
     Operation.resolve(entry.operation, state(entry))
@@ -41,12 +43,21 @@ local function request(index, callback, refresh)
     end
     if refresh and entry and entry.completedAt
         and getTimestampMs() - entry.completedAt < Protocol.MIN_REFRESH_MS then refresh = false end
+    if refresh and entry and entry.status == "loading" and entry.sent
+        and getTimestampMs() - entry.lastSentAt >= Protocol.MIN_REFRESH_MS then
+        -- Explicit user action may retry delivery of the same intent. This is
+        -- not a polling loop and never changes the correlation token/deadline.
+        entry.sent = false
+        Service.nextCheck = 0
+        Diagnostics.log("client","MANUAL_RETRY",entry.token,"PENDING")
+    end
     if not entry or (refresh and entry.status ~= "loading") then
         Service.sequence = Service.sequence + 1
         local now = getTimestampMs()
         entry = { player = player, status = "loading", started = now, refresh = refresh,
             token = string.format("%.0f:%.0f", now, Service.sequence), operation = Operation.new() }
         Service.entries[index], Service.pending = entry, Service.pending + 1
+        Diagnostics.log("client","QUEUED",entry.token,refresh and "REFRESH" or "LOGIN")
         Service.nextCheck = 0
         workChanged()
     end
@@ -79,6 +90,8 @@ function Service.update()
                 finish(entry, "error", nil, "REQUEST_TIMEOUT")
             elseif not entry.sent and entry.player:getOnlineID() >= 0 then
                 entry.sent = true
+                entry.lastSentAt = now
+                Diagnostics.log("client","SEND",entry.token,entry.refresh and "REFRESH" or "LOGIN")
                 sendClientCommand(entry.player, Protocol.MODULE,
                     entry.refresh and Protocol.REFRESH or Protocol.LOGIN, { token = entry.token })
             end
@@ -92,6 +105,11 @@ function Service.receive(args)
         if entry.status == "loading" and args.token == entry.token
             and getSpecificPlayer(index) == entry.player and not entry.player:isDead()
             and args.onlineId == entry.player:getOnlineID() then
+            if entry.lastResponseStatus ~= args.status then
+                entry.lastResponseStatus = args.status
+                Diagnostics.log("client","RECEIVE",entry.token,args.status == "loading" and "PENDING"
+                    or args.status == "ready" and "OK" or args.error)
+            end
             if args.status == "ready" and type(args.balance) == "number"
                 and args.balance == args.balance and math.abs(args.balance) <= 9007199254740991
                 and type(args.updatedAt) == "number" and args.updatedAt == args.updatedAt
