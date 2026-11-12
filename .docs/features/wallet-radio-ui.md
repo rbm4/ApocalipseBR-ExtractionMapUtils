@@ -1,5 +1,11 @@
 # Wallet-owned radio UI
 
+Update 2026-11-11: the [player market/operator layer](wallet-player-market.md)
+attaches tune-in, six market buttons, animated portraits, PTBR protocol speech and
+radio effects to these shells. The empty-shell behavior described below remains
+the base widget implementation; the market controller now supplies listings and
+posting/buying actions during actual play.
+
 Status: implemented in Lua; awaiting in-game visual and dedicated-server smoke
 tests. Created 2026-11-11. This is an independent fork of selected RadioTraders
 visual components, with no RadioTraders runtime dependency or purchase logic.
@@ -29,7 +35,8 @@ required. The new UI code is client-side only.
   the device, or replacing/dying/disconnecting the player prevents opening.
 - **Sync** requests the backend balance through `ClientService.refreshBalance`.
   Opening a fresh window does this once, sharing an existing pending operation
-  or using the five-second cache cooldown. Sync is disabled while loading.
+  or using the five-second cache cooldown. While loading, an explicit Sync can
+  retry the same intent after five seconds; it does not start a duplicate read.
 - **Skin** cycles the copied variants for that shell. **Close** removes the
   window and unsubscribes its UI observer. Skin choice is local to the window;
   the initial variant is Standard. No disk preferences are written.
@@ -178,3 +185,45 @@ No Java compilation is needed for this Lua/asset change. No deployment, live
 backend call or live game UI session was performed. In-game acceptance still
 needs opening both shell types, choosing skins, reading the actual backend
 balance, changing resolution/fonts and verifying mouse/split-screen behavior.
+
+The later login-binding update requires the new Java `CHARACTER_LOGIN` endpoint
+and backend POST route described in [API connectivity](wallet-api-connectivity.md).
+The UI still uses the same callback contract; first balance loading now registers
+the life before a first kill, and later Sync operations use GET.
+
+See [loading diagnostics](../hotfixes/wallet-loading-diagnostics.md) for the
+client/server stage trace, immediate dispatch and explicit manual retry. Fixed
+failure codes are displayed when available. `EN/UI.json` now contains 26 UI keys.
+## Brazilian Portuguese labels
+
+Implemented; awaiting in-game font/rendering validation. All 26 wallet labels,
+balance/status messages, tooltips and skin names use the existing
+`UI_ApocWallet_*` keys. The catalogs live in the wallet's own
+`common/media/lua/shared/Translate/PTBR/UI.json` and `EN/UI.json`, with
+`language.txt` metadata in both folders. Both catalogs intentionally contain the
+same Brazilian Portuguese text: PTBR is the selected-language translation and
+EN supplies the Portuguese default for clients using other game languages.
+This does not change the game's language setting or any other mod's labels.
+
+Build 42's local decompiled `zombie/core/Translator.java` confirms category
+loading through `forLanguageStack` and the default-language fallback. There is
+no global Translator override or per-frame translation work. Existing UI
+lookups remain at creation/state/layout changes. Radio text clipping now removes
+whole UTF-8 characters so accented Portuguese text cannot be split mid-character.
+Protocol values, developer logs and bounded diagnostic error codes remain
+untranslated; the visible error prefix is translated. The wallet sandbox file
+contains no options or labels to translate.
+
+Validation on 2026-11-11:
+
+```powershell
+py -3 tests/wallet-translations.py
+npm exec --yes --package=fengari-node-cli -- fengari tests/wallet-radio-ui.lua
+npm exec --yes --package=fengari-node-cli -- fengari tests/wallet-radio-access.lua
+```
+
+Catalog/default parity, display-key and skin coverage, placeholder consistency,
+JSON parsing and UTF-8 without BOM checks passed. The Lua fixture checks the
+Portuguese module title, loading state and inventory action, and clipping at
+14 accented-character boundaries. All 67 radio UI and 27 radio access assertions
+passed with mocked native boundaries. No live client rendering was tested.

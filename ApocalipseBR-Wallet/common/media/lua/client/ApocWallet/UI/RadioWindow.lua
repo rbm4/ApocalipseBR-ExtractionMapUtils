@@ -35,7 +35,12 @@ local function fit(text, width)
     local tm = getTextManager()
     if tm:MeasureStringX(UIFont.Small,text) <= width then return text end
     local length = #text
-    while length > 0 and tm:MeasureStringX(UIFont.Small,text:sub(1,length) .. "...") > width do length = length - 1 end
+    while length > 0 and tm:MeasureStringX(UIFont.Small,text:sub(1,length) .. "...") > width do
+        -- Remove a complete UTF-8 character, including its continuation bytes.
+        local start = length
+        while start > 1 and text:byte(start) >= 128 and text:byte(start) < 192 do start = start - 1 end
+        length = start - 1
+    end
     return length > 0 and text:sub(1,length) .. "..." or ""
 end
 
@@ -101,6 +106,14 @@ function Window:layout()
     self.heading = fit(getText("UI_ApocWallet_Title"),math.max(0,w-8))
     self.emptyText = fit(getText("UI_ApocWallet_Empty"),math.max(0,w-8))
     self.skinText = fit(getText("UI_ApocWallet_SkinFmt",getText("UI_ApocWallet_Skin_" .. self.L.skins[self.skinIndex])),math.max(0,w-8))
+    local courier=self.courierText or (ApocWallet and ApocWallet.CourierClient and ApocWallet.CourierClient.latestFor(self.player))
+    self:setCourierMessage(courier)
+end
+
+function Window:setCourierMessage(text)
+    self.courierText=text
+    local _,_,width=self:R(self.L.log)
+    self.courierDisplay=text and fit(text,width-8) or nil
 end
 
 function Window:nextSkin()
@@ -166,6 +179,7 @@ function Window:prerender()
 end
 
 function Window:render()
+    if self.marketRender then self:marketRender(); return end
     local x,y,w,h = self:R(self.L.feed)
     self:drawText(self.balanceText or "",x+8,y+8,0.43,1,0.55,1,UIFont.Small)
     self:drawText(self.statusText or "",x+8,y+12+self.fontHeight,0.6,0.8,0.65,1,UIFont.Small)
@@ -173,7 +187,7 @@ function Window:render()
     self:drawText(self.heading,lx+4,ly+4,0.43,1,0.55,1,UIFont.Small)
     self:drawTextCentre(self.emptyText,lx+lw/2,ly+lh/2,0.6,0.8,0.65,1,UIFont.Small)
     local gx,gy,gw,gh = self:R(self.L.log)
-    self:drawText(self.skinText,gx+4,gy+math.max(0,(gh-self.fontHeight)/2),0.6,0.8,0.65,1,UIFont.Small)
+    self:drawText(self.courierDisplay or self.skinText,gx+4,gy+math.max(0,(gh-self.fontHeight)/2),0.6,0.8,0.65,1,UIFont.Small)
 end
 
 return Window

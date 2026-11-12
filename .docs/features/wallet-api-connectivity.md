@@ -10,6 +10,10 @@ wallet source with no RadioTraders runtime dependency. See the
 original extraction plan; the UI feature guide describes the implemented
 handheld/ham shells, empty list, balance callback and native radio entry points.
 
+For loading failures, see [dispatch/retry diagnostics](../hotfixes/wallet-loading-diagnostics.md).
+The native server command handler now makes the first per-player admission
+attempt immediately; pending waits/deadlines retain their bounded scheduler.
+
 ## Installation and prerequisites
 
 Install and enable the independent `ApocalipseBR-Wallet` mod on server and
@@ -32,6 +36,33 @@ the exact unsigned Steam ID string, avoiding Lua double rounding of 17 digits.
 
 ## Layers and flow
 
+### Login binding registration (2026-11-11)
+
+The first backend read for a native player session now uses
+`ApocBrApiBridge.CHARACTER_LOGIN`: POST `/api/v1/game/characters/{uuid}/bind`.
+It validates the current runtime life, ensures the website Character/binding and
+returns the balance in the same request. No first zombie kill is required.
+Reconnects reuse the backend's idempotent binding; a replacement character UUID
+creates a new one. No login credit or purchase/debit operation is introduced.
+
+The server-only `registered` flag is set after successful registration and copied
+when that player's display operation is refreshed. Subsequent reads use the
+existing `CHARACTER_BALANCE` GET. A different player object or identity/session
+invalidates that state. Missing `CHARACTER_LOGIN` is `API_BRIDGE_OUTDATED`, rather
+than silently falling back to the old binding-dependent GET.
+
+Registration retries transient 409/408/425/429/5xx, timeout and transport errors
+at 2/4/8/16 seconds (up to five total accepted attempts), within the existing
+120-second registration/admission budget. Java pacing and backend cooldown still
+apply. Attempts can queue for up to 60 additional seconds; the client keeps its
+original 180-second overall timeout. Failed identities/auth/validation do not
+retry automatically. Persistent conflicts terminate without overwriting a
+binding or blocking gameplay. A later explicit user refresh can start a new
+bounded operation. GET display errors are not automatically retried.
+
+Deploy the backend endpoint first, then the updated Java bridge and wallet mod,
+and restart the server JVM/client as needed. No database migration is needed.
+
 Files live under `ApocalipseBR-Wallet/common/media/lua/`:
 
 | Layer | File | Responsibility |
@@ -53,10 +84,10 @@ Files live under `ApocalipseBR-Wallet/common/media/lua/`:
    `IDENTITY_PENDING`. Character UUID, source-server ID, Steam ID and session all
    come from this server-owned context. One unready import does not block other
    ready players.
-4. The server calls `ApocBrApiBridge.request(CHARACTER_BALANCE, parametersJson,
+4. The server calls `ApocBrApiBridge.request(CHARACTER_LOGIN, parametersJson,
    callback)`. Request JSON contains `runtimeUuid` (the relational character UUID),
    `sourceServerId`, and string `steamId`. The Java worker performs HTTP; no Lua
-   thread blocks while waiting.
+   thread blocks while waiting. After registration, refreshes use `CHARACTER_BALANCE`.
 5. On the server-thread callback, the service rechecks player object, online ID,
    relational UUID/session and request ID. It caches a successful numeric balance
    and sends `BalanceState` only to that player. Failures remain explicit errors;
@@ -163,12 +194,16 @@ not fetch from `render`/`update`.
   backend authorization or cause a debit.
 - `THROTTLED`, `QUEUE_FULL` and `BACKEND_COOLDOWN` retry admission within the
   server's 120-second login budget. No duplicate request is admitted after an ID
-  has been obtained. Backend/transport failures after admission are not retried.
+  has been obtained. Only login registration has bounded backend/transport retries
+  as described above; display GET failures are not automatically retried.
 - Identity/readiness and pre-admission wait: at most 120 seconds. Accepted API
   callback wait: at most 60 additional seconds. Late completions are ignored.
 - Client sends one intent per operation and waits for the pushed completion,
   with a 180-second total `REQUEST_TIMEOUT`. It does not poll command replies.
   Missing completion requires a later explicit refresh, not automatic requests.
+- An explicit refresh of an already pending operation may resend the same intent
+  after five seconds, preserving its token and original deadline. This manual
+  recovery action does not create another backend read or a recurring retry loop.
 - Missing/old Java identity fields, missing bridge, missing Steam identity and
   API failures produce an error code. There are no client-selected endpoints or
   credentials and no arbitrary balance write command.
@@ -226,3 +261,13 @@ fixture uses production Lua with mocked engine/API boundaries. The local B42
 `Lua/Event.java` confirms `Events.OnTick.Remove` and safe event-list removal
 during dispatch; `LuaEventManager` confirms `EveryOneMinute`. No runtime CPU
 measurements, live backend requests or RadioTraders UI smoke tests were performed.
+
+Login-registration validation on 2026-11-11: 96 wallet assertions, 50 radio-UI
+assertions and 27 radio-access assertions passed. Coverage includes initial
+registration followed by balance-only refreshes, a new runtime UUID after death,
+bounded transient-registration retries, permanent errors, and an explicit
+`API_BRIDGE_OUTDATED` response when the Java login endpoint is unavailable.
+Deploy the backend registration endpoint first, then the updated 42.22.2 Java
+patch and wallet Lua files, and restart the game server. No schema migration is
+required. These fixtures mock engine/backend boundaries; an in-game login and
+radio balance smoke test remains necessary after deployment.

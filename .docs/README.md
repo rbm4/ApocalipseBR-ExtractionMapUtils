@@ -7,6 +7,12 @@ integration. Repository conventions live in [AGENTS.md](../AGENTS.md).
 
 ## Features
 
+- [Wallet native-save hotfix](hotfixes/wallet-native-moddata-save.md): fixes the unexposed Lua save call, interrupted-post recovery and misleading unavailable-cargo responses.
+
+- [Player market and radio operator](features/wallet-player-market.md): tune-in, PTBR coded speech, operator portrait/audio, player listings, exact-item delivery and seller-credit contract.
+
+- [Wallet courier pickup and delivery](features/wallet-courier-delivery.md): ported drone visuals, batched immediate inventory pickup, persistent offline delivery and the proposed backend debit contract.
+
 - [Wallet-owned skinned radio UI](features/wallet-radio-ui.md): independent handheld/ham windows, 34 skins, native walk-to-radio access, empty list and callback-driven balance display.
 
 - [Wallet API connectivity](features/wallet-api-connectivity.md): independent wallet mod, four client/server layers, operation callbacks, explicit display refreshes and idle tick removal.
@@ -61,6 +67,8 @@ Future event activation and database integration should receive their own featur
 documents when designed. Mark proposals as planned until implemented.
 
 ## Hotfixes
+
+- [Wallet loading, dispatch and diagnostics](hotfixes/wallet-loading-diagnostics.md): immediate per-player API admission, manual pending-intent retry and bounded client/server stage logs.
 
 - [Managed generator validation and pre-warm](hotfixes/managed-generator-validation-and-prewarm.md): exact coordinate rejection logs and explicit bounded map pre-warming before placement.
 

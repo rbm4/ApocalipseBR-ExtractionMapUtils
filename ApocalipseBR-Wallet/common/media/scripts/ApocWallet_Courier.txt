@@ -1,0 +1,20 @@
+module ApocWallet
+{
+    imports { Base }
+    model Courier { mesh = ApocWallet/Courier, texture = ApocWallet/drone/Courier, scale = 0.7, }
+    model CourierRotor { mesh = ApocWallet/Rotor, texture = ApocWallet/drone/Rotor, scale = 0.7, }
+    item CourierVisual
+    {
+        ItemType = base:normal,
+        Weight = 0,
+        Icon = Battery,
+        WorldStaticModel = Courier,
+    }
+    item CourierRotorVisual
+    {
+        ItemType = base:normal,
+        Weight = 0,
+        Icon = Battery,
+        WorldStaticModel = CourierRotor,
+    }
+}

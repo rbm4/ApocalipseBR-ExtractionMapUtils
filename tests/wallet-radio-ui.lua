@@ -17,13 +17,34 @@ function getTextManager() return {
     MeasureStringX = function(_,_,text) measures = measures + 1; return #text*7 end,
 } end
 UIFont = { Small = "Small" }; Joypad = { AButton = 1 }
+-- Mirror the PTBR/default catalog; catalog parity is checked by wallet-translations.py.
 local translations = {
-    UI_ApocWallet_Title="Wallet", UI_ApocWallet_Open="Open wallet", UI_ApocWallet_BalanceFmt="Balance: %1",
-    UI_ApocWallet_Loading="Loading balance...", UI_ApocWallet_Unavailable="Balance unavailable",
-    UI_ApocWallet_Waiting="Waiting for the server", UI_ApocWallet_TryRefresh="Use Sync to try again",
-    UI_ApocWallet_Cached="Cached balance", UI_ApocWallet_Updated="Balance received",
-    UI_ApocWallet_Empty="No listings yet", UI_ApocWallet_Sync="Sync", UI_ApocWallet_Skin="Skin",
-    UI_ApocWallet_Close="Close", UI_ApocWallet_SkinFmt="Skin: %1",
+    UI_ApocWallet_Title="Carteira",
+    UI_ApocWallet_Open="Abrir carteira",
+    UI_ApocWallet_BalanceFmt="Saldo: %1",
+    UI_ApocWallet_Loading="Carregando saldo...",
+    UI_ApocWallet_Unavailable="Saldo indisponível",
+    UI_ApocWallet_FailureFmt="Erro: %1",
+    UI_ApocWallet_Waiting="Aguardando o servidor",
+    UI_ApocWallet_TryRefresh="Use Sincronizar para tentar novamente",
+    UI_ApocWallet_Cached="Saldo em cache",
+    UI_ApocWallet_Updated="Saldo recebido",
+    UI_ApocWallet_Empty="Nenhuma oferta disponível",
+    UI_ApocWallet_Sync="Sincronizar",
+    UI_ApocWallet_RefreshTooltip="Atualiza o saldo ou tenta novamente uma solicitação pendente após cinco segundos. Solicitações repetidas são agrupadas.",
+    UI_ApocWallet_Skin="Visual",
+    UI_ApocWallet_SkinTooltip="Alternar entre os visuais do rádio",
+    UI_ApocWallet_SkinFmt="Visual: %1",
+    UI_ApocWallet_Skin_standard="Padrão",
+    UI_ApocWallet_Skin_woodland="Floresta",
+    UI_ApocWallet_Skin_digital="Digital",
+    UI_ApocWallet_Skin_tiger="Tigre",
+    UI_ApocWallet_Skin_gold="Dourado",
+    UI_ApocWallet_Skin_leopard="Leopardo",
+    UI_ApocWallet_Skin_bloodmoon="Lua de sangue",
+    UI_ApocWallet_Skin_flag="Bandeira",
+    UI_ApocWallet_Skin_blackmarket="Mercado negro",
+    UI_ApocWallet_Close="Fechar"
 }
 function getText(key,arg) return (translations[key] or key):gsub("%%1",function() return tostring(arg) end) end
 function getTexture(path) textures[path] = true; return {path=path} end
@@ -155,6 +176,7 @@ check(#radioPanel.modules==1,"same window cannot gain a duplicate wallet module"
 dofile(root .. "client/ApocWallet/UI/RadioWindowModule.lua")
 dofile(root .. "client/ApocWallet/RadioEntryPoints.lua")
 check(Events.OnFillInventoryObjectContextMenu.count()==1 and Events.OnResolutionChange.count()==1,"reload does not duplicate entry points")
+check(radioPanel.modules[1].title=="Carteira", "radio module uses Portuguese default title")
 local module=radioPanel.apocWalletModule
 check(module:readFromObject(p,walkie,walkie:getDeviceData(),"InventoryItem"),"module captures native two-way radio")
 check(not module:readFromObject(p,device("Radio",false),nil,"InventoryItem"),"one-way radio rejected")
@@ -165,12 +187,29 @@ module:openWallet()
 local win=Controller.windows[0]
 check(win and win.added and win.kind=="walkie" and #win.list.items==0,"radio button opens independent skinned window with empty list")
 check(win.status=="loading" and win.refreshButton.enable,"window shows pending operation with explicit retry available")
+check(win.title=="Carteira" and win.statusText=="Aguardando o servidor", "wallet title and loading state use Portuguese")
+local originalTitle, originalTextManager = translations.UI_ApocWallet_Title, getTextManager
+translations.UI_ApocWallet_Title = string.rep("á",200)
+for offset=0,13 do
+    getTextManager = function()
+        local manager = originalTextManager()
+        local measure = manager.MeasureStringX
+        manager.MeasureStringX = function(self,font,text) return measure(self,font,text)+offset end
+        return manager
+    end
+    win:layout()
+    check(utf8.len(win.heading) ~= nil and win.heading:sub(-3)=="...", "clipping preserves complete accented UTF-8 characters")
+end
+getTextManager, translations.UI_ApocWallet_Title = originalTextManager, originalTitle
+win:layout()
 check(win.tex.path:find("ApocWallet/radio/walkie_standard_hd.png",1,true),"handheld HD texture selected")
 check(win.closeButton.visible==false and win.walletCloseButton.visible,"source frame replaced with working wallet controls")
 local same=Controller.open(p,walkie)
 check(same==win and win.fronted==1,"opening again fronts the same per-player window")
 Events.OnTick.fire()
 check(#packets==1 and packets[1].command=="RefreshBalance","UI requests balance through actual wallet service")
+win.refreshButton.callback(win.refreshButton.target); Events.OnTick.fire()
+check(#packets==1 and win.refreshing,"Sync while loading reattaches the observer without a rapid duplicate command")
 reply(packets[1],15000)
 check(win.status=="ready" and win.balanceText:find("15000",1,true),"server push updates visible balance")
 check(win.refreshButton.enable and Events.OnTick.count()==0,"callback enables refresh and leaves no wallet tick handler")
@@ -203,7 +242,10 @@ check(closed.status=="loading" and not closed.added,"old window never receives l
 now=13000
 reopened.refreshButton.callback(reopened.refreshButton.target); Events.OnTick.fire()
 reply(packets[#packets],nil,"HTTP_503")
-check(reopened.status=="error" and reopened.balanceText=="Balance unavailable","backend failure is not displayed as zero")
+check(reopened.status=="error" and reopened.balanceText=="Saldo indisponível","backend failure is not displayed as zero")
+check(reopened.statusText:find("HTTP_503",1,true),"fixed failure code is visible in the radio UI")
+reopened:setBalanceState({status="error",error="private error body"})
+check(not reopened.statusText:find("private error body",1,true),"UI does not display arbitrary response error text")
 now=19000; Controller.refresh(reopened); Events.OnTick.fire(); reply(packets[#packets],0)
 check(reopened.balanceText:find("0",1,true) and reopened.status=="ready","actual zero balance is displayed")
 local second=player(1,8)
@@ -229,6 +271,7 @@ check(ham.x>=width and ham.y+ham.height<=height,"drag release clamps inside owni
 local options={}
 local context={addOption=function(_,title,target,callback,arg) options[#options+1]={title=title,target=target,callback=callback,arg=arg} end}
 Events.OnFillInventoryObjectContextMenu.fire(0,context,{{items={walkie}}})
+check(options[1].title=="Abrir carteira", "inventory action uses Portuguese")
 check(#options==1 and options[1].arg==walkie,"inventory stack wrapper adds one wallet action")
 options[1].callback(options[1].target,options[1].arg)
 check(Controller.windows[0]==reopened,"context action reuses existing wallet window")

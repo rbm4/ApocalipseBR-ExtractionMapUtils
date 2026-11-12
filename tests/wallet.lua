@@ -54,7 +54,7 @@ ApocBRModEntities = { character = function(p)
     return { status = "OK", characterId = p.characterId, session = p.session,
         sourceServerId = 2, steamId = "76561198000000001" }
 end }
-ApocBrApiBridge = { CHARACTER_BALANCE = "enum-value", isEnabled = function() return apiEnabled end,
+ApocBrApiBridge = { CHARACTER_BALANCE = "enum-value", CHARACTER_LOGIN = "login-enum-value", isEnabled = function() return apiEnabled end,
     getLastRejection = function() return rejection end,
     request = function(endpoint, params, callback)
         if apiThrows then error("fixture transport exception") end
@@ -89,7 +89,7 @@ local p = player(1); online[1] = p
 login(p, "login-1", {runtimeUuid = "attacker", steamId = "attacker", sourceServerId = 999, balance = 999999})
 check(#requests == 1, "native command handler admits API request immediately without waiting for OnTick")
 serverEvents.OnTick.fire()
-check(#requests == 1 and requests[1].endpoint == "enum-value", "server service submits enum endpoint")
+check(#requests == 1 and requests[1].endpoint == "login-enum-value", "server service registers the life and receives balance in one call")
 check(requests[1].params == '{"runtimeUuid":"' .. uuid .. '","sourceServerId":2,"steamId":"76561198000000001"}',
     "all request identity comes from server Java context")
 check(ApocWallet.ServerService.getState(p).status == "loading", "wait in memory for callback")
@@ -139,8 +139,8 @@ setup(); p = player(1); online[1] = p; apiEnabled = false; login(p,"missing"); s
 check(ApocWallet.ServerService.getState(p).error == "API_UNAVAILABLE", "missing bridge does not invent zero balance")
 setup(); p = player(1); online[1] = p; apiThrows = true; login(p,"throws"); serverEvents.OnTick.fire()
 check(ApocWallet.ServerService.getState(p).error == "API_ERROR", "throwing bridge isolated")
-setup(); p = player(1); online[1] = p; login(p,"http-error"); serverEvents.OnTick.fire(); complete(1,nil,"HTTP_503")
-check(ApocWallet.ServerService.getState(p).error == "HTTP_503", "HTTP error retained without a fake balance")
+setup(); p = player(1); online[1] = p; login(p,"http-error"); serverEvents.OnTick.fire(); complete(1,nil,"HTTP_400")
+check(ApocWallet.ServerService.getState(p).error == "HTTP_400", "permanent HTTP error retained without a fake balance")
 setup(); p = player(1); online[1] = p; login(p,"bad-response"); serverEvents.OnTick.fire(); complete(1,0/0)
 check(ApocWallet.ServerService.getState(p).error == "API_ERROR", "invalid balance rejected")
 
@@ -318,4 +318,97 @@ Operation.resolve(operation,{status="ready",balance=1})
 Operation.resolve(operation,{status="ready",balance=2})
 check(delivered == 1 and operation.count == 0 and next(operation.listeners) == nil,
     "cancellation during dispatch removes not-yet-delivered observers and settlement is terminal")
+-- Reproduce a waiting operation with no first server dispatch, then explicitly
+-- retry the same intent. No automatic polling and no server tick are required.
+setup(); local retryOwner=player(31); online[31]=retryOwner
+role,Events="client",events(); clientEvents=Events
+require "ApocWallet/ClientController"
+locals[0]=player(31)
+ApocWallet.ClientService.refreshBalance(0)
+clientEvents.OnTick.fire()
+local originalToken=clientCommands[1].args.token
+now=6000
+local retried=0
+ApocWallet.ClientService.refreshBalance(0,function(result)
+    if result.status=="ready" then retried=retried+1 end
+end)
+clientEvents.OnTick.fire()
+check(#clientCommands==2 and clientCommands[2].args.token==originalToken,
+    "explicit Sync retries delivery of the same pending token")
+check(ApocWallet.ClientService.entries[0].started==0,"manual retry preserves original deadline")
+now=6001; ApocWallet.ClientService.refreshBalance(0); clientEvents.OnTick.fire()
+check(#clientCommands==2,"rapid explicit retries do not spam the native command channel")
+serverEvents.OnClientCommand.fire("ApocWallet","RefreshBalance",retryOwner,clientCommands[2].args)
+check(#requests==1,"retry command starts backend read immediately without firing server OnTick")
+complete(1,750)
+response=outgoing[#outgoing]
+clientEvents.OnServerCommand.fire(response.module,response.command,response.args)
+check(retried==1 and ApocWallet.ClientService.getState(0).balance==750,"manual retry completes the original observers")
+
+setup(); p=player(1); online[1]=p
+local originalIdentity=ApocBRModEntities.character
+ApocBRModEntities.character=function() return {status="OK",characterId=uuid,session="fixture"} end
+login(p,"outdated")
+check(ApocWallet.ServerService.getState(p).error=="IDENTITY_API_OUTDATED" and #requests==0,
+    "old Java identity class is reported specifically without sending invalid backend data")
+ApocBRModEntities.character=originalIdentity
+
+setup(); p=player(1); p.pending=true; online[1]=p
+local logs,normalPrint={},print
+print=function(line) logs[#logs+1]=line end
+local diagnostics=ApocWallet.Diagnostics
+diagnostics.enabled=true
+login(p,"1700000000000:1")
+for i=1,4 do now=i*1000; serverEvents.OnTick.fire() end
+local waits=0
+for _,line in ipairs(logs) do if line:find("IDENTITY_WAIT",1,true) then waits=waits+1 end end
+check(waits==1,"unchanged identity waits log once rather than once per tick")
+p.pending=false; now=5000; serverEvents.OnTick.fire(); complete(1,15000)
+diagnostics.log("client","TEST","private-token","private error body")
+print=normalPrint; diagnostics.enabled=false
+local combined=table.concat(logs,"\n")
+check(combined:find("API_ACCEPTED",1,true) and combined:find("COMPLETE",1,true),"server diagnostics expose admission and completion stages")
+check(not combined:find("private-token",1,true) and not combined:find("private error body",1,true)
+    and not combined:find("15000",1,true),"diagnostics omit arbitrary tokens, error bodies and balances")
+local callbacks=serverEvents.OnClientCommand.count()
+dofile(root .. "server/ApocWallet/ServerController.lua")
+check(serverEvents.OnClientCommand.count()==callbacks,"server controller reload cannot duplicate handlers")
+setup(); p=player(1); online[1]=p; login(p,"registration")
+check(requests[1].endpoint=="login-enum-value","first read registers the runtime life")
+complete(1,125)
+check(ApocWallet.ServerService.entries[p].registered==true,"successful registration is cached for the session")
+now=6000
+serverEvents.OnClientCommand.fire("ApocWallet","RefreshBalance",p,{token="refresh"})
+check(requests[2].endpoint=="enum-value","subsequent explicit refresh uses read-only balance endpoint")
+complete(2,100)
+local newborn=player(1,"next-life"); newborn.characterId="22345678-1234-4234-8234-123456789abc"; online[1]=newborn
+now=9000; login(newborn,"new-life")
+check(requests[3].endpoint=="login-enum-value" and requests[3].params:find(newborn.characterId,1,true),
+    "replacement life receives independent registration before any kill")
+
+setup(); p=player(1); online[1]=p; login(p,"retry-registration")
+complete(1,nil,"HTTP_409")
+check(ApocWallet.ServerService.getState(p).status=="loading","temporarily pending binding keeps original operation alive")
+now=1999; ApocWallet.ServerService.kick(p); check(#requests==1,"registration backoff blocks early retry")
+now=2000; ApocWallet.ServerService.kick(p); check(#requests==2,"first registration backoff is two seconds")
+complete(2,nil,"HTTP_503")
+now=5999; ApocWallet.ServerService.kick(p); check(#requests==2,"second registration backoff is four seconds")
+now=6000; ApocWallet.ServerService.kick(p); complete(3,750)
+check(ApocWallet.ServerService.getState(p).balance==750 and ApocWallet.ServerService.entries[p].registered,
+    "registration retry returns balance through the existing operation")
+
+setup(); p=player(1); online[1]=p; login(p,"bounded-registration")
+for attempt=1,5 do
+    complete(attempt,nil,"HTTP_409")
+    now=now+2000*2^(attempt-1)
+    ApocWallet.ServerService.kick(p)
+end
+check(#requests==5 and ApocWallet.ServerService.getState(p).error=="HTTP_409" and not p:isDead(),
+    "persistent registration conflicts stop after five attempts without blocking gameplay")
+setup(); p=player(1); online[1]=p
+local loginEndpoint=ApocBrApiBridge.CHARACTER_LOGIN; ApocBrApiBridge.CHARACTER_LOGIN=nil
+login(p,"old-bridge")
+check(#requests==0 and ApocWallet.ServerService.getState(p).error=="API_BRIDGE_OUTDATED",
+    "old Java bridge does not silently fall back to binding-dependent GET")
+ApocBrApiBridge.CHARACTER_LOGIN=loginEndpoint
 print("Passed " .. checks .. " wallet assertions (production Lua, mocked engine/API boundaries).")

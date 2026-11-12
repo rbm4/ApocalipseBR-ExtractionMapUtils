@@ -9,16 +9,27 @@ local Service, Protocol = ApocWallet.ServerService, ApocWallet.Protocol
 Service.notify = function(player, state)
     sendServerCommand(player, Protocol.MODULE, Protocol.STATE, state)
 end
+local lastIgnored
+local function ignored(token,code)
+    if not Diagnostics.enabled then return end
+    local now = getTimestampMs()
+    if not lastIgnored or now-lastIgnored>=10000 then
+        lastIgnored=now
+        Diagnostics.log("server","COMMAND_IGNORED",token,code)
+    end
+end
 Events.OnClientCommand.Add(function(module, command, player, args)
-    if module ~= Protocol.MODULE or (command ~= Protocol.LOGIN and command ~= Protocol.REFRESH)
-        or type(args) ~= "table" then return end
+    if module ~= Protocol.MODULE or (command ~= Protocol.LOGIN and command ~= Protocol.REFRESH) then return end
+    if type(args) ~= "table" then ignored(nil,"INVALID_PAYLOAD"); return end
     -- The native command callback supplies the authenticated player. Ignore all client identity fields.
-    local state = Service.login(player, args.token, command == Protocol.REFRESH)
+    local state,reason = Service.login(player, args.token, command == Protocol.REFRESH)
     if state then
         Service.notify(player, state)
         -- Make the first attempt in the native command callback. OnTick remains
         -- only for bounded identity/admission waits and completion deadlines.
-        Service.update()
+        Service.kick(player)
+    else
+        ignored(args.token,reason or "REJECTED")
     end
 end)
 local ticking, tickEvent = false, Events.OnTick

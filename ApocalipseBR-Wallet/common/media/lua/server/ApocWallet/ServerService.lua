@@ -84,7 +84,7 @@ local function load(player, refresh, now)
         or now - entry.started < ApocWallet.Protocol.MIN_REFRESH_MS) then return entry end
     if not entry and Service.count >= MAX_PLAYERS then return nil end
     local nextEntry = { status = "loading", started = now, lastReply = entry and entry.lastReply,
-        operation = Operation.new() }
+        registered = entry and entry.registered or false, retries = 0, operation = Operation.new() }
     if not entry then Service.count = Service.count + 1 end
     Service.entries[player], Service.pending[player] = nextEntry, nextEntry
     Service.pendingCount = Service.pendingCount + 1
@@ -114,11 +114,12 @@ function Service.requestBalance(player, callback) return requestBalance(player, 
 function Service.refreshBalance(player, callback) return requestBalance(player, callback, true) end
 
 function Service.login(player, token, refresh)
-    if not live(player) or type(token) ~= "string" or #token < 1 or #token > 80
-        or not token:match("^[%w:%-]+$") then return end
+    if not live(player) then return nil,"PLAYER_NOT_READY" end
+    if type(token) ~= "string" or #token < 1 or #token > 80
+        or not token:match("^[%w:%-]+$") then return nil,"INVALID_TOKEN" end
     local now = getTimestampMs()
     local old = Service.entries[player]
-    if old and old.lastReply and now - old.lastReply < 2000 then return end
+    if old and old.lastReply and now - old.lastReply < 2000 then return nil,"RATE_LIMITED" end
     local entry = load(player, refresh == true, now)
     if not entry then
         return { token = token, onlineId = player:getOnlineID(), status = "error", error = "WALLET_BUSY" }
@@ -137,8 +138,12 @@ local function submit(player, entry, context, now)
     local parameters = string.format('{"runtimeUuid":"%s","sourceServerId":%.0f,"steamId":"%s"}',
         context.characterId, context.sourceServerId, context.steamId)
     entry.context = context
+    local registration = not entry.registered
+    local endpoint
+    if registration then endpoint=ApocBrApiBridge.CHARACTER_LOGIN else endpoint=ApocBrApiBridge.CHARACTER_BALANCE end
+    if not endpoint then fail(player,entry,"API_BRIDGE_OUTDATED"); return end
     Service.nextRequest = now + 2000
-    local ok, requestId = pcall(ApocBrApiBridge.request, ApocBrApiBridge.CHARACTER_BALANCE, parameters, function(response)
+    local ok, requestId = pcall(ApocBrApiBridge.request, endpoint, parameters, function(response)
         if Service.entries[player] ~= entry or entry.status ~= "loading" or not live(player)
             or not entry.requestId or type(response) ~= "table" or response.requestId ~= entry.requestId then return end
         local current = identity(player)
@@ -147,9 +152,19 @@ local function submit(player, entry, context, now)
         end
         if response.ok == true and type(response.balance) == "number" and response.balance == response.balance
             and math.abs(response.balance) <= 9007199254740991 then
+            if registration then entry.registered = true end
             finish(player, entry, "ready", response.balance)
         else
             local error = type(response.error) == "string" and #response.error <= 80 and response.error or "API_ERROR"
+            local transient = error=="HTTP_409" or error=="HTTP_408" or error=="HTTP_425" or error=="HTTP_429"
+                or error:match("^HTTP_5%d%d$") or error=="TIMEOUT" or error=="TRANSPORT_ERROR"
+            if registration and transient and entry.retries<4 and getTimestampMs()-entry.started<IDENTITY_TIMEOUT then
+                entry.retries = entry.retries+1
+                entry.requestId,entry.acceptedAt = nil,nil
+                entry.nextAttempt = getTimestampMs()+math.min(30000,2000*2^(entry.retries-1))
+                Diagnostics.stage(entry,"REGISTRATION_RETRY",error)
+                return
+            end
             fail(player, entry, error)
         end
     end)
@@ -166,6 +181,26 @@ local function submit(player, entry, context, now)
     end
 end
 
+-- Native command fast path: examine only its authenticated player. Do not scan
+-- every pending login on each incoming command or bypass global API pacing.
+function Service.kick(player)
+    local entry = Service.pending[player]
+    if not entry then return end
+    if not live(player) then drop(player,entry); return end
+    local now = getTimestampMs()
+    if entry.requestId then
+        if now-entry.acceptedAt>=RESPONSE_TIMEOUT then fail(player,entry,"API_TIMEOUT") end
+        return
+    end
+    if now-entry.started>=IDENTITY_TIMEOUT then fail(player,entry,"LOGIN_TIMEOUT"); return end
+    if entry.nextAttempt and now<entry.nextAttempt then return end
+    if now<Service.nextRequest then return end
+    local context,error = identity(player)
+    if context then submit(player,entry,context,now)
+    elseif error=="IDENTITY_PENDING" then Diagnostics.stage(entry,"IDENTITY_WAIT",error)
+    else fail(player,entry,error) end
+end
+
 function Service.update()
     if Service.pendingCount == 0 then return end
     local now = getTimestampMs()
@@ -180,7 +215,8 @@ function Service.update()
                 if now - entry.acceptedAt >= RESPONSE_TIMEOUT then fail(player, entry, "API_TIMEOUT") end
             elseif now - entry.started >= IDENTITY_TIMEOUT then
                 fail(player, entry, "LOGIN_TIMEOUT")
-            elseif now >= Service.nextRequest and (not nextEntry or entry.started < nextEntry.started) then
+            elseif (not entry.nextAttempt or now>=entry.nextAttempt)
+                and now >= Service.nextRequest and (not nextEntry or entry.started < nextEntry.started) then
                 -- Resolve pending imports independently: one unready player cannot block everyone else.
                 local context, error = identity(player)
                 if context then nextPlayer, nextEntry, nextContext = player, entry, context
