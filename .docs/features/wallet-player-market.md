@@ -5,10 +5,10 @@ Status: implemented; awaiting dedicated-server/client validation. Created
 seller-credit endpoint described below must exist before seller wallet payments
 can be confirmed. No backend implementation was changed in this work.
 
-Persistence update: the [native save hotfix](../hotfixes/wallet-native-moddata-save.md)
-replaces the invalid Lua `ModData.save` call with an explicit server Java facade.
-Interrupted posts retain their token and recover without a false missing-cargo
-response. Both the updated Java patch and wallet files are required.
+Persistence update: [wallet entities](wallet-entity-persistence.md) replace native
+GlobalModData writes with asynchronous ApocalisebrPack repositories scoped to
+`game_runtime.mod_data`. Interrupted posts retain their token. V50, the updated
+Java bridge, pack facade and wallet dependency must be deployed together.
 
 ## Player interaction
 
@@ -23,8 +23,8 @@ The six physical keys, in their existing skin positions:
 
 | Key | Offline | Connected |
 | --- | --- | --- |
-| 1 | Sintonizar | Comprar selected listing / Anunciar selected inventory group |
-| 2 | Visual | Mochila / Mercado |
+| 1 | Sintonizar | Comprar / Anunciar / Gerenciar expired stock |
+| 2 | Visual | Menu: Mercado, Mochila, Meus expirados, Buscar por nome, Limpar busca |
 | 3 | Anterior, disabled | Previous page |
 | 4 | Próxima, disabled | Next page |
 | 5 | Boletim, disabled | Refresh bulletin and displayed balance |
@@ -98,10 +98,10 @@ results keep it reserved until idempotent reconciliation.
 
 **Self-purchases are explicitly enabled for testing.** The ordinary debit,
 delivery and seller-credit paths all apply, even when seller and buyer match.
-No fee or special self-purchase shortcut is introduced.
+The same 10% sale fee applies to self-purchases.
 
-Listings and transaction metadata are persisted inside the courier GlobalModData
-under `market`. Active indices separate collecting listings, open listings,
+Listings and transaction metadata are persisted through the wallet entity
+checkpoint and its atomic PostgreSQL projections. Active indices separate collecting listings, open listings,
 unsettled purchases and unpaid credits from retained history. Up to four listing
 recoveries and four transaction reconciliations run per update, with one seller
 credit admission attempt. The existing purchase/courier capacities remain; open
@@ -114,6 +114,61 @@ resume without a live player. Seller payouts have separate immutable keys and
 remain pending until acknowledged. Native chunk/player saves and GlobalModData
 are still separate files: the existing arbitrary-crash atomicity limitation in
 the [courier guide](wallet-courier-delivery.md) remains.
+
+## Listing expiry, recovery, fees and search
+
+Status: implemented; awaiting in-game multiplayer validation. Updated 2026-11-12.
+
+Each listing remains public for **48 real-world hours**, starting when its exact
+items enter market custody. `getTimestampMs()` is epoch wall-clock time
+(`LuaManager.java`, `getTimestampMs()` delegates to `System.currentTimeMillis()`),
+so offline server time counts. The 500 ms market tick delists expired stock;
+buy requests also enforce the deadline, including requests from stale pages.
+Legacy listings without a deadline use their stored publication/creation time;
+those already older than 48 hours expire on access/update.
+
+The connected radio's **Menu** key opens Mercado, Mochila, Meus expirados,
+Buscar por nome and Limpar busca. In **Meus expirados**, select a listing and
+press **Gerenciar** to choose:
+
+- **Recuperar itens**: return all remaining unsold units by the existing courier
+  to the seller's server-captured current square, retaining native item blobs.
+- **Republicar por 48h**: publish the remaining units at the existing unit price
+  for another full 48 hours, without another pickup or an upfront fee.
+
+Only the listing's server-derived seller character can see/manage expired stock.
+Expired items remain in custody indefinitely until managed; no inventory is
+silently destroyed. Outstanding buyer reservations must settle before the seller
+can manage that listing. Purchases reserved before expiry may finish afterward;
+a failed payment releases units into expired custody rather than reopening them.
+Sold or returned units cannot be reclaimed. Return intents, courier receipts and
+repost acknowledgments are persisted, and same-token retries cannot duplicate
+items or repeatedly extend a listing's deadline. Pending returns resume on the
+server after restart without needing a connected seller, including courier-queue
+backpressure. Reposts respect the existing 2048 active-listing limit.
+
+On completed sales the buyer pays the listed gross amount. The seller receives
+`gross - floor(gross * 10 / 100)` wallet credits. Rounding is per completed
+purchase, in whole credits: gross 30 gives fee 3 / proceeds 27; gross 19 gives fee
+1 / proceeds 18; a gross below 10 has a zero whole-credit fee. Posting, expiry,
+recovery, reposting and failed purchases incur no fee. The transaction records
+`fee` and `proceeds`, while the durable seller-credit obligation uses net proceeds
+and its existing immutable idempotency key. Previously recorded credits are not
+rewritten. This does not change the backend credit/debit contract.
+
+Name search is server-side literal substring matching, applied **before
+pagination** to market, inventory and expired-item views. It ignores ASCII letter
+case, preserves the query across navigation/refresh, resets to page 1 for a new
+search, and accepts at most 100 bytes without control characters. Clearing search
+restores the full view. Matching uses the item name already shown by the server;
+non-ASCII letters retain Lua's native case semantics. No patterns are evaluated.
+
+Inspection of installed RadioTraders Workshop `3807707103` found
+`42/media/lua/shared/RadioTraders/RT_Advanced.lua:A.findItems` filtering item
+script definitions by include/exclude hashes and a callback. No player-facing
+name-search UI was found in its Lua code. Wallet search is independent of that
+helper and does not add a RadioTraders dependency. New controls/messages use the
+existing EN and PTBR `UI.json` catalogs with the existing PTBR fallback policy.
 
 ## Seller-credit backend contract
 
@@ -182,16 +237,19 @@ npm exec --yes --package=fengari-node-cli -- fengari tests/wallet-market-client.
 py -3 tests/wallet-translations.py
 ```
 
-- `... fengari tests/wallet-market.lua`: 30 checks using production services,
+- `... fengari tests/wallet-market.lua`: 70 checks using production services,
   mocked engine/HTTP boundary. Covers tune authentication, immediate exact-item
   posting, duplicate tokens, private custody, server prices, competing buyers,
   debit gating, seller credit, failed-debit stock release, self-purchase success,
-  offline reservation recovery and exact-condition delivery.
-- `... fengari tests/wallet-market-client.lua`: 23 checks using production client,
+  offline reservation recovery, exact-condition delivery, 48-hour boundaries,
+  private expired views, stale purchases, repost replay, search before pagination,
+  exact-item returns, return restart recovery, post-expiry settlement and sale-fee rounding.
+- `... fengari tests/wallet-market-client.lua`: 34 checks using production client,
   dialogue, portrait and panel code with native widget stubs. Covers handshake
   delay, local-player correlation, spoken codes/sectors, reply-only acknowledgments,
   page chatter limits, same-token retries, silent status checks, one ETA per job,
-  quantity controls, six buttons, frame caching and measurement-free rendering.
+  quantity controls, six buttons, frame caching, measurement-free rendering,
+  menu actions, filtered pagination, recovery/repost commands and stable retries.
 - Existing wallet/courier/radio tests and the expanded B42 catalog validator
   remain required. Tests do not invoke the live backend.
 - Java: 105 production API/Kahlua/loopback HTTP checks passed; exact-JAR BuildOnly
@@ -202,3 +260,16 @@ Pending in-game verification: radio inventory/world/vehicle power synchronizatio
 native speech bubbles, modal focus, portrait and sound appearance, item removal
 replication, unloaded offline delivery, and the real debit/seller-credit backend.
 No deployment was performed.
+
+Expiry/search validation run (2026-11-12): market service 70 checks and market
+client/UI 34 checks passed. Regression harnesses `wallet.lua` (96),
+`wallet-courier.lua` (28), `wallet-courier-client.lua` (10),
+`wallet-entity-store.lua` (21), `wallet-radio-ui.lua` (67), and
+`wallet-radio-access.lua` passed via
+`npm exec --yes --package=fengari-node-cli -- fengari tests/<name>.lua`.
+`py -3 tests/wallet-translations.py` and `git diff --check` passed. The expected
+mock persistence-failure log lines in the market harness exercise save failures.
+New EN/PTBR catalog entries parsed successfully and all files touched by this
+feature were checked for UTF-8 encoding without BOM. Tests mock engine/API
+boundaries; in-game context-menu focus/layout, courier return replication, and
+real backend net payouts remain unverified. No deployment was performed.

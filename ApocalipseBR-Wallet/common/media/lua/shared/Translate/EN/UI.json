@@ -64,5 +64,17 @@
   "UI_ApocWallet_MarketFunds": "Negativo. Créditos insuficientes ou ordem recusada. Reserva liberada.",
   "UI_ApocWallet_MarketRefused": "Negativo. Não foi possível confirmar a ordem. Solicite novo boletim.",
   "UI_ApocWallet_MarketHangupTx": "Controle, encerrando contato. Fim de transmissão.",
-  "UI_ApocWallet_MarketStorageError": "Controle com falha no registro da ordem. Mantenha a escuta; tentaremos novamente."
+  "UI_ApocWallet_MarketStorageError": "Controle com falha no registro da ordem. Mantenha a escuta; tentaremos novamente.",
+  "UI_ApocWallet_MarketMenu": "Menu",
+  "UI_ApocWallet_MarketManage": "Gerenciar",
+  "UI_ApocWallet_MarketExpired": "Meus expirados",
+  "UI_ApocWallet_MarketRecover": "Recuperar itens",
+  "UI_ApocWallet_MarketRepost": "Republicar por 48h",
+  "UI_ApocWallet_MarketReposted": "Registro republicado por 48 horas. Câmbio.",
+  "UI_ApocWallet_MarketRecovered": "Carga liberada para devolução por drone no setor informado. Câmbio.",
+  "UI_ApocWallet_MarketSearch": "Buscar por nome",
+  "UI_ApocWallet_MarketSearchHint": "Nome do item (vazio para mostrar todos):",
+  "UI_ApocWallet_MarketClearSearch": "Limpar busca",
+  "UI_ApocWallet_MarketMenuHint": "Mercado, mochila, itens expirados e busca por nome.",
+  "UI_ApocWallet_MarketTerms": "Anúncios duram 48 horas reais. Taxa de 10% sobre vendas concluídas, arredondada para baixo em créditos inteiros."
 }

@@ -85,7 +85,7 @@ Client.courierETA({onlineId=7,id='courier1',kind='delivery',seconds=45})
 Client.courierETA({onlineId=7,id='courier1',kind='delivery',seconds=30})
 check(#s.dialogue.queue==etaCount+1,'ETA refresh does not repeatedly speak')
 -- Attach the real market panel to mocked native widgets.
-package.loaded['ISUI/ISButton']=true; package.loaded['ISUI/ISTextBox']=true
+package.loaded['ISUI/ISContextMenu']=true; package.loaded['ISUI/ISButton']=true; package.loaded['ISUI/ISTextBox']=true
 local function widget()
     local w={}
     for _,field in ipairs({'X','Y','Width','Height','Title','Tooltip','Enable'}) do w['set'..field]=function(self,v) self[field]=v end end
@@ -109,6 +109,11 @@ function win.list:clear() self.items={} end
 function win.list:addItem(name,row) self.items[#self.items+1]={item=row} end
 for _,method in ipairs({'drawText','drawTextCentre','drawRect','drawTextureScaled'}) do win[method]=function() end end
 win.actions={refresh=function() end}
+local menuOptions
+ISContextMenu={get=function()
+    menuOptions={}
+    return {addOption=function(_,label,target,fn) menuOptions[#menuOptions+1]={label=label,target=target,fn=fn} end}
+end}
 local Panel=require 'ApocWallet/UI/MarketPanel'
 Panel.attach(win)
 check(win.marketPrev and win.marketNext and win.marketRefresh,'six physical keys have market controls')
@@ -122,6 +127,28 @@ local beforeMeasure=measures
 Panel.render(win); Panel.render(win)
 check(measures==beforeMeasure,'market render performs no text measurement or network work')
 check(textures==16,'ported operator frames cached once')
+s.pending=nil; s.transaction=nil; s.nextNavigation=0
+Panel.menu(win)
+check(#menuOptions==5,'menu offers market, inventory, expired stock, search and clear')
+menuOptions[4].fn()
+modal.value='aXe'
+modal.callback(win,{internal='OK',parent=modal})
+check(s.pending.args.query=='aXe' and s.pending.args.page==1,'name search requests first filtered server page')
+Client.receive({onlineId=7,token=s.pending.token,ok=true,kind='page',mode='expired',query='aXe',page=1,pages=2,rows={row}})
+time=time+500; Client.page(s,'expired',2)
+check(s.pending.args.query=='aXe','filter preserved across page navigation')
+s.pending=nil; s.mode='expired'; s.rows={row}; Panel.populate(win)
+Panel.action(win)
+check(#menuOptions==2,'expired item offers recovery and repost')
+menuOptions[2].fn()
+check(s.pending.command=='MarketRepost' and s.pending.args.listingId==row.id,'repost uses authoritative listing id')
+local retryToken=s.pending.token
+time=time+10001; Client.update()
+check(s.pending.token==retryToken,'management retry keeps original token')
+Client.receive({onlineId=7,token=retryToken,ok=true,kind='reposted'})
+check(s.needsRefresh,'repost acknowledgment refreshes stock')
+s.pending=nil; s.needsRefresh=nil; Panel.action(win); menuOptions[1].fn()
+check(s.pending.command=='MarketRecover','recovery option requests courier return')
 Client.close(s)
 check(not Client.sessions[0] and packets[#packets].command=='MarketHangup','closing releases dialogue and channel')
 print('Passed '..checks..' market client handshake, coded dialogue, rate limiting, retry, portrait and UI checks.')

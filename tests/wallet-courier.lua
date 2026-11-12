@@ -6,8 +6,13 @@ function isClient() return false end
 function getTimestampMs() return time end
 function ZombRand(lo,hi) return lo+10000 end
 local persisted={}
+local failSave,storeAvailable=false,true
+package.loaded['ApocWallet/EntityStore']={data=function() return persisted end,ready=function() return storeAvailable end,
+ modData=function(kind,id) persisted.itemData=persisted.itemData or {}; persisted.itemData[kind..id]=persisted.itemData[kind..id] or {}; return persisted.itemData[kind..id] end,
+ persist=function() if failSave then error('PERSISTENCE_WRITE_FAILED') end; saves=saves+1 end,
+ run=function(_,fn,onError) local ok,err=pcall(fn); if not ok then if onError then onError(err) else error(err) end end end}
 ModData={getOrCreate=function() return persisted end}
-ApocBrApiBridge={saveModData=function() saves=saves+1; return true end}
+ApocBrApiBridge={}
 function sendServerCommand(...) packets[#packets+1]={...} end
 local function list(t) return {size=function() return #t end,get=function(_,i) return t[i+1] end} end
 local online={}
@@ -20,6 +25,7 @@ function instanceItem(fullType)
     if failCreate or failAt and created>=failAt then return nil end
     created=created+1
     local item={type=fullType,md={}}
+    function item:getID() return created end
     function item:getModData() return self.md end
     function item:getWorldItem() return self.world end
     return item
@@ -87,7 +93,7 @@ local function inventoryItem(id)
     function item:getFullType() return 'Base.Axe' end
     return item
 end
-ApocBrApiBridge={saveModData=function() saves=saves+1; return true end,encodeItem=function(item) return 'native-save-'..item:getID() end}
+ApocBrApiBridge={encodeItem=function(item) return 'native-save-'..item:getID() end}
 ApocBRModEntities={character=function() return {status='OK',characterId='12345678-1234-4234-8234-123456789abc',
     steamId='76561198000000001',sourceServerId=2} end}
 local pickup=C.pickup(player,'post1',{inventoryItem(1)})

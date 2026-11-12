@@ -1,5 +1,6 @@
 require 'ISUI/ISButton'
 require 'ISUI/ISTextBox'
+require 'ISUI/ISContextMenu'
 local Client=require 'ApocWallet/MarketClient'
 local Portrait=require 'ApocWallet/OperatorPortrait'
 local P=require 'ApocWallet/MarketProtocol'
@@ -40,18 +41,44 @@ function Panel.action(win)
     if s.state~='connected' then Client.tune(s); return end
     local row=selected(win)
     if not row then return end
+    if s.mode=='expired' then
+        local menu=ISContextMenu.get(win.playerIndex,win:getX(),win:getY())
+        menu:addOption(getText('UI_ApocWallet_MarketRecover'),s,function() Client.manage(s,row,'MarketRecover') end)
+        menu:addOption(getText('UI_ApocWallet_MarketRepost'),s,function() Client.manage(s,row,'MarketRepost') end)
+        return
+    end
     prompt(win,'UI_ApocWallet_MarketQuantityFmt',row.count,function(count)
         if s.mode=='inventory' then
             prompt(win,'UI_ApocWallet_MarketPriceFmt',10000000,function(price) Client.post(s,row,count,price) end)
         else Client.buy(s,row,count) end
     end)
 end
+function Panel.menu(win)
+    local s=win.marketSession
+    if s.state~='connected' then win:nextSkin(); return end
+    if s.pending or s.transaction then return end
+    local menu=ISContextMenu.get(win.playerIndex,win:getX(),win:getY())
+    for _,entry in ipairs({{'market','UI_ApocWallet_MarketBrowse'},{'inventory','UI_ApocWallet_MarketInventory'},{'expired','UI_ApocWallet_MarketExpired'}}) do
+        local mode=entry[1]
+        menu:addOption(getText(entry[2]),s,function() Client.page(s,mode,1) end)
+    end
+    menu:addOption(getText('UI_ApocWallet_MarketSearch'),win,function()
+        if win.marketModal then return end
+        local box=ISTextBox:new(win:getX(),win:getY(),340,180,getText('UI_ApocWallet_MarketSearchHint'),s.query,win,function(target,button)
+            target.marketModal=nil
+            if button.internal~='OK' or target.closed then return end
+            Client.page(s,s.mode,1,button.parent.entry:getText():gsub('[%c]',''):sub(1,100))
+        end,win.playerIndex)
+        win.marketModal=box; box:initialise(); box:addToUIManager(); box.maxChars=100
+    end)
+    menu:addOption(getText('UI_ApocWallet_MarketClearSearch'),s,function() Client.page(s,s.mode,1,'') end)
+end
 function Panel.layout(win)
     local s=win.marketSession
     if not s then return end
     local keys={
-        {win.refreshButton,1,s.state=='connected' and (s.mode=='inventory' and 'UI_ApocWallet_MarketPost' or 'UI_ApocWallet_MarketBuy') or 'UI_ApocWallet_MarketTune'},
-        {win.skinButton,2,s.state=='connected' and (s.mode=='inventory' and 'UI_ApocWallet_MarketBrowse' or 'UI_ApocWallet_MarketInventory') or 'UI_ApocWallet_Skin'},
+        {win.refreshButton,1,s.state=='connected' and (s.mode=='inventory' and 'UI_ApocWallet_MarketPost' or s.mode=='expired' and 'UI_ApocWallet_MarketManage' or 'UI_ApocWallet_MarketBuy') or 'UI_ApocWallet_MarketTune'},
+        {win.skinButton,2,s.state=='connected' and 'UI_ApocWallet_MarketMenu' or 'UI_ApocWallet_Skin'},
         {win.marketPrev,3,'UI_ApocWallet_MarketPrevious'}, {win.marketNext,4,'UI_ApocWallet_MarketNext'},
         {win.marketRefresh,5,'UI_ApocWallet_MarketBulletin'}, {win.walletCloseButton,6,'UI_ApocWallet_MarketHangup'},
     }
@@ -68,7 +95,7 @@ function Panel.layout(win)
     win.marketNext:setEnable(connected and not busy and s.page<s.pages)
     win.marketRefresh:setEnable(connected and not busy)
     local _,_,w=win:R(win.L.list)
-    win.marketHeading=fit(getText(s.mode=='inventory' and 'UI_ApocWallet_MarketInventory' or 'UI_ApocWallet_MarketBrowse')..'  '..s.page..'/'..s.pages,w-8)
+    win.marketHeading=fit(getText(s.mode=='inventory' and 'UI_ApocWallet_MarketInventory' or s.mode=='expired' and 'UI_ApocWallet_MarketExpired' or 'UI_ApocWallet_MarketBrowse')..'  '..s.page..'/'..s.pages..(s.query~='' and ' ['..s.query..']' or ''),w-8)
     win.marketStatus=getText(s.state=='connected' and 'UI_ApocWallet_MarketConnected' or s.state=='tuning' and 'UI_ApocWallet_MarketTuning' or 'UI_ApocWallet_MarketOffline')
     local _,_,fw,fh=win:R(win.L.feed)
     local ph=math.max(16,math.min(fh-win.fontHeight*2-14,fw*0.43))
@@ -120,12 +147,9 @@ function Panel.attach(win)
     win.marketNext=button(function() Client.page(s,s.mode,s.page+1) end)
     win.marketRefresh=button(function() Client.page(s,s.mode,s.page); s.refreshBalance() end)
     win.refreshButton.onclick=Panel.action
-    win.skinButton.onclick=function()
-        if s.state=='connected' then Client.page(s,s.mode=='market' and 'inventory' or 'market',1)
-        else win:nextSkin() end
-    end
-    win.refreshButton:setTooltip(getText('UI_ApocWallet_MarketTuneHint'))
-    win.skinButton:setTooltip(getText('UI_ApocWallet_MarketInventoryHint'))
+    win.skinButton.onclick=Panel.menu
+    win.refreshButton:setTooltip(getText('UI_ApocWallet_MarketTerms'))
+    win.skinButton:setTooltip(getText('UI_ApocWallet_MarketMenuHint'))
     win.list.itemheight=win.fontHeight*2+6
     win.list.doDrawItem=function(list,y,item)
         local row=item.item

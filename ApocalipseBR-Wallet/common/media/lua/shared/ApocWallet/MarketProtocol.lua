@@ -1,6 +1,6 @@
 require 'ApocWallet/Protocol'
 if ApocWallet.MarketProtocol then return ApocWallet.MarketProtocol end
-local P={PAGE_SIZE=6,MAX_POST=100}
+local P={PAGE_SIZE=6,MAX_POST=100,LISTING_LIFETIME=48*60*60*1000,SALE_TAX_PERCENT=10}
 ApocWallet.MarketProtocol=P
 function P.code(fullType)
     local n=0

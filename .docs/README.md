@@ -7,6 +7,8 @@ integration. Repository conventions live in [AGENTS.md](../AGENTS.md).
 
 ## Features
 
+- [Wallet entity persistence](features/wallet-entity-persistence.md): pack dependency, scoped game_runtime.mod_data mapping, atomic market projections and asynchronous trade checkpoints.
+
 - [Wallet native-save hotfix](hotfixes/wallet-native-moddata-save.md): fixes the unexposed Lua save call, interrupted-post recovery and misleading unavailable-cargo responses.
 
 - [Player market and radio operator](features/wallet-player-market.md): tune-in, PTBR coded speech, operator portrait/audio, player listings, exact-item delivery and seller-credit contract.

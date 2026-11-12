@@ -1,5 +1,6 @@
 name=ApocalipseBR - Wallet
 id=ApocalipseBR-Wallet
+require=APOCALISEBR_PACK
 author=Hypothetic
 description=Server-authoritative wallet balance loading through the ApocBR API bridge.
 poster=poster.png

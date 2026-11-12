@@ -17,7 +17,8 @@ attempt immediately; pending waits/deadlines retain their bounded scheduler.
 ## Installation and prerequisites
 
 Install and enable the independent `ApocalipseBR-Wallet` mod on server and
-clients. Its `42/mod.info` requires Build 42.22.2. It does not depend on the
+clients. Its `42/mod.info` requires Build 42.22.2 and `APOCALISEBR_PACK` for
+[wallet entity persistence](wallet-entity-persistence.md). It does not depend on the
 extraction mod, RCON extension or lobby settings. The existing `project.json`
 entry includes it in this Workshop project's packaging.
 

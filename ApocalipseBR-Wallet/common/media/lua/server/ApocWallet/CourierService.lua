@@ -3,29 +3,19 @@ if isClient() then return end
 require "ApocWallet/Protocol"
 if ApocWallet.CourierService then return ApocWallet.CourierService end
 local Route=require "ApocWallet/CourierRoute"
+local Store=require "ApocWallet/EntityStore"
 local Service={ nextUpdate=0 }
 ApocWallet.CourierService=Service
-local TAG='ApocWallet.Couriers.v1'
 local APPROACH,HOVER,DEPART=8000,2000,8000
 local function now() return getTimestampMs() end
 local function data()
-    local d=ModData.getOrCreate(TAG)
+    local d=Store.data()
     d.jobs=d.jobs or {}; d.receipts=d.receipts or {}; d.escrow=d.escrow or {}; d.purchases=d.purchases or {}; d.seq=d.seq or 0
     d.finished=d.finished or {}; d.pendingPurchases=d.pendingPurchases or {}
     return d
 end
-function Service.persistenceReady()
-    return ApocBrApiBridge~=nil and ApocBrApiBridge.saveModData~=nil
-        and now()>=(Service.persistenceRetryAt or 0)
-end
-local function persist()
-    if not Service.persistenceReady() then error('PERSISTENCE_API_UNAVAILABLE') end
-    local ok,saved=pcall(ApocBrApiBridge.saveModData)
-    if not ok or saved~=true then
-        Service.persistenceRetryAt=now()+5000
-        error('PERSISTENCE_WRITE_FAILED')
-    end
-end
+function Service.persistenceReady() return Store.ready() end
+local function persist() Store.persist() end
 Service.data=data
 Service.persist=persist
 local function idOK(id) return type(id)=='string' and #id>0 and #id<=160 and id:match('^[%w_.:%-]+$') end
@@ -128,7 +118,10 @@ function Service.pickup(player, requestId, items)
     local context=ApocBRModEntities and ApocBRModEntities.character(player)
     if not context or context.status~='OK' or type(context.characterId)~='string' then return nil,'IDENTITY_UNAVAILABLE' end
     local d=data(); local receipt='pickup:'..context.characterId..':'..requestId
-    if d.escrow[receipt] then return d.escrow[receipt].jobId end
+    if d.escrow[receipt] then
+        if d.escrow[receipt].state=='cancelled' or d.escrow[receipt].state=='uncertain' then return nil,'ITEM_UNAVAILABLE' end
+        return d.escrow[receipt].jobId
+    end
     -- Finish any interrupted older removal before accepting another post of
     -- objects whose native IDs might still appear in this inventory.
     if Service.reconcilePickup then Service.reconcilePickup(player) end
@@ -151,6 +144,17 @@ function Service.pickup(player, requestId, items)
     if not job then return nil,'INVALID_PICKUP' end
     d.escrow[receipt]={owner=owner(player),characterId=context.characterId,jobId=job.id,items=encoded,state='removing'}
     persist()
+    -- The database acknowledgment is asynchronous. Check the exact objects again
+    -- before the native handoff; no Lua event can interleave this removal loop.
+    for i,item in ipairs(items) do
+        local container=item:getContainer()
+        local ok,blob=pcall(ApocBrApiBridge.encodeItem,item)
+        if player:isDead() or getPlayerByOnlineID and getPlayerByOnlineID(player:getOnlineID())~=player
+            or not container or container:getOutermostContainer()~=player:getInventory()
+            or player:isEquipped(item) or not ok or blob~=encoded[i].blob then
+            d.escrow[receipt].state='cancelled'; persist(); return nil,'ITEM_UNAVAILABLE'
+        end
+    end
     for i,item in ipairs(items) do
         local container=item:getContainer()
         container:DoRemoveItem(item)
@@ -199,6 +203,8 @@ local function deliver(job,square)
                     else item=instanceItem(spec.type) end
                     if not item then return finish(false) end
                     local md=item:getModData()
+                    local stored=Store.modData('inventory',tostring(item:getID()))
+                    stored.ApocWalletCourier=job.id; stored.ApocWalletCargo=index
                     md.ApocWalletCourier=job.id; md.ApocWalletCargo=index
                     local ok,result=pcall(function() return square:AddWorldInventoryItem(item,0.5,0.5,0,true) end)
                     -- The native method can place before a transmission failure.
@@ -259,15 +265,28 @@ function Service.reconcilePickup(player)
     if not context or context.status~='OK' then return end
     for _,entry in pairs(data().escrow) do
         if entry.state=='removing' and entry.characterId==context.characterId then
+            local verified={}
+            local valid=true
             for _,spec in ipairs(entry.items) do
                 local item=player:getInventory():getItemById(spec.itemId)
-                if item then
+                local ok,blob=pcall(ApocBrApiBridge.encodeItem,item)
+                if not item or player:isEquipped(item) or not ok or blob~=spec.blob then valid=false; break end
+                verified[#verified+1]=item
+            end
+            if valid then
+                for i,item in ipairs(verified) do
                     local container=item:getContainer()
                     container:DoRemoveItem(item); sendRemoveItemFromContainer(container,item)
+                    entry.items[i].removed=true
                 end
-                spec.removed=true
+                entry.state='held'
+            else
+                -- Native inventory and SQL cannot share a transaction. Missing
+                -- objects after an interrupted handoff require review, not a
+                -- second sellable copy inferred from absence.
+                entry.state='uncertain'
             end
-            entry.state='held'; persist()
+            persist()
         end
     end
 end

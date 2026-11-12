@@ -37,6 +37,10 @@ message; courier sync refreshes outstanding ETAs every fifteen seconds.
 ```lua
 local Courier = require 'ApocWallet/CourierService'
 local Purchase = require 'ApocWallet/PurchaseService'
+local Store = require 'ApocWallet/EntityStore'
+
+-- Invoke mutating server interfaces inside Store.run('unique-operation-key',
+-- function() ... end) so persistence checkpoints can await entity callbacks.
 
 -- A server catalog creates this quote. Never forward a client's price or item IDs
 -- into this trusted interface without resolving/validating the catalog listing.
@@ -116,12 +120,12 @@ typed by players. The server owns all values.
 
 ## Persistence, disconnects and failure behavior
 
-`ModData` tag `ApocWallet.Couriers.v1` stores purchase requests before HTTP,
+The [entity-backed wallet checkpoint](wallet-entity-persistence.md), scoped by
+server/world in `game_runtime.mod_data`, stores purchase requests before HTTP,
 confirmed receipts, active jobs, destination coordinates, placement progress,
-finished job summaries and pickup custody. Mutation boundaries explicitly call
-`ApocBrApiBridge.saveModData()`, the server-thread bridge to native GlobalModData
-saving (the Lua `ModData` facade itself has no save method). See the
-[persistence hotfix](../hotfixes/wallet-native-moddata-save.md). Completed jobs leave the active update set; receipt tombstones
+finished job summaries and pickup custody. Mutation boundaries wait for the
+ApocalisebrPack entity callback before continuing. Legacy native GlobalModData is
+read only for initial import when the SQL row is absent. Completed jobs leave the active update set; receipt tombstones
 remain to prevent repeat scheduling. API requests have a 70-second reconciliation
 deadline; a late callback for an older attempt is ignored and the stable backend
 key permits replay. HTTP 4xx listed above stops the order without creating cargo.

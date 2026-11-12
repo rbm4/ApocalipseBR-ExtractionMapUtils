@@ -1,5 +1,6 @@
 if isClient() then return end
 local Courier=require 'ApocWallet/CourierService'
+local Store=require 'ApocWallet/EntityStore'
 if ApocWallet.PurchaseService then return ApocWallet.PurchaseService end
 local Service={callbacks={},nextUpdate=0}
 ApocWallet.PurchaseService=Service
@@ -66,7 +67,9 @@ local function submit(order,t)
     Courier.persist()
     local requestId
     local ok,id=pcall(ApocBrApiBridge.request,ApocBrApiBridge.CHARACTER_DEBIT,parameters,function(response)
-        if not requestId or order.requestId~=requestId or type(response)~='table' or response.requestId~=requestId then return end
+        Store.run('debit-result:'..tostring(requestId),function()
+        order=Courier.data().purchases[order.id]
+        if not order or not requestId or order.requestId~=requestId or type(response)~='table' or response.requestId~=requestId then return end
         order.requestId=nil
         if response.ok==true and response.idempotencyKey==order.id and type(response.transactionId)=='string'
             and #response.transactionId>0 then
@@ -81,6 +84,7 @@ local function submit(order,t)
             order.nextAttempt=getTimestampMs()+math.min(60000,1500*2^math.min(order.attempts,5))
         end
         Courier.persist(); notify(order)
+        end)
     end)
     if ok and id then requestId=id; order.requestId=id
     else order.error='DEBIT_ADMISSION_WAIT'; order.nextAttempt=t+3000 end

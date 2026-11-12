@@ -1,5 +1,11 @@
 # Wallet persistence failure and misleading unavailable-cargo reply
 
+**Superseded resolution:** the user subsequently requested the established pack
+entity contract. Current persistence is [PostgreSQL-backed](../features/wallet-entity-persistence.md),
+not `saveModData()` or native GlobalModData writes. The diagnosis below remains
+valid; the intermediate native-flush implementation/deployment instructions are
+historical and must not be used for the current wallet.
+
 Status: fixed in source; awaiting dedicated-server retest. Created 2026-11-11.
 Owning features: [player market](../features/wallet-player-market.md) and
 [courier delivery](../features/wallet-courier-delivery.md).
