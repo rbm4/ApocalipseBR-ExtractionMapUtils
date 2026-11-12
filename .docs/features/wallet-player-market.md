@@ -6,9 +6,10 @@ seller-credit endpoint described below must exist before seller wallet payments
 can be confirmed. No backend implementation was changed in this work.
 
 Persistence update: [wallet entities](wallet-entity-persistence.md) replace native
-GlobalModData writes with asynchronous ApocalisebrPack repositories scoped to
-`game_runtime.mod_data`. Interrupted posts retain their token. V50, the updated
-Java bridge, pack facade and wallet dependency must be deployed together.
+GlobalModData writes with atomic record mutations scoped to
+`game_runtime.mod_data`. Interrupted posts retain their token. V54, the updated
+Java bridge, pack facade and wallet must be deployed together with both game
+instances stopped during conversion; V50 projections become historical archives.
 
 ## Player interaction
 
@@ -100,19 +101,20 @@ results keep it reserved until idempotent reconciliation.
 delivery and seller-credit paths all apply, even when seller and buyer match.
 The same 10% sale fee applies to self-purchases.
 
-Listings and transaction metadata are persisted through the wallet entity
-checkpoint and its atomic PostgreSQL projections. Active indices separate collecting listings, open listings,
+Listings and transaction metadata are persisted as independently keyed records
+through atomic mutation batches. Active indices are reconstructed on startup
+and separate collecting listings, open listings,
 unsettled purchases and unpaid credits from retained history. Up to four listing
 recoveries and four transaction reconciliations run per update, with one seller
 credit admission attempt. The existing purchase/courier capacities remain; open
 plus collecting listings are capped at 2048. This market belongs to the current
 server world/save; it is not a cross-server listing database.
 
-Post/buy retries use the same client token. Native snapshots are written before
-removal/payment. Reservations that survive a restart before debit admission can
+Post/buy retries use the same client token. Business intent mutations commit
+before removal/payment; unchanged HTTP admission retries issue no SQL writes. Reservations that survive a restart before debit admission can
 resume without a live player. Seller payouts have separate immutable keys and
-remain pending until acknowledged. Native chunk/player saves and GlobalModData
-are still separate files: the existing arbitrary-crash atomicity limitation in
+remain pending until acknowledged. Native chunk/player saves cannot share the
+wallet SQL transaction: the existing arbitrary-crash atomicity limitation in
 the [courier guide](wallet-courier-delivery.md) remains.
 
 ## Listing expiry, recovery, fees and search

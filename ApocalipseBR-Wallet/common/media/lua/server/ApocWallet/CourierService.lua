@@ -11,11 +11,15 @@ local function now() return getTimestampMs() end
 local function data()
     local d=Store.data()
     d.jobs=d.jobs or {}; d.receipts=d.receipts or {}; d.escrow=d.escrow or {}; d.purchases=d.purchases or {}; d.seq=d.seq or 0
-    d.finished=d.finished or {}; d.pendingPurchases=d.pendingPurchases or {}
+    d.finished=d.finished or {}
+    if not d.pendingPurchases then
+        d.pendingPurchases={}
+        for id,order in pairs(d.purchases) do if order.state=='pending' or order.state=='paid' then d.pendingPurchases[id]=true end end
+    end
     return d
 end
 function Service.persistenceReady() return Store.ready() end
-local function persist() Store.persist() end
+local function persist(...) Store.persist(...) end
 Service.data=data
 Service.persist=persist
 local function idOK(id) return type(id)=='string' and #id>0 and #id<=160 and id:match('^[%w_.:%-]+$') end
@@ -78,7 +82,7 @@ function Service.delivery(user, receipt, destination, items)
             and (j.units or 100)+units<=100 then
             for _,sp in ipairs(items) do j.items[#j.items+1]={type=sp.type,count=sp.count,blob=sp.blob} end
             j.units=j.units+units
-            d.receipts[receipt]=j.id; persist(); Service.notify(user,j)
+            d.receipts[receipt]=j.id; persist('jobs',j.id,'receipts',receipt); Service.notify(user,j)
             return j.id
         end
     end
@@ -88,7 +92,7 @@ function Service.delivery(user, receipt, destination, items)
         due=now()+ZombRand(30000,90001),state='waiting',items={},units=units,placed=0}
     for i,sp in ipairs(items) do job.items[i]={type=sp.type,count=sp.count,blob=sp.blob} end
     d.jobs[job.id]=job; d.receipts[receipt]=job.id
-    persist(); Service.notify(user,job)
+    persist('jobs',job.id,'receipts',receipt,'$','seq'); Service.notify(user,job)
     return job.id
 end
 
@@ -143,7 +147,7 @@ function Service.pickup(player, requestId, items)
     local job=pickupJob(player)
     if not job then return nil,'INVALID_PICKUP' end
     d.escrow[receipt]={owner=owner(player),characterId=context.characterId,jobId=job.id,items=encoded,state='removing'}
-    persist()
+    persist('escrow',receipt,'jobs',job.id,'$','seq')
     -- The database acknowledgment is asynchronous. Check the exact objects again
     -- before the native handoff; no Lua event can interleave this removal loop.
     for i,item in ipairs(items) do
@@ -152,7 +156,7 @@ function Service.pickup(player, requestId, items)
         if player:isDead() or getPlayerByOnlineID and getPlayerByOnlineID(player:getOnlineID())~=player
             or not container or container:getOutermostContainer()~=player:getInventory()
             or player:isEquipped(item) or not ok or blob~=encoded[i].blob then
-            d.escrow[receipt].state='cancelled'; persist(); return nil,'ITEM_UNAVAILABLE'
+            d.escrow[receipt].state='cancelled'; persist('escrow',receipt); return nil,'ITEM_UNAVAILABLE'
         end
     end
     for i,item in ipairs(items) do
@@ -162,7 +166,7 @@ function Service.pickup(player, requestId, items)
         encoded[i].removed=true
     end
     d.escrow[receipt].state='held'
-    persist(); Service.notify(owner(player),job)
+    persist('escrow',receipt); Service.notify(owner(player),job)
     return job.id
 end
 
@@ -188,7 +192,7 @@ local function deliver(job,square)
     local index=0
     local original=job.placed
     local function finish(ok)
-        if job.placed~=original then persist() end
+        if job.placed~=original then persist('jobs',job.id) end
         return ok
     end
     for _,spec in ipairs(job.items) do
@@ -239,13 +243,13 @@ function Service.update()
                 if t>=job.due and job.state=='waiting' and handoffs<2 then
                     handoffs=handoffs+1
                     if job.kind=='pickup' or deliver(job,square) then
-                        job.state='departing'; persist(); Service.broadcast(job)
+                        job.state='departing'; persist('jobs',job.id); Service.broadcast(job)
                     end
                 end
                 if job.state=='departing' and t>=job.due+HOVER+DEPART then
                     local d=data()
                     d.finished[job.id]={kind=job.kind,x=job.x,y=job.y,z=job.z,completedAt=t}
-                    d.jobs[job.id]=nil; persist()
+                    d.jobs[job.id]=nil; persist('jobs',job.id,'finished',job.id)
                 end
             end
         end
@@ -263,7 +267,7 @@ function Service.reconcilePickup(player)
     if not Service.persistenceReady() then return end
     local context=ApocBRModEntities and ApocBRModEntities.character(player)
     if not context or context.status~='OK' then return end
-    for _,entry in pairs(data().escrow) do
+    for receipt,entry in pairs(data().escrow) do
         if entry.state=='removing' and entry.characterId==context.characterId then
             local verified={}
             local valid=true
@@ -286,7 +290,7 @@ function Service.reconcilePickup(player)
                 -- second sellable copy inferred from absence.
                 entry.state='uncertain'
             end
-            persist()
+            persist('escrow',receipt)
         end
     end
 end

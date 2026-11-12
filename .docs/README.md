@@ -70,6 +70,8 @@ documents when designed. Mark proposals as planned until implemented.
 
 ## Hotfixes
 
+- [Wallet record mutations](hotfixes/wallet-record-mutations.md): targeted atomic persistence and zero SQL writes for unchanged payment admission retries.
+
 - [Wallet loading, dispatch and diagnostics](hotfixes/wallet-loading-diagnostics.md): immediate per-player API admission, manual pending-intent retry and bounded client/server stage logs.
 
 - [Managed generator validation and pre-warm](hotfixes/managed-generator-validation-and-prewarm.md): exact coordinate rejection logs and explicit bounded map pre-warming before placement.
@@ -127,6 +129,8 @@ Targeted corrections and compatibility workarounds belong in `hotfixes/`.
   building guards after B42 registers the server Lua dependencies.
 
 ## Reports
+
+- [2026-11-12: Wallet PostgreSQL CPU review](reports/2026-11-12-wallet-postgres-cpu-review.md): full-state projection costs, background retries and read-only production capture.
 
 - [2026-11-11: Wallet radio UI asset copy receipt](reports/2026-11-11-wallet-radio-ui-assets.json): source paths, dimensions and SHA-256 hashes for the 34 forked PNGs.
 

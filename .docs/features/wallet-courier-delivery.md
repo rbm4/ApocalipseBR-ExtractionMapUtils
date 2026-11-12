@@ -40,7 +40,7 @@ local Purchase = require 'ApocWallet/PurchaseService'
 local Store = require 'ApocWallet/EntityStore'
 
 -- Invoke mutating server interfaces inside Store.run('unique-operation-key',
--- function() ... end) so persistence checkpoints can await entity callbacks.
+-- function() ... end) so record mutations can await database commit callbacks.
 
 -- A server catalog creates this quote. Never forward a client's price or item IDs
 -- into this trusted interface without resolving/validating the catalog listing.
@@ -120,12 +120,13 @@ typed by players. The server owns all values.
 
 ## Persistence, disconnects and failure behavior
 
-The [entity-backed wallet checkpoint](wallet-entity-persistence.md), scoped by
+The [wallet record mutation store](wallet-entity-persistence.md), scoped by
 server/world in `game_runtime.mod_data`, stores purchase requests before HTTP,
 confirmed receipts, active jobs, destination coordinates, placement progress,
 finished job summaries and pickup custody. Mutation boundaries wait for the
 ApocalisebrPack entity callback before continuing. Legacy native GlobalModData is
-read only for initial import when the SQL row is absent. Completed jobs leave the active update set; receipt tombstones
+read only for initial import when the v2 SQL document is absent. V54 converts
+existing SQL snapshots once; HTTP admission timers remain in memory. Completed jobs leave the active update set; receipt tombstones
 remain to prevent repeat scheduling. API requests have a 70-second reconciliation
 deadline; a late callback for an older attempt is ignored and the stable backend
 key permits replay. HTTP 4xx listed above stops the order without creating cargo.
@@ -158,12 +159,12 @@ native item ID. A future publisher must only consume `held` entries and record
 its own idempotent custody transfer; it must not blindly decode the same blob
 multiple times. `decodeItem` is provided by Java for that future custody boundary.
 
-**Crash limit:** native player/chunk saves and GlobalModData are separate files.
-These are not one atomic database transaction. Receipt/progress tagging handles
+**Crash limit:** native player/chunk saves and the PostgreSQL wallet ledger
+cannot share one atomic transaction. Receipt/progress tagging handles
 normal retries, reloads and disconnects, but sudden process/power loss between
 native world/inventory saves and ledger saves still needs reconciliation. Do not
-claim exactly-once physical item persistence across arbitrary crashes. A future
-database-backed custody/outbox can strengthen that guarantee.
+claim exactly-once physical item persistence across arbitrary crashes. SQL custody and receipt records preserve intent; they do not make native world
+files part of the SQL commit.
 
 ## Verification
 

@@ -1,135 +1,119 @@
-# Wallet entity persistence in game_runtime
+# Wallet record mutations in game_runtime
 
-Status: implemented; isolated database and actual Kahlua tests passed, live server
-validation pending. Created 2026-11-11. This supersedes the attempted native-file
-flush fix for the unexposed `ModData.save()` call.
+Status: implemented; isolated PostgreSQL, Lua and actual Kahlua validation passed;
+live dedicated-server validation pending. Updated 2026-11-12. Supersedes the V50
+whole-wallet checkpoint design. See [the CPU investigation](../reports/2026-11-12-wallet-postgres-cpu-review.md)
+and [mutation hotfix](../hotfixes/wallet-record-mutations.md).
 
-## Dependency and contract
+## Persistence contract
 
-`ApocalipseBR-Wallet/42/mod.info` requires **APOCALISEBR_PACK**. The wallet imports
-`ApocBR/Entities` from ApocalisebrPack; it does not execute SQL, own a connection,
-choose a datasource or accept client scope identifiers.
+The independent wallet requires **APOCALISEBR_PACK** and server patches **42.22.2**.
+It imports the pack's server-only `ApocBR/Entities` facade. Money remains owned by
+the existing backend debit/credit APIs; Lua never authorizes spending from its
+balance cache. No SQL, credentials or client-chosen identity enter wallet Lua.
 
-The pack facade now provides `serverScope()`, `encode(table)` and `decode(text)`.
-Java captures the configured engine server ID and current save-world name.
-Data-only JSON preserves arrays and string-keyed tables, rejects userdata/cycles,
-limits depth to 64 and collections to 100,000 entries, and bounds documents to
-32 MiB of Java characters. Finite numeric values must fit Lua's exact range.
-The new entity field type `text` supports these bounded payloads; existing
-`string` fields retain their 4096-character bound. No URLs, JDBC or schema DDL
-cross the Lua facade.
+`Entities.document('ApocWallet.Couriers.v2')` exposes asynchronous `load(callback)`
+and `mutate(revision, mutationId, operations, callback)`. Java captures configured
+server ID and the native world on the owning Lua thread, serializes the bounded
+operation array before admission and uses the existing persistence replay worker
+for JDBC. Completions return to the owning Lua thread through OnTickEvenPaused.
+No mutable Lua tables or live player objects cross to the database worker.
 
-## Database map
+Manager migration **V54__Wallet_Record_Mutations.sql** creates:
 
-All tables are on **game_runtime**, schema **mod_data**. Flyway migration:
-[V50__Create_Wallet_Entity_State_And_Market_Tables.sql](Z:/git/Github/apocalipsebr-manager/manager/src/main/resources/db/game-runtime-migration/V50__Create_Wallet_Entity_State_And_Market_Tables.sql).
-
-| Runtime data | PostgreSQL table |
+| Table | Purpose |
 | --- | --- |
-| Whole wallet checkpoint, counters and active indices | `wallet_mod_data` |
-| Pending courier jobs | `wallet_courier_job` |
-| Delivery idempotency receipts | `wallet_courier_receipt` |
-| Finished courier summaries | `wallet_courier_finished` |
-| Exact native item blobs and pickup custody | `wallet_item_custody` |
-| Pending/completed debit and fulfillment orders | `wallet_purchase` |
-| Player listings | `wallet_market_listing` |
-| Reservations and trades | `wallet_market_transaction` |
-| Seller payout obligations/receipts | `wallet_market_credit` |
-| Wallet-owned per-object metadata | `wallet_item_mod_data` |
+| mod_data.entity_document_state | One small revision/token/hash row per server/world/document |
+| mod_data.entity_document_record | Independently keyed JSONB records per collection and record ID |
 
-The mapped repository is `ApocWallet.State` -> `mod_data.wallet_mod_data`, with
-composite IDs `(server_id, world, record_id)` and the existing optimistic revision
-contract. Its record ID is `global:ApocWallet.Couriers.v1`. The payload contains
-the complete wallet state. PostgreSQL projects each collection into the separate
-tables in the SAME transaction, using a trigger with upserts/deletes. This is
-intentional: a custody/listing/receipt transition cannot partially commit across
-independent entity writes. The projection tables expose each record's JSONB
-payload plus generated `state` and `owner_name` columns and scoped state indexes.
-They are read models; do not modify them independently of the checkpoint.
+The record primary key is `(server_id, world, document_id, collection, record_id)`.
+Canonical collections are `jobs`, `receipts`, `finished`, `escrow`, `purchases`,
+`itemData`, `market.listings`, `market.requests`, `market.transactions`,
+`market.credits` and `market.actions`. `$` and `market.$` store individual root
+scalar fields such as sequence counters. Payloads wrap one value as `{"value":...}`.
+Pending/open/expired indexes are rebuilt in memory from canonical records at
+startup. V50's wallet_mod_data and nine projection tables become historical
+archives; they no longer describe current wallet state after V54.
 
-The migration explicitly grants schema access, table privileges and trigger
-execution to `pz_server_01`, and preserves defaults for objects created by
-`apocalipsebr`. It requires the existing `player_rel.server` registry. No live
-migration was executed by this session.
+## Mutation and commit barriers
 
-## Asynchronous consistency
+Services name the collection/key pairs they change in `Store.persist(...)`.
+Only those records are encoded and compared with their acknowledged per-record
+value. Unchanged records cause no SQL. A delete names its exact key. There is no
+recurring whole-root serialization, history traversal, SQL snapshot replacement,
+full collection upsert or full collection delete sweep. A changed record is still
+encoded as a complete entity value, including its item blobs where applicable;
+this is record-level mutation, not a byte/field delta within an item blob.
 
-`EntityStore.lua` loads the scoped row asynchronously before activating trades.
-It serializes wallet operations in a bounded 128-task queue, deduplicated by
-command token or periodic worker name. At a persistence checkpoint the coroutine
-waits for the entity save callback. Inventory removal, HTTP debit dispatch and
-success acknowledgment proceed only AFTER the corresponding revision commits.
-Neither Lua nor the server simulation thread blocks on JDBC. Completions and
-continuations run on the normal server Lua thread, including OnTickEvenPaused.
+One SQL function call locks the small scope revision row, checks optimistic
+revision, applies at most 256 runtime operations by primary key and advances the
+revision in the same transaction. The database validates the fixed function/table
+contract; it does not repeat JDBC schema/primary-key discovery on each mutation.
+The entire batch rolls back on any invalid record. A mutation token plus digest
+recognizes an identical last committed batch after a lost acknowledgment. A
+changed body or another writer conflicts rather than overwriting data.
 
-BUSY/UNAVAILABLE admission retries after five seconds. CONFLICT/OUTCOME_UNKNOWN
-reads the authoritative row: an identical committed payload resumes once; a
-different payload aborts the operation and reloads rather than overwriting it.
-Permanent failures block new work, restore the last acknowledged snapshot and
-surface the existing PTBR recording-error response. Startup/schema failures keep
-trades unavailable and retry the entity load; local autosave is never substituted
-for a successful database acknowledgment. Economy callbacks enter the same queue
-and reacquire their records by ID before applying results.
+Wallet operations remain serialized through the bounded 128-task coroutine
+queue. Inventory removal, delivery acknowledgments and HTTP dispatch retain
+their durable business-intent barriers. Explicit listing/unit reservations and
+transactions commit together. Fulfillment receipts make later transitions
+recoverable when a process stops between commits. Native inventory and SQL still
+cannot transact atomically; uncertain interrupted custody requires review.
 
-Pickup item ownership and exact native bytes are rechecked after the asynchronous
-write-ahead acknowledgment. If the player moves/changes/equips the item while SQL
-is pending, custody is cancelled without removing that item. If a restart leaves
-an interrupted removal, recovery only takes the exact original objects still
-present; missing/mismatched objects produce `uncertain` custody requiring review,
-not an automatically published duplicate.
+BUSY/UNAVAILABLE and unknown commit outcomes replay the same bounded mutation
+at five-second intervals. SQL errors, conflicts and operation failures block the
+wallet, restore affected acknowledged records and reject queued work. They do not
+automatically resume closures holding stale record references. Diagnose the
+failure and restart/reload after resolving it; gameplay is otherwise unaffected.
 
-SQL cannot atomically transact with the game's native inventory/world files.
-The original crash limit therefore remains around the physical handoff. Stable
-receipts, native markers and uncertain custody protect recovery; this feature
-does not promise exactly-once native item survival across arbitrary JVM/power loss.
+## Retry scheduling
 
-## Global and object ModData
+Payment intents and seller obligations commit when created, before HTTP dispatch.
+Repeated API admission attempts do not resave those intents. `nextAttempt`,
+`requestId` and `attempts` are runtime scheduling fields omitted from stored
+purchase/credit records. Restart can retry immediately using the SAME durable
+idempotency key/body; backend idempotency remains required. A changed business
+response/error may update that one record; repeated equal values are skipped.
+Existing HTTP retry/error classifications are preserved.
 
-Wallet services use `EntityStore.data()` instead of `ModData.getOrCreate`.
-`EntityStore.modData(kind, id)` stores wallet-owned object metadata in the same
-checkpoint and its `wallet_item_mod_data` projection. Delivered item markers are
-written there and mirrored to the native item table for multiplayer/world retry
-recognition. Complete native item ModData/attributes remain preserved in the
-encoded custody item blobs. Native item tables are transport/game caches; wallet
-business records and checkpoints are authoritative in PostgreSQL.
+## Import, bounds and deployment
 
-This maps the wallet's ModData, not every unrelated mod's global table or all
-future changes to arbitrary vanilla objects. Existing wallet UI/balance caches
-remain transient and the backend remains authoritative for money.
+Stop BOTH wallet-enabled server instances before applying V54 through the
+manager's **game-runtime Flyway datasource**. V54 atomically converts existing V50
+wallet snapshots into independent records, preserving their source scopes and
+canonical history. Original snapshots/projections remain intact for diagnosis;
+a guard rejects writes from the retired v1 wallet so mixed versions cannot fork
+authoritative state. The old V50 migration is unchanged.
 
-On startup, an existing SQL row always wins. Only if it is NOT_FOUND does the
-store read the legacy native `ModData.get('ApocWallet.Couriers.v1')` once, copy it
-as the initial state and commit it through the entity checkpoint before enabling trades.
-It does not delete the old native data. After SQL creation, stale native data is
-ignored. Import before removing the old save files; do not run two writable
-servers against the same server/world scope.
+Deploy the updated Java patches, pack `ApocBR/Entities.lua` and wallet together,
+then restart both server JVMs and reconnect clients. Applying V54 while old
+wallet instances continue writing will deliberately make those wallets fail;
+this is a coordinated maintenance rollout. Do not simply downgrade the wallet
+against V54: the archives no longer include post-migration trades.
 
-## Deployment and verification
+An existing v2 SQL document always wins. Only NOT_FOUND permits one-time native
+`ModData.get('ApocWallet.Couriers.v1')` import. The initial creation can contain up
+to 100,000 records in one atomic transaction; normal mutations are capped at 256.
+JSON has the existing 64-level/100,000-entry collection limits and 32 MiB Java
+character bound. Startup reconstruction is capped at 100,000 records and 32 MiB
+of aggregate record/key characters. Oversize imports/loads fail explicitly,
+without partial activation. No database query runs for a ready idle store.
+Historical retention/archival remains future work; record mutations remove its
+cost from unrelated writes, but do not make retained history or startup unbounded.
 
-Apply V50 using the manager's existing game-runtime Flyway datasource. Deploy the
-updated 42.22.2 Java patch, the pack facade and wallet files together; enable the
-pack dependency, restart the JVM and reconnect clients. No change to the debit or
-credit HTTP contracts is required. An older bridge without the new contract
-leaves the wallet in startup-unavailable state.
+## Verification
 
-- `npm exec --yes --package=fengari-node-cli -- fengari tests/wallet-entity-store.lua`:
-  21 checks, using the REAL pack Lua facade with asynchronous entity/database
-  doubles. Covers import, server/world scope, delayed commits, duplicate tokens,
-  busy admission, lost acknowledgment, restart authority, metadata and item races.
-- `py -3 tools/test_wallet_store_kahlua.py` in the patches repository executes
-  those same production Lua files and checks in the installed game's actual
-  Kahlua runtime, with its stdlib. Passed.
-- `py -3 tools/test_mod_entities.py --version 42.22.2`: 326 Java mapping/worker
-  checks plus Lua lifecycle/scoped reads. Includes bounded text and JSON behavior.
-- `WalletEntityMigrationTest`: two tests passed against disposable PostgreSQL
-  17.6 using separate backend/engine roles; Flyway apply/re-run/validation, actual
-  projection updates/deletes/rollback, CAS and server/world isolation were checked.
-  The disposable cluster was stopped afterward. The first full manager test-build
-  hit unrelated missing target/classes artifacts; the focused tests were compiled
-  and run with the same POM dependencies in an isolated temporary build.
-- Existing wallet, market, courier, UI and translation regression checks remain
-  required. Exact-JAR Java BuildOnly is recorded in the engine feature guide.
+From this repository: `npm exec --yes --package=fengari-node-cli -- fengari`
+followed by each of `tests/wallet-entity-store.lua`, `tests/wallet-market.lua` and
+`tests/wallet-courier.lua`.
 
-Still required: live dedicated-server startup/import, PostgreSQL outage recovery,
-real item removal/replication, offline delivery and restart validation with this
-deployment combination. No live database or server was deployed/restarted here.
+The mutation fixture uses the real pack facade/store/services with an async
+transport double. It covers import, delayed commits, busy admission, unknown
+commit replay, metadata, item races, targeted deletes, unchanged writes,
+3,000-record retained history, retry bookkeeping, payment admission without SQL,
+queue reconstruction and fail-closed conflict handling. Java/Kahlua and actual
+PostgreSQL validation commands/results are in the linked hotfix.
+
+No production migration, server restart, deployment or live CPU benchmark was
+performed. Real multiplayer item handoff, reconnect/restart and recovery during
+an actual database/API outage remain deployment smoke tests.

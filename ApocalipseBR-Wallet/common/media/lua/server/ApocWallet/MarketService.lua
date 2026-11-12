@@ -23,7 +23,10 @@ local function data()
         for id,l in pairs(d.market.listings) do if l.state=='expired' then d.market.expiredListings[id]=true end end
     end
     d.market.actions=d.market.actions or {}
-    d.market.pendingActions=d.market.pendingActions or {}
+    if not d.market.pendingActions then
+        d.market.pendingActions={}
+        for id,a in pairs(d.market.actions) do if not a.done then d.market.pendingActions[id]=true end end
+    end
     return d.market
 end
 M.data=data
@@ -91,10 +94,10 @@ local function expire(listing,t)
     if listing.state~='open' then return end
     if not listing.expiresAt then
         listing.expiresAt=(listing.openedAt or listing.createdAt or t)+P.LISTING_LIFETIME
-        Courier.persist()
+        Courier.persist('market.listings',listing.id)
     end
     if t>=listing.expiresAt then
-        listing.state='expired'; data().openListings[listing.id]=nil; data().expiredListings[listing.id]=true; Courier.persist()
+        listing.state='expired'; data().openListings[listing.id]=nil; data().expiredListings[listing.id]=true; Courier.persist('market.listings',listing.id)
     end
 end
 local function recover(action)
@@ -103,7 +106,7 @@ local function recover(action)
     if not job then return nil,error=='COURIER_QUEUE_FULL' and 'WAIT' or 'UNAVAILABLE' end
     for _,i in ipairs(action.indices) do listing.units[i].state='returned' end
     d.expiredListings[listing.id]=nil
-    action.jobId=job; action.done=true; d.pendingActions[action.id]=nil; Courier.persist()
+    action.jobId=job; action.done=true; d.pendingActions[action.id]=nil; Courier.persist('market.actions',action.id,'market.listings',listing.id)
     return action
 end
 local function manage(player,args,c,command)
@@ -128,7 +131,7 @@ local function manage(player,args,c,command)
         for _ in pairs(d.collecting) do active=active+1 end
         if active>=2048 then return nil,'WAIT' end
         listing.state='open'; listing.openedAt=getTimestampMs(); listing.expiresAt=listing.openedAt+P.LISTING_LIFETIME
-        d.openListings[listing.id]=true; d.expiredListings[listing.id]=nil; action.done=true; d.actions[key]=action; Courier.persist()
+        d.openListings[listing.id]=true; d.expiredListings[listing.id]=nil; action.done=true; d.actions[key]=action; Courier.persist('market.actions',key,'market.listings',listing.id)
         return action
     end
     action.owner=player:getUsername(); action.destination=Courier.capture(player)
@@ -140,7 +143,7 @@ local function manage(player,args,c,command)
             action.indices[#action.indices+1]=i; unit.state='returning'
         end
     end
-    d.actions[key]=action; d.pendingActions[key]=true; Courier.persist()
+    d.actions[key]=action; d.pendingActions[key]=true; Courier.persist('market.actions',key,'market.listings',listing.id)
     return recover(action)
 end
 local function inventory(player,session)
@@ -239,10 +242,10 @@ local function post(player,session,args,c)
     end
     local id=listing.id
     listing.state='collecting'; listing.error=nil; listing.createdAt=getTimestampMs()
-    d.listings[id]=listing; d.requests[request]=id; d.collecting[id]=true; Courier.persist()
+    d.listings[id]=listing; d.requests[request]=id; d.collecting[id]=true; Courier.persist('market.listings',id,'market.requests',request,'market.$','seq')
     local job,error=Courier.pickup(player,args.token,items)
     if not job then
-        listing.state='rejected'; listing.error=error; d.collecting[id]=nil; Courier.persist()
+        listing.state='rejected'; listing.error=error; d.collecting[id]=nil; Courier.persist('market.listings',id)
         print('[ApocWallet] pickup rejected: '..tostring(error))
         local errors={ITEM_UNAVAILABLE='ITEM',COURIER_QUEUE_FULL='WAIT',PERSISTENCE_API_UNAVAILABLE='STORAGE'}
         return nil,errors[error] or 'UNAVAILABLE'
@@ -256,9 +259,9 @@ local function reconcileListing(listing)
         for i,spec in ipairs(escrow.items) do listing.units[i]={blob=spec.blob,state='available'} end
         escrow.state='market'; listing.state='open'; listing.jobId=escrow.jobId
         listing.openedAt=getTimestampMs(); listing.expiresAt=listing.openedAt+P.LISTING_LIFETIME
-        local d=data(); d.collecting[listing.id]=nil; d.openListings[listing.id]=true; Courier.persist()
+        local d=data(); d.collecting[listing.id]=nil; d.openListings[listing.id]=true; Courier.persist('market.listings',listing.id,'escrow',listing.escrow)
     elseif listing.state=='collecting' and not escrow and getTimestampMs()-(listing.createdAt or 0)>10000 then
-        listing.state='interrupted'; data().collecting[listing.id]=nil; Courier.persist()
+        listing.state='interrupted'; data().collecting[listing.id]=nil; Courier.persist('market.listings',listing.id)
     end
 end
 local function buy(player,session,args,c)
@@ -281,7 +284,7 @@ local function buy(player,session,args,c)
             tx.items[#tx.items+1]={type=listing.type,count=1,blob=unit.blob}; tx.indices[#tx.indices+1]=i
         end
     end
-    d.transactions[txid]=tx; d.pendingTransactions[txid]=true; Courier.persist()
+    d.transactions[txid]=tx; d.pendingTransactions[txid]=true; Courier.persist('market.transactions',txid,'market.listings',listing.id)
     return tx
 end
 function M.handle(player,command,args)
@@ -345,7 +348,10 @@ local function settlement(tx)
             local unit=listing.units[i]
             if unit.transaction==tx.id then unit.state='available'; unit.transaction=nil end
         end
-        tx.state='failed'; tx.error=order.error; d.pendingTransactions[tx.id]=nil; d.openListings[listing.id]=listing.state=='open' and true or nil; expire(listing,getTimestampMs()); Courier.persist()
+        tx.state='failed'; tx.error=order.error; d.pendingTransactions[tx.id]=nil
+        d.openListings[listing.id]=listing.state=='open' and true or nil
+        Courier.persist('market.transactions',tx.id,'market.listings',listing.id)
+        expire(listing,getTimestampMs())
     elseif order.state=='fulfilled' then
         for _,i in ipairs(tx.indices) do listing.units[i].state='sold' end
         tx.state='complete'; tx.jobId=order.jobId
@@ -355,7 +361,7 @@ local function settlement(tx)
             key=listing.seller.characterId..':sale:'..listing.id..':'..tx.requestKey,nextAttempt=0}
         d.pendingCredits[tx.id]=true; d.pendingTransactions[tx.id]=nil
         if available(listing)==0 then d.openListings[listing.id]=nil end
-        Courier.persist()
+        Courier.persist('market.transactions',tx.id,'market.listings',listing.id,'market.credits',tx.id)
     end
 end
 local function credit(entry,t)
@@ -363,7 +369,9 @@ local function credit(entry,t)
     local c=entry.context
     local params=string.format('{"runtimeUuid":"%s","steamId":"%s","sourceServerId":%.0f,"amount":%.0f,"reason":"market.sale","idempotencyKey":"%s"}',
         c.characterId,c.steamId,c.sourceServerId,entry.amount,entry.key)
-    entry.nextAttempt=t+70000; Courier.persist()
+    -- The seller obligation already committed during settlement. Admission
+    -- scheduling must not rewrite it.
+    entry.nextAttempt=t+70000
     local requestId
     local ok,id=pcall(ApocBrApiBridge.request,ApocBrApiBridge.CHARACTER_CREDIT,params,function(r)
         Store.run('credit-result:'..tostring(requestId),function()
@@ -373,7 +381,7 @@ local function credit(entry,t)
         if r.ok and r.idempotencyKey==entry.key then
             entry.state='paid'; entry.transactionId=r.transactionId; data().pendingCredits[entry.id]=nil
         else entry.error=r.error; entry.nextAttempt=getTimestampMs()+60000 end
-        Courier.persist()
+        Courier.persist('market.credits',entry.id)
         end)
     end)
     if ok and id then requestId=id; entry.requestId=id else entry.nextAttempt=t+5000 end

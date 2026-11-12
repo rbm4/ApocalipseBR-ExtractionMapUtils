@@ -47,7 +47,7 @@ function Service.enqueue(context, user, destination, requestKey, quote, callback
         state='pending',nextAttempt=0,attempts=0}
     for i,sp in ipairs(quote.items) do order.items[i]={type=sp.type,count=sp.count,blob=sp.blob} end
     d.purchases[id]=order; d.pendingPurchases[id]=true; Service.callbacks[id]=callback
-    Courier.persist()
+    Courier.persist('purchases',id)
     Service.update()
     return id
 end
@@ -61,10 +61,10 @@ local function submit(order,t)
     end
     local parameters=string.format('{"runtimeUuid":"%s","steamId":"%s","sourceServerId":%.0f,"amount":%.0f,"reason":"%s","idempotencyKey":"%s"}',
         order.characterId,order.steamId,order.sourceServerId,order.amount,order.reason,order.id)
-    order.attempts=order.attempts+1
-    -- Persisted before dispatch; retrying after shutdown uses the identical key/body.
+    order.attempts=(order.attempts or 0)+1
+    -- The business intent was committed by enqueue. Admission timers and HTTP
+    -- handles stay in memory; retries replay the same durable idempotency key.
     order.nextAttempt=t+70000
-    Courier.persist()
     local requestId
     local ok,id=pcall(ApocBrApiBridge.request,ApocBrApiBridge.CHARACTER_DEBIT,parameters,function(response)
         Store.run('debit-result:'..tostring(requestId),function()
@@ -83,7 +83,7 @@ local function submit(order,t)
             order.error=response.error or 'INVALID_DEBIT_RESPONSE'
             order.nextAttempt=getTimestampMs()+math.min(60000,1500*2^math.min(order.attempts,5))
         end
-        Courier.persist(); notify(order)
+        Courier.persist('purchases',order.id); notify(order)
         end)
     end)
     if ok and id then requestId=id; order.requestId=id
@@ -99,7 +99,7 @@ function Service.update()
         local order=d.purchases[id]
         if order.state=='paid' then
             local job,error=Courier.delivery(order.owner,order.id,order.destination,order.items)
-            if job then order.jobId=job; order.state='fulfilled'; order.error=nil; d.pendingPurchases[id]=nil; Courier.persist(); notify(order)
+            if job then order.jobId=job; order.state='fulfilled'; order.error=nil; d.pendingPurchases[id]=nil; Courier.persist('purchases',order.id); notify(order)
             else order.error=error end
         elseif order.state=='pending' and t>=(order.nextAttempt or 0) then submit(order,t); break end
     end

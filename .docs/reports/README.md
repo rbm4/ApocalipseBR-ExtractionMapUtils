@@ -17,6 +17,8 @@ in `../hotfixes/`. Update those documents when a report leads to a change.
 
 ## Investigations
 
+- [2026-11-12: Wallet PostgreSQL CPU review](2026-11-12-wallet-postgres-cpu-review.md): source findings, attribution limits and read-only SQL capture.
+
 - [2026-10-20: Quest RPG UI and synchronization](2026-10-20-quest-rpg-ui-and-sync-investigation.md):
   tracker/theme/toast extraction candidates, existing login/progress patterns,
   dependencies and proposed server-owned objective synchronization.
